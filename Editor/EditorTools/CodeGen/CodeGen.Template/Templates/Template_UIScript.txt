@@ -1,0 +1,50 @@
+using UnityEngine;
+using System.Collections;
+using UnityEngine.UI;
+using System;
+using Saro.UI;
+
+
+namespace #NAMESPACE#.UI
+{
+    public sealed partial class #SCRIPTNAME# : SingletonUI<#SCRIPTNAME#, UIBinder>
+    {
+        #region Impl
+        
+        protected override void InternalAwake()
+        {
+            GetComps();
+            //Listen(Binder.Get<Button>("btn_close").onClick, Close);
+        }
+
+        protected override void InternalStart()
+        {
+        }
+
+        protected override void InternalUpdate(float deltaTime)
+        {
+        }
+
+        protected override void InternalClose()
+        {
+        }
+
+        #endregion
+    }
+
+    public partial class #SCRIPTNAME#
+    {
+        // =============================================
+        // code generate between >>begin and <<end
+        // don't modify this scope
+
+        //>>begin
+
+        private void GetComps()
+        { }
+
+        //<<end
+
+        // =============================================
+    }
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Markmap</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+#mindmap {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markmap-toolbar@0.2.0/dist/style.css">
+</head>
+<body>
+<svg id="mindmap"></svg>
+<script src="https://cdn.jsdelivr.net/npm/d3@6.7.0"></script><script src="https://cdn.jsdelivr.net/npm/markmap-view@0.2.7"></script><script src="https://cdn.jsdelivr.net/npm/markmap-toolbar@0.2.0/dist/index.umd.min.js"></script><script>(r => {
+                setTimeout(r);
+              })(() => {
+  const {
+    markmap,
+    mm
+  } = window;
+  const toolbar = new markmap.Toolbar();
+  toolbar.attach(mm);
+  const el = toolbar.render();
+  el.setAttribute('style', 'position:absolute;bottom:20px;right:20px');
+  document.body.append(el);
+})</script><script>((getMarkmap, getOptions, data) => {
+        const {
+          Markmap
+        } = getMarkmap();
+        window.mm = Markmap.create('svg#mindmap', getOptions == null ? void 0 : getOptions(), data);
+      })(() => window.markmap,null,{"t":"heading","d":1,"p":{"lines":[2,3]},"v":"MGF","c":[{"t":"heading","d":2,"p":{"lines":[4,5]},"v":"Core","c":[{"t":"list_item","d":4,"p":{"lines":[6,7]},"v":"Main","c":[{"t":"list_item","d":6,"p":{"lines":[7,8]},"v":"框架入口"},{"t":"list_item","d":6,"p":{"lines":[8,9]},"v":"Mono回调"},{"t":"list_item","d":6,"p":{"lines":[9,10]},"v":"开启协程"}]},{"t":"list_item","d":4,"p":{"lines":[10,11]},"v":"Service","c":[{"t":"list_item","d":6,"p":{"lines":[11,12]},"v":"简易服务器定位"},{"t":"list_item","d":6,"p":{"lines":[12,13]},"v":"代替单例"}]},{"t":"list_item","d":4,"p":{"lines":[13,14]},"v":"UniTask","c":[{"t":"list_item","d":6,"p":{"lines":[14,15]},"v":"async/await异步编程"},{"t":"list_item","d":6,"p":{"lines":[15,16]},"v":"一定程度解决回调地狱"}]},{"t":"list_item","d":4,"p":{"lines":[16,17]},"v":"Event","c":[{"t":"list_item","d":6,"p":{"lines":[17,18]},"v":"基于EventHandler/EventArgs的事件系统"},{"t":"list_item","d":6,"p":{"lines":[18,19]},"v":"可全局使用、也可局部使用"}]},{"t":"list_item","d":4,"p":{"lines":[19,20]},"v":"Memory","c":[{"t":"list_item","d":6,"p":{"lines":[20,21]},"v":"SharedPool，只考虑管理c#对象"},{"t":"list_item","d":6,"p":{"lines":[21,22]},"v":"ObjectPool，取自UGUI，可以管理任何对象"}]},{"t":"list_item","d":4,"p":{"lines":[22,23]},"v":"Assets","c":[{"t":"list_item","d":6,"p":{"lines":[23,24]},"v":"基于XAsset4.x改写"},{"t":"list_item","d":6,"p":{"lines":[24,25]},"v":"管理Editor、Runtime的资源加载"},{"t":"list_item","d":6,"p":{"lines":[25,26]},"v":"一键打包"},{"t":"list_item","d":6,"p":{"lines":[26,27]},"v":"打包流程扩展"},{"t":"list_item","d":6,"p":{"lines":[27,28]},"v":"资源依赖分析"},{"t":"list_item","d":6,"p":{"lines":[28,29]},"v":"资源分组策略"},{"t":"list_item","d":6,"p":{"lines":[29,30]},"v":"内置资源打包"},{"t":"list_item","d":6,"p":{"lines":[30,31]},"v":"资源更新（WIP）"}]},{"t":"list_item","d":4,"p":{"lines":[31,32]},"v":"VirtualFileSystem","c":[{"t":"list_item","d":6,"p":{"lines":[32,33]},"v":"减少小文件数量"},{"t":"list_item","d":6,"p":{"lines":[33,34]},"v":"提高IO效率"}]},{"t":"list_item","d":4,"p":{"lines":[34,35]},"v":"Net","c":[{"t":"list_item","d":6,"p":{"lines":[35,36]},"v":"文件下载器"},{"t":"list_item","d":6,"p":{"lines":[36,37]},"v":"Http封装(WIP)"},{"t":"list_item","d":6,"p":{"lines":[37,38]},"v":"TCP、KCP封装"}]},{"t":"list_item","d":4,"p":{"lines":[38,39]},"v":"Collections","c":[{"t":"list_item","d":6,"p":{"lines":[39,40]},"v":"TBinaryHeap"},{"t":"list_item","d":6,"p":{"lines":[40,41]},"v":"TLRUCache"},{"t":"list_item","d":6,"p":{"lines":[41,42]},"v":"TMultiMap"},{"t":"list_item","d":6,"p":{"lines":[42,43]},"v":"TSortedMultiMap"},{"t":"list_item","d":6,"p":{"lines":[43,44]},"v":"TLinkedList（Node缓存）"}]},{"t":"list_item","d":4,"p":{"lines":[44,45]},"v":"Utils","c":[{"t":"list_item","d":6,"p":{"lines":[45,46]},"v":"插值"},{"t":"list_item","d":6,"p":{"lines":[46,47]},"v":"曲线"},{"t":"list_item","d":6,"p":{"lines":[47,48]},"v":"加密"},{"t":"list_item","d":6,"p":{"lines":[48,49]},"v":"哈希"},{"t":"list_item","d":6,"p":{"lines":[49,50]},"v":"反射"},{"t":"list_item","d":6,"p":{"lines":[50,51]},"v":"动画曲线"}]}]},{"t":"heading","d":2,"p":{"lines":[52,53]},"v":"Common","c":[{"t":"list_item","d":4,"p":{"lines":[54,55]},"v":"DataTable","c":[{"t":"list_item","d":6,"p":{"lines":[55,56]},"v":"excel生成二进制数据"},{"t":"list_item","d":6,"p":{"lines":[56,57]},"v":"支持1-4个int作为key"},{"t":"list_item","d":6,"p":{"lines":[57,58]},"v":"代码自动生成"}]},{"t":"list_item","d":4,"p":{"lines":[58,59]},"v":"Audio","c":[{"t":"list_item","d":6,"p":{"lines":[59,60]},"v":"UnityFMOD"},{"t":"list_item","d":6,"p":{"lines":[60,61]},"v":"Wwise(TODO)"}]},{"t":"list_item","d":4,"p":{"lines":[61,62]},"v":"UI","c":[{"t":"list_item","d":6,"p":{"lines":[62,63]},"v":"自动组件绑定，代码生成"},{"t":"list_item","d":6,"p":{"lines":[63,64]},"v":"可扩展的UI动画组件"},{"t":"list_item","d":6,"p":{"lines":[64,65]},"v":"UI窗体管理、窗体组件抽象"},{"t":"list_item","d":6,"p":{"lines":[65,66]},"v":"UI层级支持"},{"t":"list_item","d":6,"p":{"lines":[66,67]},"v":"UI模板预制体（TODO）"}]},{"t":"list_item","d":4,"p":{"lines":[67,68]},"v":"本地化支持","c":[{"t":"list_item","d":6,"p":{"lines":[68,69]},"v":"可自定义数据源"},{"t":"list_item","d":6,"p":{"lines":[69,70]},"v":"可本地化各种资源"}]},{"t":"list_item","d":4,"p":{"lines":[70,71]},"v":"Lua模块（Obsolete，考虑接入huatuo了）"}]},{"t":"heading","d":2,"p":{"lines":[72,73]},"v":"Workflow","c":[{"t":"list_item","d":4,"p":{"lines":[74,75]},"v":"CodeGen","c":[{"t":"list_item","d":6,"p":{"lines":[75,76]},"v":"EventArgs、UI等代码模板"}]},{"t":"list_item","d":4,"p":{"lines":[76,77]},"v":"读PSD文件，生成UGUI预制件（TODO 仍需考量做到什么程度）"},{"t":"list_item","d":4,"p":{"lines":[77,78]},"v":"Editor","c":[{"t":"list_item","d":6,"p":{"lines":[78,79]},"v":"多种Attributes扩展编辑器功能"},{"t":"list_item","d":6,"p":{"lines":[79,80]},"v":"提供模型预览窗口"}]}]},{"t":"heading","d":2,"p":{"lines":[81,82]},"v":"Gameplay","c":[{"t":"list_item","d":4,"p":{"lines":[83,84]},"v":"游戏性标记（GameplayTag）"},{"t":"list_item","d":4,"p":{"lines":[84,85]},"v":"角色属性系统（GameplayAttribute）"},{"t":"list_item","d":4,"p":{"lines":[85,86]},"v":"技能系统（ability、buff）（WIP）"},{"t":"list_item","d":4,"p":{"lines":[86,87]},"v":"Motion系统（动编）（WIP）"},{"t":"list_item","d":4,"p":{"lines":[87,88]},"v":"路径系统（cinemachine的）"},{"t":"list_item","d":4,"p":{"lines":[88,89]},"v":"场景交互系统（3dGamekit的）"},{"t":"list_item","d":4,"p":{"lines":[89,90]},"v":"2D纸娃娃换装系统"},{"t":"list_item","d":4,"p":{"lines":[90,91]},"v":"任务系统（WIP）"},{"t":"list_item","d":4,"p":{"lines":[91,92]},"v":"剧情脚本系统（TODO）"}]}]})</script>
+</body>
+</html>

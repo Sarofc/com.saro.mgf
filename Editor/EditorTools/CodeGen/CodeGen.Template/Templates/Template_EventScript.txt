@@ -1,0 +1,25 @@
+using Saro.Events;
+
+namespace #NAMESPACE#
+{
+    public sealed class #SCRIPTNAME# : GameEventArgs, IReference
+    {
+        public override int ID => s_EventID;
+        public readonly static int s_EventID = typeof(#SCRIPTNAME#).GetHashCode();
+
+        // properties
+
+        public static #SCRIPTNAME# Create()
+        {
+            var args = SharedPool.Rent<#SCRIPTNAME#>();
+            // init
+            return args;
+        }
+
+
+        public override void IReferenceClear()
+        {
+            // clear
+        }
+    }
+}
