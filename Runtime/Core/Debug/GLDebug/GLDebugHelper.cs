@@ -9,19 +9,20 @@ namespace Saro.Diagnostics
         Both
     }
 
+    // TODO api 参数位置调整！
     public static class GLDebugHelper
     {
-        public static void DebugSquare(Vector3 origin, Vector3 halfExtents, Color color, Quaternion orientation,
+        public static void DebugSquare(Vector3 origin, Vector3 extents, Color color, Quaternion orientation,
                                        float drawDuration = 0, EGLDebug preview = EGLDebug.Editor)
         {
             Vector3 forward = orientation * Vector3.forward;
             Vector3 up = orientation * Vector3.up;
             Vector3 right = orientation * Vector3.right;
 
-            Vector3 topMinY1 = origin + (right * halfExtents.x) + (up * halfExtents.y) + (forward * halfExtents.z);
-            Vector3 topMaxY1 = origin - (right * halfExtents.x) + (up * halfExtents.y) + (forward * halfExtents.z);
-            Vector3 botMinY1 = origin + (right * halfExtents.x) - (up * halfExtents.y) + (forward * halfExtents.z);
-            Vector3 botMaxY1 = origin - (right * halfExtents.x) - (up * halfExtents.y) + (forward * halfExtents.z);
+            Vector3 topMinY1 = origin + (right * extents.x) + (up * extents.y) + (forward * extents.z);
+            Vector3 topMaxY1 = origin - (right * extents.x) + (up * extents.y) + (forward * extents.z);
+            Vector3 botMinY1 = origin + (right * extents.x) - (up * extents.y) + (forward * extents.z);
+            Vector3 botMaxY1 = origin - (right * extents.x) - (up * extents.y) + (forward * extents.z);
 
             bool drawEditor = false;
             bool drawGame = false;
@@ -59,7 +60,7 @@ namespace Saro.Diagnostics
             }
         }
 
-        public static void DebugBox(Vector3 origin, Vector3 halfExtents, Vector3 direction, float maxDistance, Color color,
+        public static void DebugBox(Vector3 origin, Vector3 extents, Vector3 direction, float maxDistance, Color color,
                                     Quaternion orientation, Color endColor, bool drawBase = true, float drawDuration = 0,
                                     EGLDebug preview = EGLDebug.Editor)
         {
@@ -72,28 +73,28 @@ namespace Saro.Diagnostics
             #region Coords
             #region End coords
             //trans.position = end;
-            Vector3 topMinX0 = end + (right * halfExtents.x) + (up * halfExtents.y) - (forward * halfExtents.z);
-            Vector3 topMaxX0 = end - (right * halfExtents.x) + (up * halfExtents.y) - (forward * halfExtents.z);
-            Vector3 topMinY0 = end + (right * halfExtents.x) + (up * halfExtents.y) + (forward * halfExtents.z);
-            Vector3 topMaxY0 = end - (right * halfExtents.x) + (up * halfExtents.y) + (forward * halfExtents.z);
+            Vector3 topMinX0 = end + (right * extents.x) + (up * extents.y) - (forward * extents.z);
+            Vector3 topMaxX0 = end - (right * extents.x) + (up * extents.y) - (forward * extents.z);
+            Vector3 topMinY0 = end + (right * extents.x) + (up * extents.y) + (forward * extents.z);
+            Vector3 topMaxY0 = end - (right * extents.x) + (up * extents.y) + (forward * extents.z);
 
-            Vector3 botMinX0 = end + (right * halfExtents.x) - (up * halfExtents.y) - (forward * halfExtents.z);
-            Vector3 botMaxX0 = end - (right * halfExtents.x) - (up * halfExtents.y) - (forward * halfExtents.z);
-            Vector3 botMinY0 = end + (right * halfExtents.x) - (up * halfExtents.y) + (forward * halfExtents.z);
-            Vector3 botMaxY0 = end - (right * halfExtents.x) - (up * halfExtents.y) + (forward * halfExtents.z);
+            Vector3 botMinX0 = end + (right * extents.x) - (up * extents.y) - (forward * extents.z);
+            Vector3 botMaxX0 = end - (right * extents.x) - (up * extents.y) - (forward * extents.z);
+            Vector3 botMinY0 = end + (right * extents.x) - (up * extents.y) + (forward * extents.z);
+            Vector3 botMaxY0 = end - (right * extents.x) - (up * extents.y) + (forward * extents.z);
             #endregion
 
             #region Origin coords
             //trans.position = origin;
-            Vector3 topMinX1 = origin + (right * halfExtents.x) + (up * halfExtents.y) - (forward * halfExtents.z);
-            Vector3 topMaxX1 = origin - (right * halfExtents.x) + (up * halfExtents.y) - (forward * halfExtents.z);
-            Vector3 topMinY1 = origin + (right * halfExtents.x) + (up * halfExtents.y) + (forward * halfExtents.z);
-            Vector3 topMaxY1 = origin - (right * halfExtents.x) + (up * halfExtents.y) + (forward * halfExtents.z);
+            Vector3 topMinX1 = origin + (right * extents.x) + (up * extents.y) - (forward * extents.z);
+            Vector3 topMaxX1 = origin - (right * extents.x) + (up * extents.y) - (forward * extents.z);
+            Vector3 topMinY1 = origin + (right * extents.x) + (up * extents.y) + (forward * extents.z);
+            Vector3 topMaxY1 = origin - (right * extents.x) + (up * extents.y) + (forward * extents.z);
 
-            Vector3 botMinX1 = origin + (right * halfExtents.x) - (up * halfExtents.y) - (forward * halfExtents.z);
-            Vector3 botMaxX1 = origin - (right * halfExtents.x) - (up * halfExtents.y) - (forward * halfExtents.z);
-            Vector3 botMinY1 = origin + (right * halfExtents.x) - (up * halfExtents.y) + (forward * halfExtents.z);
-            Vector3 botMaxY1 = origin - (right * halfExtents.x) - (up * halfExtents.y) + (forward * halfExtents.z);
+            Vector3 botMinX1 = origin + (right * extents.x) - (up * extents.y) - (forward * extents.z);
+            Vector3 botMaxX1 = origin - (right * extents.x) - (up * extents.y) - (forward * extents.z);
+            Vector3 botMinY1 = origin + (right * extents.x) - (up * extents.y) + (forward * extents.z);
+            Vector3 botMaxY1 = origin - (right * extents.x) - (up * extents.y) + (forward * extents.z);
             #endregion
             #endregion
 
@@ -227,22 +228,22 @@ namespace Saro.Diagnostics
             #endregion
         }
 
-        public static void DebugBox(Vector3 origin, Vector3 halfExtents, Color color, Quaternion orientation,
+        public static void DebugBox(Vector3 origin, Vector3 extents, Color color, Quaternion orientation,
                                     float drawDuration = 0, EGLDebug preview = EGLDebug.Editor)
         {
             Vector3 forward = orientation * Vector3.forward;
             Vector3 up = orientation * Vector3.up;
             Vector3 right = orientation * Vector3.right;
 
-            Vector3 topMinX1 = origin + (right * halfExtents.x) + (up * halfExtents.y) - (forward * halfExtents.z);
-            Vector3 topMaxX1 = origin - (right * halfExtents.x) + (up * halfExtents.y) - (forward * halfExtents.z);
-            Vector3 topMinY1 = origin + (right * halfExtents.x) + (up * halfExtents.y) + (forward * halfExtents.z);
-            Vector3 topMaxY1 = origin - (right * halfExtents.x) + (up * halfExtents.y) + (forward * halfExtents.z);
+            Vector3 topMinX1 = origin + (right * extents.x) + (up * extents.y) - (forward * extents.z);
+            Vector3 topMaxX1 = origin - (right * extents.x) + (up * extents.y) - (forward * extents.z);
+            Vector3 topMinY1 = origin + (right * extents.x) + (up * extents.y) + (forward * extents.z);
+            Vector3 topMaxY1 = origin - (right * extents.x) + (up * extents.y) + (forward * extents.z);
 
-            Vector3 botMinX1 = origin + (right * halfExtents.x) - (up * halfExtents.y) - (forward * halfExtents.z);
-            Vector3 botMaxX1 = origin - (right * halfExtents.x) - (up * halfExtents.y) - (forward * halfExtents.z);
-            Vector3 botMinY1 = origin + (right * halfExtents.x) - (up * halfExtents.y) + (forward * halfExtents.z);
-            Vector3 botMaxY1 = origin - (right * halfExtents.x) - (up * halfExtents.y) + (forward * halfExtents.z);
+            Vector3 botMinX1 = origin + (right * extents.x) - (up * extents.y) - (forward * extents.z);
+            Vector3 botMaxX1 = origin - (right * extents.x) - (up * extents.y) - (forward * extents.z);
+            Vector3 botMinY1 = origin + (right * extents.x) - (up * extents.y) + (forward * extents.z);
+            Vector3 botMaxY1 = origin - (right * extents.x) - (up * extents.y) + (forward * extents.z);
 
             bool drawEditor = false;
             bool drawGame = false;
