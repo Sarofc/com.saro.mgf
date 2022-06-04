@@ -98,8 +98,9 @@ namespace Saro.Diagnostics
                     s_Mat = new Material(zOnShader);
                 }
 
-                s_Mat.hideFlags = HideFlags.HideAndDontSave;
-                s_Mat.shader.hideFlags = HideFlags.HideAndDontSave;
+                // 内置的shader 不要改！！！
+                //s_Mat.hideFlags = HideFlags.HideAndDontSave;
+                //s_Mat.shader.hideFlags = HideFlags.HideAndDontSave;
             }
         }
 
