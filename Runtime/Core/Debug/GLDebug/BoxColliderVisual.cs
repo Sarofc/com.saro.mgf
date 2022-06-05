@@ -19,7 +19,7 @@ namespace Saro.Diagnostics
             Vector3 v3Center = m_BoxCollider.center + transform.position;
             Vector3 v3Extents = m_BoxCollider.size / 2f;
 
-            GLDebugHelper.DebugBox(v3Center, v3Extents, color, transform.rotation, Time.deltaTime, preview: EGLDebug.Both);
+            GLDebug.DebugBox(v3Center, v3Extents, color, transform.rotation, Time.deltaTime, preview: EGLDebug.Both);
         }
     }
 }

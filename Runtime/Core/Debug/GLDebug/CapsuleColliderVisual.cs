@@ -30,7 +30,7 @@ namespace Saro.Diagnostics
             baseSphere = baseSphere + transform.up * (halfHeight - radius);
             endSphere = endSphere - transform.up * (halfHeight - radius);
 
-            GLDebugHelper.DebugCapsule(baseSphere, endSphere, color, radius, drawDuration: Time.deltaTime, preview: EGLDebug.Both);
+            GLDebug.DebugCapsule(baseSphere, endSphere, color, radius, drawDuration: Time.deltaTime, preview: EGLDebug.Both);
         }
     }
 }

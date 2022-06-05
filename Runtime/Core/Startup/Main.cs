@@ -101,18 +101,19 @@ namespace Saro
             onFixedUpdate = null;
             onLateUpdate = null;
 
-#if DEBUG
             onGUI = null;
+
+#if DEBUG
             onDrawGizmos = null;
 #endif
         }
 
-#if DEBUG
         private void OnGUI()
         {
             onGUI?.Invoke();
         }
 
+#if DEBUG
         private void OnDrawGizmos()
         {
             onDrawGizmos?.Invoke();
@@ -200,30 +201,31 @@ namespace Saro
         /// </summary>
         public static FDelegates onApplicationQuit = new();
 
-#if DEBUG
         private static event Action onGUI;
+
+#if DEBUG
         private static event Action onDrawGizmos;
 #endif
 
         /// <summary>
         /// [DEBUG] 注册 Mono OnGUI 回调
         /// </summary>
-        [System.Diagnostics.Conditional("DEBUG")]
+        //[System.Diagnostics.Conditional("DEBUG")]
         public static void AddOnGUIListener(Action guiDelegate)
         {
-#if DEBUG
             onGUI += guiDelegate;
+#if DEBUG
 #endif
         }
 
         /// <summary>
         /// [DEBUG] 反注册 Mono OnGUI 回调
         /// </summary>
-        [System.Diagnostics.Conditional("DEBUG")]
+        //[System.Diagnostics.Conditional("DEBUG")]
         public static void RemoveOnGUIListener(Action guiDelegate)
         {
-#if DEBUG
             onGUI -= guiDelegate;
+#if DEBUG
 #endif
         }
 
