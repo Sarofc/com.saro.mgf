@@ -151,8 +151,8 @@ namespace Saro.Diagnostics
                 return;
             }
 
+            GL.PushMatrix();
             s_Mat.SetPass(0);
-
             GL.Begin(GL.LINES);
             for (int num = m_Lines.Count - 1; num >= 0; num--)
             {
@@ -161,8 +161,8 @@ namespace Saro.Diagnostics
                     m_Lines.RemoveAt(num);
                 }
             }
-
             GL.End();
+            GL.PopMatrix();
         }
 
         public static void DrawLine(Vector3 start, Vector3 end, Color? color = null, float duration = 0f)
