@@ -17,7 +17,7 @@ namespace Saro.Core.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var AssetIDAttribute = (AssetTableIDAttribute)attribute;
-            if (AssetIDAttribute.ShowPathPreview)
+            if (AssetIDAttribute.ShowObjectPreview)
             {
                 position.height -= k_PathPreviewHeight;
             }
@@ -44,7 +44,7 @@ namespace Saro.Core.Editor
             EditorGUI.PropertyField(position, property);
             GUI.color = color;
 
-            if (AssetIDAttribute.ShowPathPreview)
+            if (AssetIDAttribute.ShowObjectPreview)
             {
                 position.y += k_PathPreviewHeight;
                 position = EditorGUI.PrefixLabel(position, new GUIContent("\t"));
@@ -69,7 +69,7 @@ namespace Saro.Core.Editor
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            if (IsPropertyTypeValid(property) && ((AssetTableIDAttribute)attribute).ShowPathPreview)
+            if (IsPropertyTypeValid(property) && ((AssetTableIDAttribute)attribute).ShowObjectPreview)
             {
                 return base.GetPropertyHeight(property, label) + k_PathPreviewHeight;
             }

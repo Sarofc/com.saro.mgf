@@ -6,11 +6,11 @@ namespace Saro.Core
     [AttributeUsage(AttributeTargets.Field)]
     public class AssetTableIDAttribute : PropertyAttribute
     {
-        public bool ShowPathPreview { get; }
+        public bool ShowObjectPreview { get; }
 
-        public AssetTableIDAttribute(bool showPathPreview = false)
+        public AssetTableIDAttribute(bool showObjectPreview = false)
         {
-            ShowPathPreview = showPathPreview;
+            ShowObjectPreview = showObjectPreview;
         }
     }
 }
