@@ -5,6 +5,7 @@ using System.IO;
 using Saro.Attributes;
 using Saro.Utility;
 using UnityEngine;
+using System.Text;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -24,6 +25,10 @@ namespace Saro.Core
 
         public const string k_Path = "Assets/Res/AssetTable.asset";
 
+#if ODIN_INSPECTOR
+        [Sirenix.OdinInspector.Searchable]
+        [Sirenix.OdinInspector.ListDrawerSettings(NumberOfItemsPerPage = 10)]
+#endif
         public List<AssetInfo> assetInfos = new();
 
         private Dictionary<int, string> m_AssetMap;
@@ -62,6 +67,11 @@ namespace Saro.Core
         public string[] collectDirectors = new string[0];
 
         // public List<string> missing = new();
+
+#if ODIN_INSPECTOR
+        [Sirenix.OdinInspector.Searchable]
+        [Sirenix.OdinInspector.ListDrawerSettings(NumberOfItemsPerPage = 10)]
+#endif
         public List<string> ignores = new();
 
         public static IAssetTable GetTable()
@@ -83,10 +93,61 @@ namespace Saro.Core
                 return;
             }
             table.Collect();
-            Log.ERROR("AssetTableSO.AutoCollect");
+            //Log.ERROR("AssetTableSO.AutoCollect");
         }
 
-        [ContextMenu("Collect")]
+#if ODIN_INSPECTOR
+        [Sirenix.OdinInspector.PropertySpace(25f)]
+        [Sirenix.OdinInspector.Button("Gen AssetIDs Script")]
+#else
+        [ContextMenu("Gen AssetIDs Script")]
+#endif
+        private void GenAssetIDScript()
+        {
+            try
+            {
+                var path = EditorAssetTableGetter.GenAssetIDsPath;
+
+                var directory = Path.GetDirectoryName(path);
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                var sb = new StringBuilder(1024);
+
+                var ns = string.IsNullOrEmpty(EditorSettings.projectGenerationRootNamespace) ?
+                    "Saro"
+                    : EditorSettings.projectGenerationRootNamespace;
+
+                sb.AppendLine("// auto gen. don't modify.");
+                sb.AppendLine($"namespace {ns}");
+                sb.AppendLine("{");
+                sb.AppendLine("\tpublic static class AssetIDs");
+                sb.AppendLine("\t{");
+                foreach (var item in assetInfos)
+                {
+                    sb.Append($"\t\tpublic const int {Path.GetFileNameWithoutExtension(item.assetPath).Split('_')[1].ReplaceFast('-', '_')} = {item.assetID};")
+                        .AppendLine();
+                }
+                sb.AppendLine("\t}");
+                sb.AppendLine("}");
+
+                File.WriteAllText(path, sb.ToString());
+
+                AssetDatabase.SaveAssets();
+            }
+            catch (Exception e)
+            {
+                Log.ERROR(e);
+            }
+        }
+
+#if ODIN_INSPECTOR
+        [Sirenix.OdinInspector.Button("Collect Assets")]
+#else
+        [ContextMenu("Collect Assets")]
+#endif
         private void Collect()
         {
             var sw = new Stopwatch();

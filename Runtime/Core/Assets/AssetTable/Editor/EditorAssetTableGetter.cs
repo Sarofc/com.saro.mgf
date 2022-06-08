@@ -15,6 +15,8 @@ namespace Saro.Core
         /// <code>override this for your AssetTable workflow</code>
         /// </summary>
         public static Func<IAssetTable> GetAssetTable { get; set; } = AssetTableSO.GetTable;
+
+        public static string GenAssetIDsPath { get; set; } = "Assets/Scripts/Gen/AssetIDs.cs";
     }
 }
 #endif
