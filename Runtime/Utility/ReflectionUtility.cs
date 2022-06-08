@@ -71,7 +71,7 @@ namespace Saro.Utility
 
                 for (int i = 0; i < types.Length; i++)
                 {
-                    if (types[i].IsClass)
+                    //if (types[i].IsClass)
                     {
                         if (supperClassType.IsAssignableFrom(types[i]))
                             //if (types[i].IsSubclassOf(supperClassType))
@@ -113,7 +113,7 @@ namespace Saro.Utility
 
                 for (int i = 0; i < types.Length; i++)
                 {
-                    if (types[i].IsClass)
+                    //if (types[i].IsClass)
                     {
                         if (supperClassType.IsAssignableFrom(types[i]))
                             //if (types[i].IsSubclassOf(supperClassType))
