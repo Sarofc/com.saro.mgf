@@ -6,7 +6,7 @@ namespace Saro.Utility
     {
         /// <summary>
         /// String.Replace fast版本
-        /// <code>直接修改字符串内存，不再遵循string不可变原则，需要特别注意。</code>
+        /// <code>慎用！直接修改字符串内存，不再遵循string不可变原则，需要特别注意。</code>
         /// </summary>
         public unsafe static string ReplaceFast(this string self, char oldChar, char newChar)
         {
@@ -33,7 +33,7 @@ namespace Saro.Utility
 
         /// <summary>
         /// String.ToLower fast版本
-        /// <code>直接修改字符串内存，不再遵循string不可变原则，需要特别注意。</code>
+        /// <code>慎用！直接修改字符串内存，不再遵循string不可变原则，需要特别注意。</code>
         /// </summary>
         public unsafe static string ToLowerFast(this string self)
         {
