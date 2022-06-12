@@ -14,7 +14,7 @@ using UnityEditor;
 namespace Saro
 {
     /*
-     * App Startup
+     * GameApp Entry
      */
     public sealed partial class Main : MonoSingleton<Main>
     {
@@ -33,10 +33,9 @@ namespace Saro
                 throw new NullReferenceException($"MUST have only a class impl from {nameof(IStartup)}. class: {string.Join(", ", startupTypes)}");
             }
 
-            var startup = Activator.CreateInstance(startupTypes[0]) as IStartup;
-
             try
             {
+                var startup = Activator.CreateInstance(startupTypes[0]) as IStartup;
                 await startup.StartAsync();
             }
             catch (Exception e)
@@ -214,8 +213,6 @@ namespace Saro
         public static void AddOnGUIListener(Action guiDelegate)
         {
             onGUI += guiDelegate;
-#if DEBUG
-#endif
         }
 
         /// <summary>
@@ -225,8 +222,6 @@ namespace Saro
         public static void RemoveOnGUIListener(Action guiDelegate)
         {
             onGUI -= guiDelegate;
-#if DEBUG
-#endif
         }
 
         /// <summary>

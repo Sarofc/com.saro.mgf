@@ -1,9 +1,18 @@
-﻿//#define UNITY_ANDROID
+﻿#if UNITY_ANDROID && !UNITY_EDITOR
+#define USE_INDEXES
+#endif
+
+#if UNITY_ANDROID
+#define BUILD_INDEXES
+#endif
 
 using System.IO;
+using System.Text;
+using UnityEngine;
 
-#if UNITY_ANDROID && !UNITY_EDITOR // 不加宏，代码清理的时候，会砍掉，打包会报错
+#if USE_INDEXES
 using System;
+using System.Collections.Generic;
 using UnityEngine.Networking;
 #endif
 
@@ -19,22 +28,24 @@ namespace Saro.Utility
     /// </summary>
     public static class FileUtility
     {
-#if UNITY_ANDROID
-        private const string k_AndroidFileSystemPrefixString = "jar:";
-
         private const string k_IndexesName = "Indexes";
+
+#if USE_INDEXES
+        private const string k_AndroidFileSystemPrefixString = "jar:";
         private static HashSet<string> s_Indexes;
 #endif
 
-        [System.Diagnostics.Conditional("UNITY_ANDROID")]
-        public static void LoadIndexes()
+        static FileUtility()
         {
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if USE_INDEXES
             var file = Application.streamingAssetsPath + "/" + k_IndexesName;
             var request = UnityWebRequest.Get(file);
             request.SendWebRequest();
             while (!request.isDone) { }
             var content = request.downloadHandler.text;
+
+            request.Dispose();
+
             var lines = content.Split('\n');
 
             s_Indexes = new HashSet<string>();
@@ -42,20 +53,23 @@ namespace Saro.Utility
             {
                 s_Indexes.Add(line);
             }
+
+            Log.INFO($"[USE_INDEXES]. LoadIndexes.");
 #endif
         }
 
-        [System.Diagnostics.Conditional("UNITY_ANDROID")]
         public static void BuildIndexes()
         {
-#if UNITY_ANDROID
+#if BUILD_INDEXES
             var sb = new StringBuilder(2048);
             var files = Directory.GetFiles(Application.streamingAssetsPath, "*", SearchOption.AllDirectories);
             foreach (var file in files)
             {
                 if (file.EndsWith(".meta")) continue;
-                var rePath = file.Replace(Application.streamingAssetsPath, "");
-                sb.AppendLine(rePath);
+                var res = file.Replace(Application.streamingAssetsPath, "").Replace("\\", "/");
+                sb.Append(res).Append("\n");
+
+                // win android 下， appendline 貌似是 \r\n 
             }
 
             File.WriteAllText(Application.streamingAssetsPath + "/" + k_IndexesName, sb.ToString());
@@ -64,7 +78,7 @@ namespace Saro.Utility
 
         public static string ReadAllText(string file)
         {
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if USE_INDEXES
             if (IsAndroidStreammingAssetPath(file))
             {
                 var request = UnityWebRequest.Get(file);
@@ -79,7 +93,7 @@ namespace Saro.Utility
 
         public static byte[] ReadAllBytes(string file)
         {
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if USE_INDEXES
             if (IsAndroidStreammingAssetPath(file))
             {
                 var request = UnityWebRequest.Get(file);
@@ -96,17 +110,20 @@ namespace Saro.Utility
         {
             bool exists = File.Exists(path);
 
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if USE_INDEXES
             if (!exists)
             {
                 if (s_Indexes == null)
                     return false;
 
-                var rePath = path.Remove(0, Application.streamingAssetsPath.Length);
-                if (s_Indexes.Contains(rePath))
-                {
-                    return true;
-                }
+                if (!IsAndroidStreammingAssetPath(path))
+                    return false;
+
+                var resPath = path.Remove(0, Application.streamingAssetsPath.Length);
+
+                exists = s_Indexes.Contains(resPath);
+
+                Log.INFO($"[USE_INDEXES] exists: {exists} index: {resPath} path: {path}");
             }
 #endif
 
@@ -115,7 +132,7 @@ namespace Saro.Utility
 
         public static bool IsAndroidStreammingAssetPath(string file)
         {
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if USE_INDEXES
             if (file.StartsWith(k_AndroidFileSystemPrefixString, StringComparison.Ordinal))
             {
                 return true;

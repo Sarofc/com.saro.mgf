@@ -24,8 +24,10 @@
         private float m_LastTime;
         private float m_FpsDelay;
 
+#if !ENABLE_IL2CPP
         private TimeSpan m_PreCpuTime;
         private TimeSpan m_CurCpuTime;
+#endif
 
         private const long k_Kb = 1024;
         private const long k_Mb = 1024 * 1024;
@@ -66,8 +68,12 @@
         private void Awake()
         {
             m_FpsDelay = 0.5F;
+
+#if !ENABLE_IL2CPP
             m_CurCpuTime = Process.GetCurrentProcess().TotalProcessorTime;
             m_PreCpuTime = m_CurCpuTime;
+#endif
+
             m_CurTime = Time.realtimeSinceStartup;
             m_LastTime = m_CurTime;
         }
@@ -76,13 +82,18 @@
         {
             if (!enabled) return;
 
+            GUILayout.Space(50);
+
             GUILayout.Label(m_FpsText, styles.font);
             GUILayout.Label(m_HeapSizeText, styles.font);
             GUILayout.Label(m_UsedSizeText, styles.font);
             GUILayout.Label(m_AllocatedMemoryText, styles.font);
             GUILayout.Label(m_ReservedMemoryText, styles.font);
             GUILayout.Label(m_UnusedReservedMemoryText, styles.font);
+
+#if !ENABLE_IL2CPP
             GUILayout.Label(m_CpuText, styles.font);
+#endif
         }
 
         private void Update()
@@ -98,11 +109,13 @@
                 ShowProfilerMsg();
             }
 
+#if !ENABLE_IL2CPP
             m_CurCpuTime = Process.GetCurrentProcess().TotalProcessorTime;
             if ((m_CurCpuTime - m_PreCpuTime).TotalMilliseconds >= 1000)
             {
                 ShowCpuMsg();
             }
+#endif
 
             m_FramesIndex++;
             m_CurTime = Time.realtimeSinceStartup;
@@ -122,6 +135,7 @@
             m_UnusedReservedMemoryText = "TotalUnusedReservedMemory: " + Profiler.GetTotalUnusedReservedMemoryLong() / k_Mb + " Mb";
         }
 
+#if !ENABLE_IL2CPP
         private void ShowCpuMsg()
         {
             int interval = 1000;
@@ -130,6 +144,7 @@
 
             m_CpuText = "CpuUsage: " + value.ToString("f2");
         }
+#endif
 
         private void ShowFpsMsg()
         {
