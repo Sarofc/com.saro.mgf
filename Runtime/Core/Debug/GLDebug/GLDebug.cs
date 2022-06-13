@@ -9,7 +9,9 @@ namespace Saro.Diagnostics
         Both
     }
 
-    // TODO api 参数位置调整！
+    // TODO 
+    // 1. 场景中又sprite renderer，切旋转了90度时，GLDraw的旋转不对
+    // 2. api 参数位置调整！
     public static class GLDebug
     {
         public static void DebugSquare(Vector3 origin, Vector3 extents, Color color, Quaternion orientation,

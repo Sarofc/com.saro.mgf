@@ -18,9 +18,7 @@ namespace Saro.Core
 
         public bool Poolable { get; private set; }
 
-        /// <summary>
-        /// ERROR: 无参构造，给IReference使用，其他人不要调用
-        /// </summary>
+        [Obsolete("ERROR! 外部不要调用！请使用 Create！")]
         public DefaultAssetLoader()
         {
         }
