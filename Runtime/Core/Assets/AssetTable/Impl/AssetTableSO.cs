@@ -127,8 +127,18 @@ namespace Saro.Core
                 sb.AppendLine("\t{");
                 foreach (var item in assetInfos)
                 {
-                    sb.Append($"\t\tpublic const int {Path.GetFileNameWithoutExtension(item.assetPath).Split('_')[1].ReplaceFast('-', '_')} = {item.assetID};")
-                        .AppendLine();
+                    foreach (var collectDir in collectDirectors)
+                    {
+                        if (item.assetPath.StartsWith(collectDir))
+                        {
+                            var subStartIndex = collectDir.Length + 1;
+                            var fieldName = Path.GetFileName(item.assetPath).ReplaceFast('-', '_').ReplaceFast('/', '_').ReplaceFast('.', '_');
+                            sb.Append($"\t\tpublic const int _{fieldName} = {item.assetID};")
+                            .AppendLine();
+
+                            break;
+                        }
+                    }
                 }
                 sb.AppendLine("\t}");
                 sb.AppendLine("}");

@@ -16,7 +16,7 @@ namespace Saro.Core
         /// </summary>
         public static Func<IAssetTable> GetAssetTable { get; set; } = AssetTableSO.GetTable;
 
-        public static string GenAssetIDsPath { get; set; } = "Assets/Scripts/Gen/AssetIDs.cs";
+        public static string GenAssetIDsPath { get; set; } = "Assets/Scripts/Gen/AssetIDs.gen.cs";
     }
 }
 #endif
