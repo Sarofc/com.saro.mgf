@@ -90,7 +90,7 @@ namespace Saro.Diagnostics
             {
                 if (zOnShader == null)
                 {
-                    Shader shader = Shader.Find("Sprites/Default");
+                    Shader shader = Shader.Find("GLDebug/GLine");
                     s_Mat = new Material(shader);
                 }
                 else
