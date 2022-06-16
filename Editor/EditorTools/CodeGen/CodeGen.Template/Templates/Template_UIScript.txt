@@ -1,35 +1,32 @@
-using UnityEngine;
-using System.Collections;
-using UnityEngine.UI;
-using System;
 using Saro.UI;
-
+using Saro.Utility;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace #NAMESPACE#.UI
 {
-    public sealed partial class #SCRIPTNAME# : SingletonUI<#SCRIPTNAME#, UIBinder>
+
+    [UIWindow((int)EUI#NAMESPACE#.#SCRIPTNAME#, "###PrefabPath")]
+    public partial class #SCRIPTNAME# : UIWindow
     {
-        #region Impl
-        
-        protected override void InternalAwake()
-        {
-            GetComps();
-            //Listen(Binder.Get<Button>("btn_close").onClick, Close);
-        }
-
-        protected override void InternalStart()
+        public UICardCollection(string resPath) : base(resPath)
         {
         }
 
-        protected override void InternalUpdate(float deltaTime)
+        protected override void Awake()
         {
+            base.Awake();
+
+            //Listen(btn_ok.onClick, Method);
         }
 
-        protected override void InternalClose()
+        protected override void OnShow()
         {
-        }
+            base.OnShow();
 
-        #endregion
+        }
     }
 
     public partial class #SCRIPTNAME#
@@ -39,9 +36,6 @@ namespace #NAMESPACE#.UI
         // don't modify this scope
 
         //>>begin
-
-        private void GetComps()
-        { }
 
         //<<end
 
