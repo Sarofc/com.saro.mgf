@@ -17,6 +17,16 @@ namespace Saro.Utility
             Unsafe.As<byte, uint>(ref outBytes[0]) = value;
 #endif
         }
+
+        public unsafe static ref T NullRef<T>()
+        {
+            return ref Unsafe.AsRef<T>(null);
+        }
+
+        public unsafe static bool IsNullRef<T>(ref T source)
+        {
+            return Unsafe.AsPointer(ref source) == null;
+        }
     }
 
 #if !UNITY_COLLECTIONS

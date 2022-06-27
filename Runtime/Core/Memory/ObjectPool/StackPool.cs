@@ -4,12 +4,6 @@ namespace Saro.Pool
 {
     public class StackPool<TItem>
     {
-        [System.Obsolete("Use Rent")]
-        public static PooledObject<Stack<TItem>> Get(out Stack<TItem> value)
-        {
-            return StackPool<TItem>.s_Pool.Rent(out value);
-        }
-
         public static Stack<TItem> Rent()
         {
             return StackPool<TItem>.s_Pool.Rent();
