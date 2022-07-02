@@ -49,8 +49,6 @@ namespace Saro.Diagnostics
 
         public bool displayLines = true;
 
-        public Shader zOnShader;
-
         public static GLDebugMono Instance
         {
             get
@@ -73,6 +71,7 @@ namespace Saro.Diagnostics
         private void Awake()
         {
             SetMaterial();
+
             m_Lines = new List<Line>();
             if (s_Instance == null)
             {
@@ -88,15 +87,15 @@ namespace Saro.Diagnostics
         {
             if (s_Mat == null)
             {
-                if (zOnShader == null)
+                Shader shader = Shader.Find("GLDebug/GLine");
+
+                if(shader == null)
                 {
-                    Shader shader = Shader.Find("GLDebug/GLine");
-                    s_Mat = new Material(shader);
+                    Log.ERROR("s_Mat is null. please check GLine.shader is include build.");
+                    return;
                 }
-                else
-                {
-                    s_Mat = new Material(zOnShader);
-                }
+
+                s_Mat = new Material(shader);
 
                 // 内置的shader 不要改！！！
                 //s_Mat.hideFlags = HideFlags.HideAndDontSave;
@@ -147,9 +146,10 @@ namespace Saro.Diagnostics
         private void RenderLines()
         {
             if (!displayLines)
-            {
                 return;
-            }
+
+            if (s_Mat == null)
+                return;
 
             GL.PushMatrix();
             s_Mat.SetPass(0);

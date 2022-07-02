@@ -2,7 +2,7 @@
     "name": "com.saro.mgf",
     "version": "0.1.0",
     "displayName": "Moon GameFramework",
-    "description": "",
+    "description": "面向中小型游戏的游戏开发框架，提供常用工具，降低使用成本。",
     "unity": "2021.3",
     "dependencies": {},
     "author": {
@@ -12,7 +12,7 @@
         {
             "displayName": "UI Prefabs",
             "description": "Common UI Prefab",
-            "path": "Resources/UIPrefabs"
+            "path": "Editor/Resources/UIPrefabs"
         }
     ]
 }
