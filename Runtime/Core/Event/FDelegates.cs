@@ -102,6 +102,8 @@ namespace Saro
 
         public static FDelegates operator -(FDelegates delegates, Action @delegate)
         {
+            if (delegates == null) return delegates; // incase, null reference
+
             if (delegates.m_RuntimeCalls == null) return delegates;
 
             var index = delegates.m_RuntimeCalls.IndexOf(@delegate);
