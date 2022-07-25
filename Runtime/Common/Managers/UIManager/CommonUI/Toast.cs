@@ -126,7 +126,7 @@ namespace Saro.UI
             }
 
             // TODO
-            var prefab = await Main.Resolve<IAssetManager>().LoadAssetAsync(s_AssetName, typeof(Toast)) as Toast;
+            var prefab = await IAssetManager.Current.LoadAssetAsync(s_AssetName, typeof(Toast)) as Toast;
             var toast = GameObject.Instantiate(prefab, UIManager.Current.Top.transform);
 
             var canvas = toast.GetOrAddComponent<Canvas>();

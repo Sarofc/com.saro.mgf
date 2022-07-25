@@ -5,6 +5,8 @@ namespace Saro.Core
 {
     public interface IAssetManager : IService
     {
+        public static IAssetManager Current => Main.Resolve<IAssetManager>();
+
         /// <summary>
         /// 获取应用版本号
         /// </summary>
