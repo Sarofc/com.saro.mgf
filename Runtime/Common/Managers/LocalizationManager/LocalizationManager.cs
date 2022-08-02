@@ -6,40 +6,29 @@ namespace Saro.Localization
     public sealed class LocalizationManager : IService
     {
         public static LocalizationManager Current => Main.Resolve<LocalizationManager>();
-
-        private ELanguage m_CurrentLanguage = ELanguage.None;
+        public ELanguage CurrentLanguage { get; private set; } = ELanguage.None;
+        public FDelegates onLanguageChanged = new(128);
 
         private ILocalizationDataProvider m_Provider;
 
-        private Dictionary<int, string> m_LanguageLut = new Dictionary<int, string>();
-
-        public FDelegates onLanguageChanged = new(128);
-
-        public ELanguage CurrentLanguage
-        {
-            get => m_CurrentLanguage;
-        }
+        private Dictionary<int, string> m_LanguageLut = new();
 
         public LocalizationManager SetLanguage(ELanguage language)
         {
             if (language == ELanguage.None) return this;
-            if (m_CurrentLanguage == language) return this;
-
-            m_CurrentLanguage = language;
-
+            if (CurrentLanguage == language) return this;
+            CurrentLanguage = language;
             OnLanguageChanged();
-
             return this;
         }
 
-        public async UniTask SetLanguageAsync(ELanguage language)
+        public async UniTask<LocalizationManager> SetLanguageAsync(ELanguage language)
         {
-            if (language == ELanguage.None) return;
-            if (m_CurrentLanguage == language) return;
-
-            m_CurrentLanguage = language;
-
+            if (language == ELanguage.None) return this;
+            if (CurrentLanguage == language) return this;
+            CurrentLanguage = language;
             await OnLanguageChangedAsync();
+            return this;
         }
 
         public LocalizationManager SetProvider(ILocalizationDataProvider provider)
@@ -81,9 +70,7 @@ namespace Saro.Localization
         }
 
         void IService.Awake() { }
-
         void IService.Update() { }
-
         void IService.Dispose() { }
     }
 }

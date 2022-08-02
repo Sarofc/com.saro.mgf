@@ -5,11 +5,11 @@ using Object = UnityEngine.Object;
 namespace Saro.Core
 {
     /*
-     * TODO 
+     * TODO  需要易于使用，方便接入其他已有模块，让其可以享受到资源框架的 自动/半自动 卸载功能
      * 
      * 1. 自动回收机制 
      *    - 开启autounload后，handle会经过一定时间后，自动unload
-     *    - 如何有效管理 引用？
+     *    - 如何有效管理 引用？ DefaultAssetLoader/LruAssetLoader目前不能混合使用，看怎么方便处理
      *    
      *    可参考：
      *    https://www.codeleading.com/article/84286014276/
@@ -17,14 +17,23 @@ namespace Saro.Core
      *    
      */
 
-    // TODO 需要易于使用，方便接入其他已有模块，让其可以享受到资源框架的 自动/半自动 卸载功能
-
     /// <summary>
     /// 用于处理各个子对象的资源加载，各个Manager可以根据需求实现不同的类
     /// <code>提供一个默认实现 <see cref="DefaultAssetLoader"/></code>
     /// </summary>
     public interface IAssetLoader
     {
+        /// <summary>
+        /// 池化标记
+        /// </summary>
+        bool Poolable { get; internal set; }
+
+        /// <summary>
+        /// 初始化接口
+        /// </summary>
+        /// <param name="capacity"></param>
+        void Init(int capacity);
+
         /// <summary>
         /// 加载资源，且缓存handle
         /// </summary>

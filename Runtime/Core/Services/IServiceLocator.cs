@@ -3,6 +3,12 @@ using System;
 
 namespace Saro
 {
+    /*
+     * TODO
+     * 
+     * 1. 加上依赖关系，类似之前的jobqueue，简化各个service之间的维护成本
+     * 
+     */
     public interface IService
     {
         void Awake();

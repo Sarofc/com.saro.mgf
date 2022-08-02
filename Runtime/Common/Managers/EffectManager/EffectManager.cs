@@ -28,7 +28,8 @@ namespace Saro.Gameplay.Effect
 
         private readonly Dictionary<string, EffectPool> m_EffectMap = new Dictionary<string, EffectPool>();
 
-        private readonly LruAssetLoader m_LruAssetLoader = new LruAssetLoader(128);
+        // TODO 不要用这个，用DefaultAssetLoader
+        private readonly LruAssetLoader m_LruAssetLoader = AssetLoaderFactory.Create<LruAssetLoader>(128);
 
         public void SetAssetInterface(IAssetManager assetManager, string effectPath)
         {

@@ -16,43 +16,11 @@ namespace Saro.Core
 
         private Dictionary<string, IAssetHandle> m_AssetCache;
 
-        public bool Poolable { get; private set; }
+        bool IAssetLoader.Poolable { get; set; }
 
-        [Obsolete("ERROR! 外部不要调用！请使用 Create！")]
-        public DefaultAssetLoader()
-        {
-        }
+        public DefaultAssetLoader() { }
 
-        public static DefaultAssetLoader Create(int capacity, bool poolable)
-        {
-            DefaultAssetLoader loader;
-            if (poolable)
-            {
-                loader = SharedPool.Rent<DefaultAssetLoader>();
-            }
-            else
-            {
-                loader = new DefaultAssetLoader();
-            }
-
-            loader.Init(capacity);
-            loader.Poolable = poolable;
-            return loader;
-        }
-
-
-        public static void Release(IAssetLoader assetLoader)
-        {
-            if (assetLoader is DefaultAssetLoader _loader)
-            {
-                if (_loader.Poolable)
-                {
-                    SharedPool.Return(_loader);
-                }
-            }
-        }
-
-        private void Init(int capacity)
+        void IAssetLoader.Init(int capacity)
         {
             if (m_AssetManager == null)
                 m_AssetManager = Main.Resolve<IAssetManager>();

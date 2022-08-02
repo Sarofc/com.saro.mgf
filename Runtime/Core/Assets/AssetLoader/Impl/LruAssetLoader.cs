@@ -8,20 +8,20 @@ namespace Saro.Core
     /// <summary>
     /// lru资源加载器
     /// <code>达到上限后，自动卸载最久不用的资源(真正释放资源是在切换scene时)，并加载新资源</code>
-    /// <code>一般在 `不自动卸载AB` 的情况下使用</code>
+    /// <code>只能在 `不自动卸载AB` 的情况下使用，否则会出现已用的资源被卸载掉的情况</code>
     /// </summary>
     public sealed class LruAssetLoader : IAssetLoader
     {
-        private readonly TLRUCache<string, IAssetHandle> m_AssetCache;
+        private TLRUCache<string, IAssetHandle> m_AssetCache;
         private IAssetManager m_AssetManager;
 
-        public LruAssetLoader() : this(10)
-        {
-        }
+        bool IAssetLoader.Poolable { get; set; }
 
-        public LruAssetLoader(int cacheCapacity)
+        public LruAssetLoader() { }
+
+        void IAssetLoader.Init(int capacity)
         {
-            m_AssetCache = new TLRUCache<string, IAssetHandle>(cacheCapacity, OnLruCacheValueRemoved);
+            m_AssetCache = new TLRUCache<string, IAssetHandle>(capacity, OnLruCacheValueRemoved);
         }
 
         public void SetAssetInterface(IAssetManager assetManager)
