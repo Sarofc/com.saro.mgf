@@ -16,7 +16,7 @@ namespace Saro.Utility
             CacheAssemblies();
         }
 
-        private static void CacheAssemblies()
+        public static void CacheAssemblies()
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             for (int i = 0; i < assemblies.Length; i++)
@@ -27,6 +27,11 @@ namespace Saro.Utility
                     s_AssemblyMap.Add(assemblyName, assemblies[i]);
                 }
             }
+        }
+
+        public static void ClearCacheAssemblies()
+        {
+            s_AssemblyMap.Clear();
         }
 
         public static Type GetType(string assemblyName, string typeName)
@@ -74,7 +79,7 @@ namespace Saro.Utility
                     //if (types[i].IsClass)
                     {
                         if (supperClassType.IsAssignableFrom(types[i]))
-                            //if (types[i].IsSubclassOf(supperClassType))
+                        //if (types[i].IsSubclassOf(supperClassType))
                         {
                             if (includedAbstract)
                             {
@@ -116,7 +121,7 @@ namespace Saro.Utility
                     //if (types[i].IsClass)
                     {
                         if (supperClassType.IsAssignableFrom(types[i]))
-                            //if (types[i].IsSubclassOf(supperClassType))
+                        //if (types[i].IsSubclassOf(supperClassType))
                         {
                             if (includedAbstract)
                             {
@@ -153,7 +158,7 @@ namespace Saro.Utility
             var body = expr.Body as MemberExpression;
             if (body == null)
             {
-                var ubody = (UnaryExpression) expr.Body;
+                var ubody = (UnaryExpression)expr.Body;
                 body = ubody.Operand as MemberExpression;
             }
 

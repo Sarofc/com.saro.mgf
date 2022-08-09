@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 namespace Saro.Core
 {
     /// <summary>
-    /// lru资源加载器
+    /// lru资源加载器。这个是xasst给的案例，个人感觉欠考虑
     /// <code>达到上限后，自动卸载最久不用的资源(真正释放资源是在切换scene时)，并加载新资源</code>
     /// <code>只能在 `不自动卸载AB` 的情况下使用，否则会出现已用的资源被卸载掉的情况</code>
     /// </summary>

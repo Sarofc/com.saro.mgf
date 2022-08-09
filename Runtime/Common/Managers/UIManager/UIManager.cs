@@ -126,8 +126,10 @@ namespace Saro.UI
         }
 
         private Dictionary<int, UIWindowAttribute> m_UIDefCache = new();
-        private void CacheUIAttributes()
+        public void CacheUIAttributes()
         {
+            m_UIDefCache.Clear();
+
             var asmMap = Saro.Utility.ReflectionUtility.AssemblyMap;
             foreach (var asm in asmMap)
             {
