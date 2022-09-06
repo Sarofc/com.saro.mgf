@@ -8,10 +8,10 @@ using UnityEngine.UI;
 namespace #NAMESPACE#.UI
 {
 
-    [UIWindow((int)EUI#NAMESPACE#.#SCRIPTNAME#, "###PrefabPath")]
+    [UIWindow((int)EGameUI.#SCRIPTNAME#, "Assets/Res/Prefabs/UI/#SCRIPTNAME#.prefab")]
     public partial class #SCRIPTNAME# : UIWindow
     {
-        public UICardCollection(string resPath) : base(resPath)
+        public #SCRIPTNAME#(string resPath) : base(resPath)
         {
         }
 

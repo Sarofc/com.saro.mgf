@@ -84,7 +84,7 @@
   - 支持自定义数据源
   - 支持本地化各种类型的资源
 - 代码热更新
-  - huatuo（TODO）
+  - hybridclr
   - Lua（废弃）
 
 **Workflow**
@@ -106,20 +106,20 @@
 - 任务系统（WIP）
 - 剧情脚本系统（TODO） -->
 
-## 测试
+## 单元测试
 
 使用TestRunner，测试代码位于Tests~文件夹下
 
 ## Demo
 
-[tetris-ecs](https://github.com/Sarofc/TetrisGame-Unity)
+[tetris-ecs](https://github.com/Sarofc/tetris-ecs-unity)
 
 ## 参考
 
 - [GameFramework](https://github.com/EllanJiang/GameFramework)
-- [ET](https://github.com/egametang/ET)
 - [UFlux](https://github.com/yimengfan/BDFramework.Core)
 - [Loxondon Framework](https://github.com/vovgou/loxodon-framework)
+- [ET](https://github.com/egametang/ET)
 
 ## 引用
 

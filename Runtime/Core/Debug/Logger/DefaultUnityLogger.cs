@@ -4,8 +4,6 @@ namespace Saro
 {
     public sealed class DefaultUnityLogger : ILogger
     {
-        // TODO log file
-
         public void INFO(string message)
         {
             UnityEngine.Debug.Log(message);

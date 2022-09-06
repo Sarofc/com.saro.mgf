@@ -726,14 +726,10 @@ namespace Saro.IO
                 throw new ArgumentNullException($"filePath is null or empty.");
 
             if (!File.Exists(filePath))
-            {
                 return false;
-            }
 
             using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
                 return WriteFile(name, fileStream);
-            }
         }
 
         /// <summary>
@@ -952,7 +948,6 @@ namespace Saro.IO
             m_Stream.Write(s_CachedBytes, 0, s_StringDataSize);
         }
 
-
         private int AllocString(string val)
         {
             int stringIndex = -1;
@@ -982,7 +977,7 @@ namespace Saro.IO
                     stringIndex = index;
                     byte[] bytes = new byte[byte.MaxValue];
 
-                    // TODO ֻ这里随机看上去啥用
+                    // TODO ֻ这里随机看上去不知道啥用
                     //Utility.RandomUtility.NextBytes(bytes);
 
                     stringData = new StringData(0, bytes);
@@ -998,7 +993,6 @@ namespace Saro.IO
             WriteStringData(stringIndex, stringData);
             return stringIndex;
         }
-
 
         private int AllocBlock(int length)
         {

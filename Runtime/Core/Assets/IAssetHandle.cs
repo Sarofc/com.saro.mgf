@@ -3,7 +3,6 @@ using System.Collections;
 
 namespace Saro.Core
 {
-    // TODO 考虑 泛型实现？可以参考下 Addressable 的实现
     public interface IAssetHandle : IRefCount, IEnumerator
     {
         /// <summary>

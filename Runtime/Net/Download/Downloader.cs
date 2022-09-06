@@ -178,6 +178,11 @@ namespace Saro.Net
             return size;
         }
 
+        public static void Initialize()
+        {
+            DownloaderDriver.Create();
+        }
+
         public static void ClearAllDownloads()
         {
             foreach (var download in s_Progressing) download.Cancel();
@@ -252,18 +257,18 @@ namespace Saro.Net
                         // 这时候，download才是真正的结束！
                     }
                 }
-
-                SampleTest();
             }
             else
             {
-                // TODO s_Cache需要清空？
-                if (s_Cache.Count <= 0) return;
-                s_Cache.Clear();
+                // s_Cache不清空，有需求，使用 ClearAllDownloads 即可。
+                //if (s_Cache.Count <= 0) return;
+                //s_Cache.Clear();
 
-                s_LastTotalDownloadedBytes = 0;
-                s_LastSampleTime = DateTime.Now.Ticks;
+                //s_LastTotalDownloadedBytes = 0;
+                //s_LastSampleTime = DateTime.Now.Ticks;
             }
+
+            SampleTest();
         }
 
 

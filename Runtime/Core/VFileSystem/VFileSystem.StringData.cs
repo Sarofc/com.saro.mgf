@@ -47,15 +47,12 @@ namespace Saro.IO
                 {
                     throw new Exception($"string '{val}' is too long.");
                 }
-
                 Utility.EncryptionUtility.SelfXorBytes(s_CachedBytes, encryptBytes, 0, m_Length);
-
                 Array.Copy(s_CachedBytes, 0, m_Bytes, 0, length);
                 return new StringData((byte)length, m_Bytes);
             }
 
-            public StringData Clear()
-                => new(0, m_Bytes);
+            public StringData Clear() => new(0, m_Bytes);
         }
     }
 }

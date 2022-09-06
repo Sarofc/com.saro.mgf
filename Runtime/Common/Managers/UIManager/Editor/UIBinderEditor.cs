@@ -123,7 +123,7 @@ namespace Saro.UI
 
             if (!string.IsNullOrEmpty(newpath))
             {
-                var oldCode = File.ReadAllText(newpath);
+                var oldCode = File.ReadAllText(newpath, Encoding.UTF8);
 
                 var startIndex = oldCode.LastIndexOf(">>begin");
                 var endIndex = oldCode.LastIndexOf("<<end");
@@ -140,7 +140,7 @@ namespace Saro.UI
                         newCode = newCode.Insert(startIndex, "\t");
                         newCode = newCode.Insert(startIndex, code);
 
-                        File.WriteAllText(newpath, newCode);
+                        File.WriteAllText(newpath, newCode, Encoding.UTF8);
                         AssetDatabase.Refresh();
                     }
                     else

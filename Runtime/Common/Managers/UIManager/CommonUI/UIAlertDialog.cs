@@ -34,7 +34,7 @@ namespace Saro.UI
         public Action<int> clickHandler;
     }
 
-    [UIWindow((int)EDefaultUI.UIAlertDialog, "Assets/Res/Prefab/UI/Default/UIAlertDialog.prefab")]
+    [UIWindow((int)EDefaultUI.UIAlertDialog, "Assets/Res/Prefabs/UI/Default/UIAlertDialog.prefab")]
     public partial class UIAlertDialog : UIWindow, IEnumerator
     {
         public UIAlertDialog(string resPath) : base(resPath)

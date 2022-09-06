@@ -16,7 +16,7 @@ namespace Saro.IO
                 throw new System.Exception("fullPath is invalid.");
             }
 
-            m_FileStream = new FileStream(fullPath, mode, access, FileShare.Read);
+            m_FileStream = new FileStream(fullPath, mode, access, FileShare.Read); // TODO 文件占用问题测试
         }
 
         protected internal override long Position

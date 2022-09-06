@@ -3,7 +3,9 @@
 namespace Saro
 {
     /*
-     * TODO 线程不安全，看怎么重构下
+     * TODO 
+     * 1. 线程不安全，看怎么重构下
+     * 2. log file
      */
     public static class Log
     {

@@ -205,42 +205,6 @@ namespace Saro.UI
         /// <param name="uiIndexs">窗口枚举</param>
         public async UniTask LoadWindowAsync(Enum uiIndex)
         {
-            //var index = uiIndex.GetHashCode();
-
-            //if (windowMap.ContainsKey(index))
-            //{
-            //    var uvalue = windowMap[index] as IComponent;
-            //    if (uvalue.IsLoad)
-            //    {
-            //        Debug.Log("已经加载过并未卸载" + index);
-            //    }
-            //}
-            //else
-            //{
-            //    //创建ui
-            //    var window = CreateWindow(index) as IComponent;
-            //    if (window == null)
-            //    {
-            //        Debug.Log("不存在UI:" + index);
-            //    }
-            //    else
-            //    {
-            //        windowMap[index] = window as IWindow;
-
-            //        // TODO bug 如果第二次进来，字典已存在，依然没有加载完成，就会报空
-            //        //开始窗口加载
-            //        var result = await window.LoadAsync();
-            //        if (result)
-            //        {
-            //            if (window.Root)
-            //            {
-            //                window.Root.gameObject.SetActive(false);
-            //                window.Root.SetParent(this.Bottom, false);
-            //            }
-            //        }
-            //    }
-            //}
-
             var index = uiIndex.GetHashCode();
 
             if (!m_WindowMap.TryGetValue(index, out var window))

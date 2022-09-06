@@ -1,9 +1,14 @@
 ﻿
+using System;
+
 namespace Saro.Net
 {
-    public sealed class DownloaderManager : IService
+    public sealed class DownloaderDriver : IService
     {
-        // TODO 封装 Downloader 里面的常用方法
+        internal static void Create()
+        {
+            Main.Register<DownloaderDriver>();
+        }
 
         private void Main_onApplicationPause(bool value)
         {

@@ -122,7 +122,6 @@ namespace Saro.Audio
             // TODO 工作流优化
             //  Editor 创建 AudioMixer，以及需要的文件夹，方便其他项目接入
 
-            // TODO 卸载了后，需要再能自动加载，或者不让卸载，保证程序稳定性
             var handle = m_AssetManager.LoadAssetAsync(AudioAssetPath + "GameMixer.mixer", typeof(AudioMixer));
             handle.IncreaseRefCount();
             await handle;

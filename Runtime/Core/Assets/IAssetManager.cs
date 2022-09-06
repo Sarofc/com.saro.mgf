@@ -1,11 +1,22 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
+using UnityEngine;
 
 namespace Saro.Core
 {
     public interface IAssetManager : IService
     {
         public static IAssetManager Current => Main.Resolve<IAssetManager>();
+
+        /// <summary>
+        /// 加载远端资源状态委托，false:开始加载 true:完成加载
+        /// </summary>
+        Action<string, bool> OnLoadRemoteAsset { get; set; }
+
+        /// <summary>
+        /// 加载远端资源失败委托，统一托管
+        /// </summary>
+        Action<string> OnLoadRemoteAssetError { get; set; }
 
         /// <summary>
         /// 获取应用版本号
@@ -44,44 +55,53 @@ namespace Saro.Core
         IAssetHandle LoadSceneAsync(string assetPath, bool additive = false);
 
         /// <summary>
-        /// 是否已经加载，或正在加载某资源
-        /// </summary>
-        /// <param name="path"></param>
-        /// <param name="handle"></param>
-        /// <returns></returns>
-        //bool HasAssetLoadedOrLoading(string path, out IAssetHandle handle);
-
-        /// <summary>
-        /// 异步检查Custom文件夹资源
-        /// </summary>
-        /// <param name="assetName">  是相对路径 eg. Custom/xxx.assest
-        /// <returns></returns>
-        UniTask<string> CheckRawBundlesAsync(string assetName);
-
-        /// <summary>
-        /// 加载Custom文件夹资源
-        /// </summary>
-        /// <param name="assetName">  是相对路径 eg. Custom/xxx.assest
-        /// <returns></returns>
-        byte[] LoadRawAsset(string assetName);
-
-        /// <summary>
-        /// 异步加载Custom文件夹资源
-        /// </summary>
-        /// <param name="assetName">  是相对路径 eg. Custom/xxx.assest
-        /// <returns></returns>
-        UniTask<byte[]> LoadRawAssetAsync(string assetName);
-
-        /// <summary>
         /// 卸载所有无用资源
         /// </summary>
         /// <param name="force">立即卸载，如果没有实现延迟卸载，可以忽略</param>
         void UnloadUnusedAssets(bool immediate);
 
+        /// <summary>
+        /// 删除DLC目录
+        /// <code>需要确保，当前未加载dlc里的内容。否则此操作完毕就要退出应用</code>
+        /// </summary>
+        void DeleteDLC();
+
+        #region RawFile
+
+        /// <summary>
+        /// 加载RawFile资源
+        /// </summary>
+        /// <param name="assetName">  是相对路径 eg. xxx.raw
+        /// <returns></returns>
+        byte[] GetRawFile(string assetName);
+
+        /// <summary>
+        /// 异步加载RawFile资源
+        /// </summary>
+        /// <param name="assetName">  是相对路径 eg. Assets/ResRaw/xxx.raw
+        /// <returns></returns>
+        UniTask<byte[]> GetRawFileAsync(string assetName);
+
+        /// <summary>
+        /// 获取RawFile文件路径
+        /// </summary>
+        /// <param name="assetName">  是相对路径 eg. Assets/ResRaw/xxx.raw
+        /// <returns></returns>
+        string GetRawFilePath(string assetName);
+
+        /// <summary>
+        /// 获取RawFile文件路径，如没有则会去remote下载
+        /// </summary>
+        /// <param name="assetName">  是相对路径 eg. Assets/ResRaw/xxx.raw
+        /// <returns></returns>
+        UniTask<string> GetRawFilePathAsync(string assetName);
+
+        #endregion
+
         #region 基于ID的接口，可选实现
 
         IAssetTable AssetTable { get; }
-        
+
         void LoadAssetTable(IAssetTableProvider provider) => throw new NotImplementedException("基于AssetID的加载接口未实现");
 
         UniTask LoadAssetTableAsync(IAssetTableProvider provider) => throw new NotImplementedException("基于AssetID的加载接口未实现");

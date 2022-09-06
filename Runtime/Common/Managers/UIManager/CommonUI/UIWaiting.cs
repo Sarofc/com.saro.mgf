@@ -4,7 +4,7 @@ namespace Saro.UI
 {
     // TODO UIManager 需要一个将ui调整到顶层的函数
 
-    [UIWindow((int)EDefaultUI.UIWaiting, "Assets/Res/Prefab/UI/Default/UIWaiting.prefab")]
+    [UIWindow((int)EDefaultUI.UIWaiting, "Assets/Res/Prefabs/UI/Default/UIWaiting.prefab")]
     public sealed partial class UIWaiting : UIWindow
     {
         protected override void Awake()
@@ -75,9 +75,6 @@ namespace Saro.UI
             txt_userinfo.text += "\n" + entry;
         }
 
-        /// <summary>
-        /// 初始化UI
-        /// </summary>
         public void SetDefault()
         {
             var color = img_bg.color;

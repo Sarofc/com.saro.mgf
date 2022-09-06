@@ -48,8 +48,7 @@ namespace Saro.IO
             /// </summary>
             public int Length => m_Length;
 
-            public BlockData Free()
-                => new(m_ClusterIndex, (int)GetUpBoundClusterOffset(m_Length));
+            public BlockData Free() => new(m_ClusterIndex, (int)GetUpBoundClusterOffset(m_Length));
         }
     }
 }

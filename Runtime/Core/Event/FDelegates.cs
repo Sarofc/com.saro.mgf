@@ -7,7 +7,7 @@ namespace Saro
      * TODO 尽量保证和 delegate 行为一致
      * 
      * 不保证的
-     * 1.  线程不安全
+     * 1.  线程安全
      * 
      */
 

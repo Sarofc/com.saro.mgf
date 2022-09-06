@@ -12,7 +12,7 @@ namespace Saro.IO
         {
             private const int k_HeaderLength = 3;
             private const int k_EncryptBytesLength = 4;
-            private static readonly byte[] s_Header = new byte[k_HeaderLength] { (byte)'G', (byte)'A', (byte)'F' }; // TODO 整一个编码
+            private static readonly byte[] s_Header = new byte[k_HeaderLength] { (byte)'M', (byte)'G', (byte)'F' };
 
             /// <summary>
             /// 虚拟文件编码

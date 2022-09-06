@@ -422,7 +422,6 @@ namespace Saro
     {
         public override void OnInspectorGUI()
         {
-            // TODO 放一些配置在这里？
             base.OnInspectorGUI();
             if (GUILayout.Button($"{nameof(Main.DumpMonoCallbacks)}"))
             {

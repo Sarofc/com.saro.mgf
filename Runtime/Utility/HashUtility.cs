@@ -139,7 +139,6 @@ namespace Saro.Utility
 
         protected override void HashCore(ReadOnlySpan<byte> source)
         {
-            // TODO 看看源码，这么实现对不对
             m_Hash = CalculateHash(m_Table, m_Hash, source, 0, source.Length);
         }
 
