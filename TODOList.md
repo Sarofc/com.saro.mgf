@@ -15,7 +15,7 @@
 - [ ] 测试，使用extension方式支持的await，是否能await多次呢？例如 IAssetHandle对象
 
 **moonasset继续开发**
-- [ ] 委托 对异步支援有限，不能等待整个方法体完成，例如OnRemoteAsset，ui出现时机有误，删掉所有资源，runtime模式就有问题，这种情况，就预先async加载，然后，委托里同步加载好了
+- [x] 委托 对异步支援有限，不能等待整个方法体完成，例如OnRemoteAsset，ui出现时机有误，删掉所有资源，runtime模式就有问题，这种情况，就预先async加载，然后，委托里同步加载好了
 - [x] unity2021测试spriteatlas，有bug，贴图冗余了 =》sbp不能勾选builtin，并且是打包图集，不能打包散图，然后维护一个散图路径到图集路径的关系，通过加载图集，再从图集里加载萨纳土
 - [x] 自动生成id+路径，使用so存储
 - [ ] 资源路径长度，有没有必要进行优化，例如，只使用 Res/Runtime 后的路径，其他舍弃
@@ -44,8 +44,8 @@
 - [ ] 目前，场景ab的rc貌似是没有管理的，需要考虑卸载场景后，移除其rc，考虑使用一个管理类来处理
 - [x] 优化raw bundle打包
   - [x] 1.支持LoadRawAsset在编辑器下的加载？项目自己用宏控制
-  - [x] 2.去掉vfs，项目自己实现，框架只管理硬盘文件
-  - [x] 3.vfs同bundle，维护一个assetpath到vfs的映射，外部不用关心vfs，可以随意appendhash
+  - [x] 2.框架只管理硬盘文件（wwise bank，vfs），叫做rawfile。vfs相关打包加载，项目自己实现，
+  - [x] 3.rawfile同bundle，维护一个assetpath到rawfile的映射，可以随意appendhash
 - [ ] tmp 打包要剔除掉 resources 目录？
 
 
@@ -74,9 +74,9 @@
 
 **表格工具**
  - [x] 异步接口
- - [ ] 生成前，删掉自动生成的文件，避免出现错误
+ - [ ] 打表前，删掉自动生成的文件，避免出现一些错误
  - [ ] 最好支持，框架点击一个按钮就能直接使用（能不能做成 unity package）
- - [ ] 生成的文件，如何处理多dll（考虑弄成一个单独的dll，给其他所有程序集引用，感觉可以建一个asmdef）
+ - [ ] 生成的文件，如何处理多dll（考虑弄成一个单独的dll，给其他所有程序集引用，感觉可以建一个asmdef），需要考虑到hybridclr的更新问题
 
 **多语言**
 - [ ] 继续思考如何简化工作流
