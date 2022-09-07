@@ -6,7 +6,9 @@ using UnityEngine.Networking;
 namespace Saro.Net
 {
     /*
-     * TODO
+     * TODO 这个暂时先不管了，后面有需求再将 HttpDownload 的特性搬过来
+     * 
+     * 最大的价值就是能支持 webgl
      * 
      * 1.检测超时?
      * 2.切片下载测试
@@ -20,6 +22,7 @@ namespace Saro.Net
     /// <summary>
     /// 断点续传下载器
     /// </summary>
+    [System.Obsolete("未完成，先不要用")]
     public sealed class UnityWebRequestDownload : IDownloadAgent
     {
         public sealed class MyDownloadScript : DownloadHandlerScript
@@ -259,9 +262,9 @@ namespace Saro.Net
 
         internal void CompleteContent()
         {
-            Status = EDownloadStatus.Success;
-
             CloseWrite();
+
+            Status = EDownloadStatus.Success;
         }
 
         #endregion

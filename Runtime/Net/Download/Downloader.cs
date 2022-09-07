@@ -7,7 +7,6 @@ namespace Saro.Net
     {
         Wait,
         Progressing,
-        Moving,
         Success,
         Failed
     }

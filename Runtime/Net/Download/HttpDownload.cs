@@ -100,11 +100,13 @@ namespace Saro.Net
                     return;
                 }
 
+                MoveFile();
+
                 Status = EDownloadStatus.Success;
             }
             catch (Exception e)
             {
-                Error = e.Message;
+                Error = "HttpDownload.Run failed\n" + e.Message;
                 Status = EDownloadStatus.Failed;
             }
             finally
@@ -127,6 +129,19 @@ namespace Saro.Net
             SslPolicyErrors spe)
         {
             return true;
+        }
+
+        private void MoveFile()
+        {
+            try
+            {
+                File.Move(Info.TempPath, Info.SavePath);
+            }
+            catch (Exception e)
+            {
+                Error = "MoveFile failed\n" + e.ToString();
+                Status = EDownloadStatus.Failed;
+            }
         }
 
         private void Downloading()
@@ -209,14 +224,29 @@ namespace Saro.Net
             IsDone = false;
 
             Status = EDownloadStatus.Progressing;
-            var fileInfo = new FileInfo(Info.SavePath);
 
+            // 检测正式文件
+            var fileInfo = new FileInfo(Info.SavePath);
             if (fileInfo.Exists && fileInfo.Length > 0)
             {
                 if (Info.Size > 0 && fileInfo.Length == Info.Size) // 大小一致姑且认为是对的，在Compelete回调里，再自己校验
                 {
-                    Status = EDownloadStatus.Success;
                     Position = Info.Size;
+                    Status = EDownloadStatus.Success;
+                    return;
+                }
+            }
+
+            // 检测temp下载文件
+            var tempFileInfo = new FileInfo(Info.TempPath);
+            if (tempFileInfo.Exists && tempFileInfo.Length > 0)
+            {
+                if (Info.Size > 0 && tempFileInfo.Length == Info.Size) // 大小一致姑且认为是对的，在Compelete回调里，再自己校验
+                {
+                    // 这种情况，应该是较少的
+                    Position = Info.Size;
+                    MoveFile();
+                    Status = EDownloadStatus.Success;
                     return;
                 }
 
@@ -225,11 +255,11 @@ namespace Saro.Net
                 // IOException: Sharing violation on path
                 if (m_Writer == null)
                 {
-                    m_Writer = fileInfo.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+                    m_Writer = tempFileInfo.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
                 }
 
                 bool newFile = false;
-                if (Info.Size < fileInfo.Length) // 现有文件比远端文件大
+                if (Info.Size < tempFileInfo.Length) // 现有文件比远端文件大
                 {
                     newFile = true;
                 }
@@ -253,7 +283,7 @@ namespace Saro.Net
 
                 if (!Info.IsValid(Position))
                 {
-                    Error = $"Invalid Range [{Info.Offset + Position }-{ Info.Offset + Position + Info.Size}]";
+                    Error = $"Invalid Range [{Info.Offset + Position}-{Info.Offset + Position + Info.Size}]";
                     Status = EDownloadStatus.Failed;
                     return;
                 }
@@ -264,15 +294,15 @@ namespace Saro.Net
             {
                 if (!Info.IsValid(Position))
                 {
-                    Error = $"Invalid Range [{Info.Offset + Position }-{ Info.Offset + Position + Info.Size}]";
+                    Error = $"Invalid Range [{Info.Offset + Position}-{Info.Offset + Position + Info.Size}]";
                     Status = EDownloadStatus.Failed;
                     return;
                 }
 
-                var dir = Path.GetDirectoryName(Info.SavePath);
+                var dir = Path.GetDirectoryName(Info.TempPath);
                 if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
-                m_Writer = File.Create(Info.SavePath);
+                m_Writer = File.Create(Info.TempPath);
                 Position = 0;
             }
 
