@@ -3,6 +3,14 @@ using System.Collections.Generic;
 
 namespace Saro.Localization
 {
+    /*
+     * TODO
+     * 
+     * 1. 到底用 int 作为key，还是 string？
+     *    string更可读，但费脑子需要命名。
+     *    int直接，直接递增即可，但意义不明，维护成本可能偏高？但似乎可以生成代码(enum)来解决这个问题
+     * 
+     */
     public sealed class LocalizationManager : IService
     {
         public static LocalizationManager Current => Main.Resolve<LocalizationManager>();

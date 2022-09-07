@@ -10,14 +10,6 @@ namespace Saro.Net
 
         private Vector2 m_Scroll;
 
-        public static void Create()
-        {
-            var go = new GameObject("[DownloaderDebuggerGUI]");
-            GameObject.DontDestroyOnLoad(go);
-
-            go.AddComponent<DownloaderDebuggerGUI>();
-        }
-
         private void OnGUI()
         {
             windowRect = GUI.Window(0, windowRect, DoMyWindow, "Downloader");

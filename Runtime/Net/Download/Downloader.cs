@@ -7,12 +7,16 @@ namespace Saro.Net
     {
         Wait,
         Progressing,
+        Moving,
         Success,
         Failed
     }
 
     public sealed class DownloadInfo
     {
+        // TODO 下载时，使用临时文件代替
+        public readonly static string k_TempExtension = ".temp";
+
         /// <summary>
         /// 下载链接
         /// </summary>
@@ -46,6 +50,10 @@ namespace Saro.Net
         /// <code>默认值为0</code>
         /// </summary>
         public int Timeout { get; set; }
+        /// <summary>
+        /// 临时文件路径
+        /// </summary>
+        public string TempPath => SavePath + k_TempExtension;
         /// <summary>
         /// 是否合法
         /// </summary>
