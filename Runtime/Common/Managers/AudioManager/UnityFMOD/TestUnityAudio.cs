@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Saro.Pool;
+using UnityEngine;
 
 namespace Saro.Audio.Tests
 {
@@ -6,7 +7,7 @@ namespace Saro.Audio.Tests
     {
         public AudioClip audioClip;
 
-        private AudioPlayerHandle m_Handle;
+        private ObjectHandle<AudioPlayer> m_Handle;
 
         private void OnGUI()
         {
@@ -18,7 +19,7 @@ namespace Saro.Audio.Tests
             if (GUILayout.Button("Stop Audio by handle"))
             {
                 if (m_Handle)
-                    m_Handle.AudioPlayer.StopAndRelease();
+                    m_Handle.Object.StopAndRelease();
             }
         }
     }

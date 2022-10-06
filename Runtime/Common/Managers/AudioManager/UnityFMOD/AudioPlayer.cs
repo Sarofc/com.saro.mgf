@@ -1,15 +1,13 @@
 ﻿using Saro.Core;
+using Saro.Pool;
 using System;
 using UnityEngine;
 
 namespace Saro.Audio
 {
     [ExecuteInEditMode]
-    public sealed class AudioPlayer : MonoBehaviour
+    public sealed class AudioPlayer : MonoBehaviour, IHandledObject
     {
-        /// <summary>
-        /// 实例ID，从1开始，0代表无效
-        /// </summary>
         public int ObjectID { get; internal set; }
 
         /// <summary>

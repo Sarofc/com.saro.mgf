@@ -271,6 +271,11 @@ namespace Saro.Audio
             PlayBGMInternal(clip, time, finishCallback, oneShot, forceReplay, assetHandle);
         }
 
+        public void PlayBGM(AudioClip clip, float time = 1f, Action finishCallback = null, bool oneShot = false, bool forceReplay = false)
+        {
+            PlayBGMInternal(clip, time, finishCallback, oneShot, forceReplay);
+        }
+
         private void PlayBGMInternal(AudioClip clip, float time = 1f, Action finishCallback = null, bool oneShot = false, bool forceReplay = false, IAssetHandle assetHandle = null)
         {
             if (clip == null)
@@ -398,7 +403,7 @@ namespace Saro.Audio
         /// </summary>
         private List<string> m_CurFrameSEClip = new List<string>();
 
-        public async UniTask<AudioPlayerHandle> PlaySEAsync(string assetName, float volumeScale = 1, bool loop = false, GameObject target = null)
+        public async UniTask<ObjectHandle<AudioPlayer>> PlaySEAsync(string assetName, float volumeScale = 1, bool loop = false, GameObject target = null)
         {
             if (IsMuteSE || VolumeSE <= 0)
             {
@@ -425,7 +430,7 @@ namespace Saro.Audio
             return PlaySEInternal(clip, volumeScale, loop, target, assetHandle);
         }
 
-        public AudioPlayerHandle PlaySE(string assetName, float volumeScale = 1, bool loop = false, GameObject target = null)
+        public ObjectHandle<AudioPlayer> PlaySE(string assetName, float volumeScale = 1, bool loop = false, GameObject target = null)
         {
             //禁音时直接返回
             if (IsMuteSE || VolumeSE <= 0)
@@ -452,12 +457,12 @@ namespace Saro.Audio
             return PlaySEInternal(clip, volumeScale, loop, target, assetHandle);
         }
 
-        public AudioPlayerHandle PlaySE(AudioClip clip, float volumeScale = 1, bool loop = false, GameObject target = null)
+        public ObjectHandle<AudioPlayer> PlaySE(AudioClip clip, float volumeScale = 1, bool loop = false, GameObject target = null)
         {
             return PlaySEInternal(clip, volumeScale, loop, target, null);
         }
 
-        private AudioPlayerHandle PlaySEInternal(AudioClip clip, float volumeScale = 1, bool loop = false, GameObject target = null, IAssetHandle assetHandle = null)
+        private ObjectHandle<AudioPlayer> PlaySEInternal(AudioClip clip, float volumeScale = 1, bool loop = false, GameObject target = null, IAssetHandle assetHandle = null)
         {
             if (m_AudioSourcePool == null)
             {
@@ -481,10 +486,10 @@ namespace Saro.Audio
 
             m_ActivateAudioPlayers.Add(audioPlayer);
 
-            return new AudioPlayerHandle(audioPlayer);
+            return new(audioPlayer);
         }
 
-        private AudioPlayerHandle PlaySEInternal(AudioClip clip, Vector3 target, float volumeScale = 1, bool loop = false, IAssetHandle assetHandle = null)
+        private ObjectHandle<AudioPlayer> PlaySEInternal(AudioClip clip, Vector3 target, float volumeScale = 1, bool loop = false, IAssetHandle assetHandle = null)
         {
             if (m_AudioSourcePool == null)
             {
@@ -505,7 +510,7 @@ namespace Saro.Audio
 
             m_ActivateAudioPlayers.Add(audioPlayer);
 
-            return new AudioPlayerHandle(audioPlayer);
+            return new(audioPlayer);
         }
 
         public void StopAllSE()

@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using Saro.Core;
+using Saro.Pool;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -37,7 +38,7 @@ namespace Saro.Gameplay.Effect
             EffectPath = effectPath;
         }
 
-        public async UniTask<EffectHandle> CreateEffectAsync(string effectName, Vector3 position)
+        public async UniTask<ObjectHandle<EffectScriptBase>> CreateEffectAsync(string effectName, Vector3 position)
         {
             bool createNew = false;
             EffectScriptBase effect = null;
@@ -78,10 +79,10 @@ namespace Saro.Gameplay.Effect
             effect.Init();
             effect.ObjectID = ++m_GlobalObjectID;
 
-            return new EffectHandle(effect);
+            return new(effect);
         }
 
-        public EffectHandle CreateEffect(string effectName)
+        public ObjectHandle<EffectScriptBase> CreateEffect(string effectName)
         {
             bool createNew = false;
             EffectScriptBase effect = null;
@@ -117,14 +118,14 @@ namespace Saro.Gameplay.Effect
             effect.Init();
             effect.ObjectID = ++m_GlobalObjectID;
 
-            return new EffectHandle(effect);
+            return new(effect);
         }
 
-        public void SetEffectControlPoint(EffectHandle handle, int cpIndex, ControlPoint cp)
+        public void SetEffectControlPoint(in ObjectHandle<EffectScriptBase> handle, int cpIndex, ControlPoint cp)
         {
             if (handle)
             {
-                var effect = handle.EffectScript;
+                var effect = handle.Object;
                 if (effect.cps != null && effect.cps.Length > cpIndex)
                 {
                     effect.cps[cpIndex] = cp;
@@ -136,11 +137,11 @@ namespace Saro.Gameplay.Effect
             }
         }
 
-        public void SetEffectControlEntity(EffectHandle handle, int ceIndex, ControlEntity ce)
+        public void SetEffectControlEntity(in ObjectHandle<EffectScriptBase> handle, int ceIndex, ControlEntity ce)
         {
             if (handle)
             {
-                var effect = handle.EffectScript;
+                var effect = handle.Object;
                 if (effect.ces != null && effect.ces.Length > ceIndex)
                 {
                     effect.ces[ceIndex] = ce;
@@ -152,31 +153,35 @@ namespace Saro.Gameplay.Effect
             }
         }
 
-        public void ReleaseEffect(EffectHandle handle)
+        public void ReleaseEffect(in ObjectHandle<EffectScriptBase> handle)
         {
             if (handle)
             {
-                var effect = handle.EffectScript;
-
-                if (effect == null)
-                {
-                    Log.ERROR($"[EffectManager] ReleaseEffect failed. Effect is null");
-                    return;
-                }
-
-                if (!m_EffectMap.TryGetValue(effect.EffectName, out var effectPool))
-                {
-                    effectPool = new EffectPool
-                    {
-                        effects = new Stack<EffectScriptBase>(32)
-                    };
-                    m_EffectMap.Add(effect.EffectName, effectPool);
-                }
-
-                effect.Clean();
-                effect.gameObject.transform.SetParent(m_EffectRoot.transform);
-                effectPool.effects.Push(effect);
+                var effect = handle.Object;
+                ReleaseEffect(effect);
             }
+        }
+
+        public void ReleaseEffect(EffectScriptBase effect)
+        {
+            if (effect == null)
+            {
+                Log.ERROR($"[EffectManager] ReleaseEffect failed. Effect is null");
+                return;
+            }
+
+            if (!m_EffectMap.TryGetValue(effect.EffectName, out var effectPool))
+            {
+                effectPool = new EffectPool
+                {
+                    effects = new Stack<EffectScriptBase>(32)
+                };
+                m_EffectMap.Add(effect.EffectName, effectPool);
+            }
+
+            effect.Clean();
+            effect.gameObject.transform.SetParent(m_EffectRoot.transform);
+            effectPool.effects.Push(effect);
         }
 
         public void DestroyEffect(EffectScriptBase effect)
@@ -218,7 +223,6 @@ namespace Saro.Gameplay.Effect
             if (m_EffectRoot != null)
             {
                 GameObject.Destroy(m_EffectRoot);
-                ;
             }
         }
     }
