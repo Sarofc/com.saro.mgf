@@ -7,7 +7,7 @@ namespace Saro.Pool
         /// <summary>
         /// 实例ID，从1开始自增，0代表无效
         /// </summary>
-        public int ObjectID { get; }
+        int ObjectID { get; }
     }
 
     /// <summary>
@@ -16,31 +16,9 @@ namespace Saro.Pool
     /// <typeparam name="T"></typeparam>
     public readonly struct ObjectHandle<T> : IEquatable<ObjectHandle<T>> where T : class, IHandledObject
     {
-        public readonly T Object
-        {
-            get
-            {
-                if (!IsValid())
-                {
-                    Log.ERROR($"{nameof(ObjectHandle<T>)} is invalid");
-                    return null;
-                }
-                return m_Object;
-            }
-        }
+        public readonly T Object => IsValid() ? m_Object : null;
 
-        public readonly int Handle
-        {
-            get
-            {
-                if (!IsValid())
-                {
-                    Log.ERROR($"{nameof(ObjectHandle<T>)} is invalid");
-                    return 0;
-                }
-                return m_CachedObjectID;
-            }
-        }
+        public readonly int Handle => IsValid() ? m_CachedObjectID : 0;
 
         private readonly T m_Object;
         private readonly int m_CachedObjectID;
@@ -53,9 +31,9 @@ namespace Saro.Pool
 
         private bool IsValid() => m_CachedObjectID != 0 && m_Object != null && m_Object.ObjectID == m_CachedObjectID;
 
-        public static explicit operator T(ObjectHandle<T> handle) => handle ? handle.m_Object : null;
+        public static explicit operator T(in ObjectHandle<T> handle) => handle.Object;
 
-        public static implicit operator bool(ObjectHandle<T> handle) => handle.IsValid();
+        public static implicit operator bool(in ObjectHandle<T> handle) => handle.IsValid();
 
         public bool Equals(ObjectHandle<T> other) => CompareObjects(this, other);
 
@@ -65,13 +43,13 @@ namespace Saro.Pool
             return Equals((ObjectHandle<T>)obj);
         }
 
-        public static bool operator ==(ObjectHandle<T> lhs, ObjectHandle<T> rhs) => CompareObjects(lhs, rhs);
+        public static bool operator ==(in ObjectHandle<T> lhs, in ObjectHandle<T> rhs) => CompareObjects(lhs, rhs);
 
-        public static bool operator !=(ObjectHandle<T> lhs, ObjectHandle<T> rhs) => !CompareObjects(lhs, rhs);
+        public static bool operator !=(in ObjectHandle<T> lhs, in ObjectHandle<T> rhs) => !CompareObjects(lhs, rhs);
 
         public override int GetHashCode() => m_CachedObjectID;
 
-        private static bool CompareObjects(ObjectHandle<T> lhs, ObjectHandle<T> rhs)
+        private static bool CompareObjects(in ObjectHandle<T> lhs, in ObjectHandle<T> rhs)
         {
             var validA = lhs.IsValid();
             var validB = rhs.IsValid();
