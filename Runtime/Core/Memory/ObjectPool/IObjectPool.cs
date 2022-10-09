@@ -1,14 +1,30 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+
 
 namespace Saro.Pool
 {
-    public interface IObjectPool<T> where T : class
+    public interface IObjectPool
     {
+        /// <summary>
+        /// 所有数量
+        /// </summary>
+        int CountAll { get; }
         /// <summary>
         /// 池中数量
         /// </summary>
         int CountInactive { get; }
+        /// <summary>
+        /// 使用数量
+        /// </summary>
+        int CountActive { get; }
+        int RentCount { get; }
+        int ReturnCount { get; }
+    }
 
+    public interface IObjectPool<T> : IObjectPool where T : class
+    {
         /// <summary>
         /// 租借
         /// </summary>

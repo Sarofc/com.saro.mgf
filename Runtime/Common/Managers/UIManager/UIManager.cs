@@ -130,7 +130,7 @@ namespace Saro.UI
         {
             m_UIDefCache.Clear();
 
-            var asmMap = Saro.Utility.ReflectionUtility.AssemblyMap;
+            var asmMap = Saro.Utility.TypeUtility.AssemblyMap;
             foreach (var asm in asmMap)
             {
                 var types = asm.Value.GetTypes();

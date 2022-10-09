@@ -20,7 +20,7 @@ namespace Saro.UI
         {
             base.OnEnable();
 
-            var allTypes = ReflectionUtility.GetSubClassTypesAllAssemblies(typeof(IUIBindProcessor));
+            var allTypes = TypeUtility.GetSubClassTypesAllAssemblies(typeof(IUIBindProcessor));
 
             m_BindTypes.Clear();
 

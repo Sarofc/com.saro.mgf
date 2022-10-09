@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Saro.SaroEditor
+namespace Saro.SEditor
 {
     using Object = UnityEngine.Object;
     public class ModelPreview

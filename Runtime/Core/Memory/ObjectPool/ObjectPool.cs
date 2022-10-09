@@ -11,21 +11,12 @@ namespace Saro.Pool
     {
         public int CountAll { get; private set; }
 
-        public int CountActive
-        {
-            get
-            {
-                return CountAll - CountInactive;
-            }
-        }
+        public int CountActive => CountAll - CountInactive;
 
-        public int CountInactive
-        {
-            get
-            {
-                return m_Stack.Count;
-            }
-        }
+        public int CountInactive => m_Stack.Count;
+
+        public int RentCount { get; private set; }
+        public int ReturnCount { get; private set; }
 
         public ObjectPool(Func<T> createFunc, Action<T> actionOnGet = null, Action<T> actionOnRelease = null, Action<T> actionOnDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000)
         {
@@ -45,6 +36,8 @@ namespace Saro.Pool
             m_ActionOnRelease = actionOnRelease;
             m_ActionOnDestroy = actionOnDestroy;
             m_CollectionCheck = collectionCheck;
+
+            ObjectPoolChecker.Register(this);
         }
 
         public ObjectPool(Func<UniTask<T>> createFuncAsync, Action<T> actionOnGet = null, Action<T> actionOnRelease = null, Action<T> actionOnDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000)
@@ -65,6 +58,8 @@ namespace Saro.Pool
             m_ActionOnRelease = actionOnRelease;
             m_ActionOnDestroy = actionOnDestroy;
             m_CollectionCheck = collectionCheck;
+
+            ObjectPoolChecker.Register(this);
         }
 
         public T Rent()
@@ -84,6 +79,7 @@ namespace Saro.Pool
             {
                 actionOnGet(t);
             }
+            RentCount++;
             return t;
         }
 
@@ -104,6 +100,7 @@ namespace Saro.Pool
             {
                 actionOnGet(t);
             }
+            RentCount++;
             return t;
         }
 
@@ -130,6 +127,7 @@ namespace Saro.Pool
             {
                 m_ActionOnDestroy?.Invoke(element);
             }
+            ReturnCount++;
         }
 
         public void Clear()
@@ -143,6 +141,8 @@ namespace Saro.Pool
             }
             m_Stack.Clear();
             CountAll = 0;
+            RentCount = 0;
+            ReturnCount = 0;
         }
 
         public void Dispose()

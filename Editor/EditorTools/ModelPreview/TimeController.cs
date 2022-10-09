@@ -6,7 +6,7 @@ using UnityEngine;
     Copy from UnityCsReference TimeControl.cs
 */
 
-namespace Saro.SaroEditor
+namespace Saro.SEditor
 {
     public class TimeController
     {

@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Diagnostics;
 using UnityEngine;
 
-namespace Saro.Attributes
+namespace Saro.SEditor
 {
     /// <summary>
     /// An attribute that can be placed on a string field to make it appear in
     /// the inspector as an object picker for the specified type and the
     /// selected objects path will be saved to the string field.
     /// </summary>
+    [Conditional("UNITY_EDITOR")]
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class AssetPathAttribute : PropertyAttribute
     {

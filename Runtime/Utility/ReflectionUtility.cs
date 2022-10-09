@@ -5,13 +5,18 @@ using System.Reflection;
 
 namespace Saro.Utility
 {
-    public static class ReflectionUtility
+    /*
+     * TODO
+     * 
+     * 优化下性能
+     * 
+     */
+    public static class TypeUtility
     {
         public static IReadOnlyDictionary<string, Assembly> AssemblyMap => s_AssemblyMap;
         private static readonly Dictionary<string, Assembly> s_AssemblyMap = new Dictionary<string, Assembly>(StringComparer.Ordinal);
 
-
-        static ReflectionUtility()
+        static TypeUtility()
         {
             CacheAssemblies();
         }

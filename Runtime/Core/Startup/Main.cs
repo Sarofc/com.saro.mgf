@@ -26,7 +26,7 @@ namespace Saro
 
             SynchronizationContext.SetSynchronizationContext(ThreadSynchronizationContext.Current);
 
-            var startupTypes = ReflectionUtility.GetSubClassTypesAllAssemblies(typeof(IStartup));
+            var startupTypes = TypeUtility.GetSubClassTypesAllAssemblies(typeof(IStartup));
 
             if (startupTypes != null && startupTypes.Count != 1)
             {

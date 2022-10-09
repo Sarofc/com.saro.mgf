@@ -2,7 +2,7 @@
 
 namespace Saro.Gameplay.Effect
 {
-    public class EffectScriptDelay : EffectScriptBase
+    public class EffectScriptDelay : VfxScriptBase
     {
         public float delayToReturn;
 

@@ -11,7 +11,7 @@ namespace Saro.Gameplay.Effect
     {
         private class EffectPool
         {
-            public Stack<EffectScriptBase> effects;
+            public Stack<VfxScriptBase> effects;
             public float usedTime;
 
             public void Use()
@@ -38,10 +38,10 @@ namespace Saro.Gameplay.Effect
             EffectPath = effectPath;
         }
 
-        public async UniTask<ObjectHandle<EffectScriptBase>> CreateEffectAsync(string effectName, Vector3 position)
+        public async UniTask<ObjectHandle<VfxScriptBase>> CreateEffectAsync(string effectName, Vector3 position)
         {
             bool createNew = false;
-            EffectScriptBase effect = null;
+            VfxScriptBase effect = null;
             if (m_EffectMap.TryGetValue(effectName, out var effectPool))
             {
                 var pool = effectPool.effects;
@@ -61,7 +61,7 @@ namespace Saro.Gameplay.Effect
             if (createNew)
             {
                 var effectAssetPath = EffectPath + effectName;
-                var effectPrefab = await m_LruAssetLoader.LoadAssetRefAsync<EffectScriptBase>(effectAssetPath);
+                var effectPrefab = await m_LruAssetLoader.LoadAssetRefAsync<VfxScriptBase>(effectAssetPath);
 
                 if (effectPrefab == null)
                 {
@@ -82,10 +82,10 @@ namespace Saro.Gameplay.Effect
             return new(effect);
         }
 
-        public ObjectHandle<EffectScriptBase> CreateEffect(string effectName)
+        public ObjectHandle<VfxScriptBase> CreateEffect(string effectName)
         {
             bool createNew = false;
-            EffectScriptBase effect = null;
+            VfxScriptBase effect = null;
             if (m_EffectMap.TryGetValue(effectName, out var effectPool))
             {
                 var pool = effectPool.effects;
@@ -103,7 +103,7 @@ namespace Saro.Gameplay.Effect
             if (createNew)
             {
                 var effectAssetPath = EffectPath + effectName;
-                var effectPrefab = m_LruAssetLoader.LoadAssetRef<EffectScriptBase>(effectAssetPath);
+                var effectPrefab = m_LruAssetLoader.LoadAssetRef<VfxScriptBase>(effectAssetPath);
 
                 if (effectPrefab == null)
                 {
@@ -121,7 +121,7 @@ namespace Saro.Gameplay.Effect
             return new(effect);
         }
 
-        public void SetEffectControlPoint(in ObjectHandle<EffectScriptBase> handle, int cpIndex, ControlPoint cp)
+        public void SetEffectControlPoint(in ObjectHandle<VfxScriptBase> handle, int cpIndex, ControlPoint cp)
         {
             if (handle)
             {
@@ -137,7 +137,7 @@ namespace Saro.Gameplay.Effect
             }
         }
 
-        public void SetEffectControlEntity(in ObjectHandle<EffectScriptBase> handle, int ceIndex, ControlEntity ce)
+        public void SetEffectControlEntity(in ObjectHandle<VfxScriptBase> handle, int ceIndex, ControlEntity ce)
         {
             if (handle)
             {
@@ -153,7 +153,7 @@ namespace Saro.Gameplay.Effect
             }
         }
 
-        public void ReleaseEffect(in ObjectHandle<EffectScriptBase> handle)
+        public void ReleaseEffect(in ObjectHandle<VfxScriptBase> handle)
         {
             if (handle)
             {
@@ -162,7 +162,7 @@ namespace Saro.Gameplay.Effect
             }
         }
 
-        public void ReleaseEffect(EffectScriptBase effect)
+        public void ReleaseEffect(VfxScriptBase effect)
         {
             if (effect == null)
             {
@@ -174,7 +174,7 @@ namespace Saro.Gameplay.Effect
             {
                 effectPool = new EffectPool
                 {
-                    effects = new Stack<EffectScriptBase>(32)
+                    effects = new Stack<VfxScriptBase>(32)
                 };
                 m_EffectMap.Add(effect.EffectName, effectPool);
             }
@@ -184,7 +184,7 @@ namespace Saro.Gameplay.Effect
             effectPool.effects.Push(effect);
         }
 
-        public void DestroyEffect(EffectScriptBase effect)
+        public void DestroyEffect(VfxScriptBase effect)
         {
         }
 

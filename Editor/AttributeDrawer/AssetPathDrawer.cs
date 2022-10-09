@@ -3,7 +3,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Saro.Attributes.Editor
+namespace Saro.SEditor
 {
     [CustomPropertyDrawer(typeof(AssetPathAttribute))]
     internal sealed class AssetPathDrawer : PropertyDrawer
