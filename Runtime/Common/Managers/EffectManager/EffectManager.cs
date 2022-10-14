@@ -32,9 +32,8 @@ namespace Saro.Gameplay.Effect
         // TODO 不要用这个，用DefaultAssetLoader
         private readonly LruAssetLoader m_LruAssetLoader = AssetLoaderFactory.Create<LruAssetLoader>(128);
 
-        public void SetAssetInterface(IAssetManager assetManager, string effectPath)
+        public void SetLoadPath(string effectPath)
         {
-            m_LruAssetLoader.SetAssetInterface(assetManager);
             EffectPath = effectPath;
         }
 

@@ -12,9 +12,8 @@ namespace Saro.Core
     /// </summary>
     public sealed class DefaultAssetLoader : IAssetLoader, IReference
     {
-        private IAssetManager m_AssetManager;
-
         private Dictionary<string, IAssetHandle> m_AssetCache;
+        private IAssetManager m_AssetManager => IAssetManager.Current;
 
         bool IAssetLoader.Poolable { get; set; }
 
@@ -22,9 +21,6 @@ namespace Saro.Core
 
         void IAssetLoader.Init(int capacity)
         {
-            if (m_AssetManager == null)
-                m_AssetManager = Main.Resolve<IAssetManager>();
-
             if (m_AssetCache == null)
                 m_AssetCache = new Dictionary<string, IAssetHandle>(capacity);
         }
@@ -100,55 +96,5 @@ namespace Saro.Core
         {
             UnloadAllAssetRef();
         }
-
-        #region 基于ID的接口，可选实现
-
-        public T LoadAssetRef<T>(int assetID) where T : Object
-        {
-            var assetPath = GetAssetPath(assetID);
-            return LoadAssetRef<T>(assetPath);
-        }
-
-        public UniTask<T> LoadAssetRefAsync<T>(int assetID) where T : Object
-        {
-            var assetPath = GetAssetPath(assetID);
-            return LoadAssetRefAsync<T>(assetPath);
-        }
-
-        public Object LoadAssetRef(int assetID, Type type)
-        {
-            var assetPath = GetAssetPath(assetID);
-            return LoadAssetRef(assetPath, type);
-        }
-
-        public UniTask<Object> LoadAssetRefAsync(int assetID, Type type)
-        {
-            var assetPath = GetAssetPath(assetID);
-            return LoadAssetRefAsync(assetPath, type);
-        }
-
-        public IAssetHandle LoadAsset(int assetID, Type type)
-        {
-            return m_AssetManager.LoadAsset(assetID, type);
-        }
-
-        public IAssetHandle LoadAssetAsync(int assetID, Type type)
-        {
-            return m_AssetManager.LoadAssetAsync(assetID, type);
-        }
-
-        private string GetAssetPath(int assetID)
-        {
-            var assetTable = m_AssetManager.AssetTable;
-            var assetPath = assetTable.GetAssetPath(assetID);
-            if (string.IsNullOrEmpty(assetPath))
-            {
-                Log.ERROR($"assetID({assetID}) is invalid. assetPath is null or empty");
-                return null;
-            }
-            return assetPath;
-        }
-
-        #endregion
     }
 }

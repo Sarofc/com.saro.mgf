@@ -123,7 +123,7 @@ namespace Saro
     /*
      * IServiceLocator
      */
-    public sealed partial class Main
+    public partial class Main
     {
         private IServiceLocator m_Locator = new DefaultServiceLocator();
 
@@ -164,9 +164,32 @@ namespace Saro
     }
 
     /*
+     * AssetLoader
+     */
+    public partial class Main
+    {
+        /// <summary>
+        /// 全局 资源加载器
+        /// <code>默认使用 <see cref="DefaultAssetLoader"/>，资源不会自动释放。可自行更换 <see cref="SetMainAssetLoader(IAssetLoader)"/></code>
+        /// </summary>
+        public static IAssetLoader MainAssetLoader => Instance.m_MainAssetLoader;
+
+        private IAssetLoader m_MainAssetLoader = AssetLoaderFactory.Create<DefaultAssetLoader>(2048, false);
+
+        /// <summary>
+        /// 设置全局资源管理器
+        /// </summary>
+        /// <param name="loader"></param>
+        public static void SetMainAssetLoader(IAssetLoader loader)
+        {
+            Instance.m_MainAssetLoader = loader;
+        }
+    }
+
+    /*
      * MonoBehaviour Event Function
      */
-    public sealed partial class Main
+    public partial class Main
     {
         #region Mono LifeCycle
 
@@ -342,7 +365,7 @@ namespace Saro
     /*
      * Coroutine Support
      */
-    public sealed partial class Main
+    public partial class Main
     {
         #region Coroutine
 

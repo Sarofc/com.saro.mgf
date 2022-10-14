@@ -97,19 +97,5 @@ namespace Saro.Core
         UniTask<string> GetRawFilePathAsync(string assetName);
 
         #endregion
-
-        #region 基于ID的接口，可选实现
-
-        IAssetTable AssetTable { get; }
-
-        void LoadAssetTable(IAssetTableProvider provider) => throw new NotImplementedException("基于AssetID的加载接口未实现");
-
-        UniTask LoadAssetTableAsync(IAssetTableProvider provider) => throw new NotImplementedException("基于AssetID的加载接口未实现");
-
-        IAssetHandle LoadAsset(int assetID, Type type) => throw new NotImplementedException("基于AssetID的加载接口未实现");
-
-        IAssetHandle LoadAssetAsync(int assetID, Type type) => throw new NotImplementedException("基于AssetID的加载接口未实现");
-
-        #endregion
     }
 }

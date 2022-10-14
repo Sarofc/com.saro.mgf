@@ -1,8 +1,4 @@
 ﻿#if UNITY_EDITOR
-// ---------------------------------------------------------------------------- 
-// Author: Ryan Hipple
-// Date:   05/01/2018
-// ----------------------------------------------------------------------------
 
 using System;
 using System.Linq;
@@ -12,10 +8,6 @@ using UnityEngine;
 
 namespace Saro.SEditor
 {
-    /// <summary>
-    /// Draws the custom enum selector popup for enum fileds using the
-    /// SearchableEnumAttribute.
-    /// </summary>
     [CustomPropertyDrawer(typeof(SelectTypeAttribute))]
     internal class SelectTypeDrawer : PropertyDrawer
     {

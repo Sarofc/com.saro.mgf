@@ -52,6 +52,7 @@ namespace Saro.UI
             base.SetLayoutHorizontal();
         }
 
+        [ContextMenu("ReloadData")]
         public void ReloadData()
         {
             if (DataProvider == null)
@@ -95,9 +96,17 @@ namespace Saro.UI
         {
             m_SuperScrollRectImpl.Refresh();
         }
+
+        protected override void LateUpdate()
+        {
+            base.LateUpdate();
+
+            m_SuperScrollRectImpl?.ProcessTasks();
+        }
     }
 
 #if UNITY_EDITOR
+
 
     [CustomEditor(typeof(BaseSuperScrollRect), true)]
     [CanEditMultipleObjects]
@@ -140,18 +149,33 @@ namespace Saro.UI
             PropertyField("m_ScrollSensitivity");
 
             EditorGUILayout.Space();
-            PropertyField("m_VerticalScrollbar");
-            PropertyField("m_HorizontalScrollbar");
+            var verticalScrollbar = PropertyField("m_VerticalScrollbar");
+            if (verticalScrollbar.objectReferenceValue != null)
+            {
+                EditorGUI.indentLevel++;
+                PropertyField("m_VerticalScrollbarVisibility");
+                PropertyField("m_VerticalScrollbarSpacing");
+                EditorGUI.indentLevel--;
+            }
+
+            var horizontalScrollbar = PropertyField("m_HorizontalScrollbar");
+            if (horizontalScrollbar.objectReferenceValue != null)
+            {
+                EditorGUI.indentLevel++;
+                PropertyField("m_HorizontalScrollbarVisibility");
+                PropertyField("m_HorizontalScrollbarSpacing");
+                EditorGUI.indentLevel--;
+            }
 
             EditorGUILayout.Space();
             PropertyField("m_OnValueChanged");
-
         }
 
-        private void PropertyField(string name)
+        private SerializedProperty PropertyField(string name)
         {
             SerializedProperty serializedProperty = serializedObject.FindProperty(name);
             EditorGUILayout.PropertyField(serializedProperty, Array.Empty<GUILayoutOption>());
+            return serializedProperty;
         }
     }
 

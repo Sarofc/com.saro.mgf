@@ -1,12 +1,12 @@
 ﻿#if UNITY_EDITOR
 
-using System;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-
 namespace Saro.UI
 {
+    using System;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using UnityEngine.UI;
+
     internal class UIBinder_BuiltIn : IUIBindProcessor
     {
         public Dictionary<string, Type> Binds { get; } = new Dictionary<string, Type>

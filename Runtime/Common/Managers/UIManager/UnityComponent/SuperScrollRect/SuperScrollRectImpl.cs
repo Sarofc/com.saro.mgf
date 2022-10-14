@@ -65,31 +65,39 @@ namespace Saro.UI
         /// 已加载cell集合
         /// </summary>
         private readonly HashSet<int> m_CellLoadedSet = new();
-        private Coroutine m_TaskProcessor;
+        //private Coroutine m_TaskProcessor;
 
         public void DoAwake(BaseSuperScrollRect baseSuperScrollRect)
         {
             m_BaseSuperScrollRect = baseSuperScrollRect;
             m_Segment = (IsGrid ? baseSuperScrollRect.segment : 1);
 
-            m_CellWidth = CellPrefab.sizeDelta.x + baseSuperScrollRect.spacing.x;
-            m_CellHeight = CellPrefab.sizeDelta.y + baseSuperScrollRect.spacing.y;
+            SetPivotTopAndLeft(CellPrefab);
+            if (IsGrid) SetAnchorTopAndLeft(CellPrefab);
+
+            m_CellWidth = CellPrefab.rect.width + baseSuperScrollRect.spacing.x;
+            m_CellHeight = CellPrefab.rect.height + baseSuperScrollRect.spacing.y;
+
             m_CellNum = (Vertical ? Mathf.CeilToInt(Viewport.rect.height / m_CellHeight) : Mathf.CeilToInt(Viewport.rect.width / m_CellWidth)) + 1;
+
             DoReset();
         }
 
         public void DoStart()
         {
-            SetAnchorTopAndLeft(Content);
+            SetPivotTopAndLeft(Content);
             UpdateBounds();
             var size = Content.rect.size;
-            var num = Mathf.CeilToInt((float)(DataProvider.GetCellCount() / m_Segment)) + 1;
-            var vector = Vertical ? new Vector2(size.x, (float)num * m_CellHeight) : new Vector2((float)num * m_CellWidth, size.y);
+            var num = Mathf.CeilToInt((float)DataProvider.GetCellCount() / m_Segment);
+            var vector = Vertical ? new Vector2(size.x, num * m_CellHeight) : new Vector2(num * m_CellWidth, size.y);
             vector += m_BaseSuperScrollRect.padding;
-            Content.sizeDelta = vector;
+            Content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, vector.x);
+            Content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, vector.y);
             DoReset();
             CheckVisibility();
-            m_TaskProcessor = m_BaseSuperScrollRect.StartCoroutine(ProcessTasks());
+
+            EnableTasks = true;
+            //m_TaskProcessor = m_BaseSuperScrollRect.StartCoroutine(ProcessTasks());
         }
 
         public void JumpTo(int index)
@@ -99,11 +107,11 @@ namespace Saro.UI
             var num = index / m_Segment;
             if (Vertical)
             {
-                anchoredPosition = new(anchoredPosition.x, (float)num * m_CellHeight);
+                anchoredPosition = new(anchoredPosition.x, num * m_CellHeight);
             }
             else
             {
-                anchoredPosition = new((float)num * m_CellWidth, anchoredPosition.y);
+                anchoredPosition = new(-num * m_CellWidth, anchoredPosition.y);
             }
             Content.anchoredPosition = anchoredPosition;
             Refresh();
@@ -119,19 +127,19 @@ namespace Saro.UI
         {
             ClearCacheCells(false);
             CellPrefab.gameObject.SetActive(true);
-            SetAnchorTopAndLeft(CellPrefab);
             CellPrefab.gameObject.SetActive(false);
-            if (m_TaskProcessor != null)
-            {
-                m_BaseSuperScrollRect.StopCoroutine(m_TaskProcessor);
-            }
+            EnableTasks = false;
+            //if (m_TaskProcessor != null)
+            //{
+            //    m_BaseSuperScrollRect.StopCoroutine(m_TaskProcessor);
+            //}
             m_TaskQueue.Clear();
             m_CellLoadedSet.Clear();
             m_CellList.Clear();
             m_Index2Cell.Clear();
         }
 
-        public void ClearCacheCells(bool distroy = false)
+        public void ClearCacheCells(bool destroy = false)
         {
             m_TaskQueue.Clear();
             m_CellLoadedSet.Clear();
@@ -140,7 +148,7 @@ namespace Saro.UI
                 ReleaseCellGameObject(scrollRectCell_);
             }
             m_CellList.Clear();
-            if (distroy)
+            if (destroy)
             {
                 var count = m_GameObjectPool.Count;
                 for (int i = 0; i < count; i++)
@@ -231,9 +239,10 @@ namespace Saro.UI
             rect.sizeDelta = new Vector2(width, height);
         }
 
-        private IEnumerator ProcessTasks()
+        private bool EnableTasks = false;
+        internal void ProcessTasks()
         {
-            while (true)
+            if (EnableTasks)
             {
                 var num = 0;
                 while (num < MaxUpdateCountPerFrame && m_TaskQueue.Count != 0)
@@ -243,19 +252,19 @@ namespace Saro.UI
                     // 在可见区域 且 没有被加载，就要加载数据了
                     if (IsVisible(index) && !m_CellLoadedSet.Contains(index))
                     {
-                        var rectTransform = GetCellGameObject();
-                        rectTransform.anchoredPosition = GetAnchorPositionByIndex(index);
+                        var cellRect = GetCellGameObject();
+                        cellRect.anchoredPosition = GetAnchorPositionByIndex(index);
                         m_CellList.Add(new ScrollRectCell
                         {
-                            item = rectTransform,
+                            item = cellRect,
                             index = index
                         });
                         m_CellLoadedSet.Add(index);
-                        DataProvider.SetCell(rectTransform.gameObject, index);
+                        DataProvider.SetCell(cellRect.gameObject, index);
                         num++;
                     }
                 }
-                yield return null;
+                //yield return null;
             }
         }
 
@@ -264,9 +273,15 @@ namespace Saro.UI
             return index >= m_MinVisibleIndex && index <= m_MaxVisibleIndex;
         }
 
+        // 只有grid需要
         private void SetAnchorTopAndLeft(RectTransform rect)
         {
             SetAnchor(rect, new Vector2(0f, 1f));
+        }
+
+        private void SetPivotTopAndLeft(RectTransform rect)
+        {
+            rect.pivot = new Vector2(0f, 1f);
         }
 
         private void ReleaseCellGameObject(ScrollRectCell cell)

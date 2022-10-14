@@ -125,13 +125,6 @@ namespace Saro.SEditor
             return curve;
         }
 
-        public static string NicifyClassName(string name)
-        {
-            if (name.StartsWith("Cinemachine"))
-                name = name.Substring(11); // Trim the prefix
-            return ObjectNames.NicifyVariableName(name);
-        }
-
         // Temporarily here
         public static GameObject CreateGameObject(string name, params Type[] types)
         {

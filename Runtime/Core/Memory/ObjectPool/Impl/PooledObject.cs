@@ -2,7 +2,7 @@
 
 namespace Saro.Pool
 {
-    public struct PooledObject<T> : IDisposable where T : class
+    public readonly struct PooledObject<T> : IDisposable where T : class
     {
         internal PooledObject(T value, IObjectPool<T> pool)
         {
@@ -10,7 +10,7 @@ namespace Saro.Pool
             m_Pool = pool;
         }
 
-        void IDisposable.Dispose()
+        public void Dispose()
         {
             m_Pool.Return(m_ToReturn);
         }

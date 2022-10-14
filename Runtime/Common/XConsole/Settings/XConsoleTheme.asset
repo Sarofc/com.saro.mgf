@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47cf5a123e65b4c4bb3271060e906aeb, type: 3}
+  m_Name: XConsoleTheme
+  m_EditorClassIdentifier: 
+  info: {fileID: 21300000, guid: 9263d0032e469f146a937a91068c5083, type: 3}
+  warning: {fileID: 21300000, guid: ab87001f810e52f4699ff2dea4613be6, type: 3}
+  error: {fileID: 21300000, guid: 3a8007aa4c6d050469d23097948ceb8f, type: 3}
+  btnNormalColor: {r: 0.31132078, g: 0.31132078, b: 0.31132078, a: 0.62352943}
+  btnSelectedColor: {r: 0, g: 0, b: 0, a: 0.5294118}
+  lotItemColor1: {r: 0.5, g: 0.5, b: 0.5, a: 0.27058825}
+  lotItemColor2: {r: 0, g: 0, b: 0, a: 0}
+  textDefaultColor: {r: 1, g: 1, b: 1, a: 1}
+  suggestionTextHighlightColor: {r: 1, g: 0.58928937, b: 0, a: 1}

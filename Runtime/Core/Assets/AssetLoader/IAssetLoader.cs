@@ -84,21 +84,5 @@ namespace Saro.Core
         UniTask<T> LoadAssetRefAsync<T>(string assetPath) where T : Object => throw new NotImplementedException("泛型接口未实现");
 
         #endregion
-
-        #region 基于ID的接口，可选实现
-
-        T LoadAssetRef<T>(int assetID) where T : Object => throw new NotImplementedException("基于AssetID的加载接口未实现");
-
-        UniTask<T> LoadAssetRefAsync<T>(int assetID) where T : Object => throw new NotImplementedException("基于AssetID的加载接口未实现");
-
-        Object LoadAssetRef(int assetID, Type type) => throw new NotImplementedException("基于AssetID的加载接口未实现");
-
-        UniTask<Object> LoadAssetRefAsync(int assetID, Type type) => throw new NotImplementedException("基于AssetID的加载接口未实现");
-
-        IAssetHandle LoadAsset(int assetID, Type type) => throw new NotImplementedException("基于AssetID的加载接口未实现");
-
-        IAssetHandle LoadAssetAsync(int assetID, Type type) => throw new NotImplementedException("基于AssetID的加载接口未实现");
-
-        #endregion
     }
 }
