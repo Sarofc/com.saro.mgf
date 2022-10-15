@@ -1,6 +1,7 @@
 ﻿#if true
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Saro.XConsole
@@ -10,8 +11,6 @@ namespace Saro.XConsole
 
     internal class LogStorage
     {
-        private const string k_Terminal_Console_LogFlag = "terminal_console_logflag";
-
         /// <summary>
         /// 日志条目
         /// </summary>
@@ -29,18 +28,23 @@ namespace Saro.XConsole
 
             public int count;
 
-            private static Stack<LogEntry> s_Pool = new Stack<LogEntry>();
-            private static readonly object s_PoolLock = new object();
+            private static Stack<LogEntry> s_Pool = new();
+            private static readonly object s_PoolLock = new();
 
             public static LogEntry Create(string logString, string stackTrace, UnityEngine.LogType logType)
             {
-                if (s_Pool.Count > 0)
+                LogEntry entry = null;
+
+                lock (s_PoolLock)
                 {
-                    LogEntry entry = null;
-                    lock (s_PoolLock)
+                    if (s_Pool.Count > 0)
                     {
                         entry = s_Pool.Pop();
                     }
+                }
+
+                if (entry != null)
+                {
                     entry.logString = logString;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -52,10 +56,8 @@ namespace Saro.XConsole
 
                     return entry;
                 }
-                else
-                {
-                    return new LogEntry(logString, stackTrace, logType);
-                }
+
+                return new LogEntry(logString, stackTrace, logType);
             }
 
             public static void Release(LogEntry entry)
@@ -224,10 +226,7 @@ namespace Saro.XConsole
         /// </summary>
         public bool IsWarningEnable
         {
-            get
-            {
-                return HasLogFlag(ELogTypeFlag.Warning);
-            }
+            get => HasLogFlag(ELogTypeFlag.Warning);
             set
             {
                 if (value)
@@ -246,10 +245,7 @@ namespace Saro.XConsole
         /// </summary>
         public bool IsErrorEnable
         {
-            get
-            {
-                return HasLogFlag(ELogTypeFlag.Error);
-            }
+            get => HasLogFlag(ELogTypeFlag.Error);
             set
             {
                 if (value)
@@ -263,13 +259,7 @@ namespace Saro.XConsole
             }
         }
 
-        public bool IsDebugAll
-        {
-            get
-            {
-                return m_LogFlag == ELogTypeFlag.DebugAll;
-            }
-        }
+        public bool IsDebugAll => LogFlag == ELogTypeFlag.DebugAll;
 
         /// <summary>
         /// 日志flag
@@ -283,6 +273,7 @@ namespace Saro.XConsole
             Info = 1 << 3,
 
             Collapsed = 1 << 4,
+
             Timestamp = 1 << 5,
 
             DebugAll = Error | Warning | Info,
@@ -290,7 +281,8 @@ namespace Saro.XConsole
             All = Collapsed | Timestamp | DebugAll,
         }
 
-        private ELogTypeFlag m_LogFlag;
+        private Configs m_Configs;
+        private ELogTypeFlag LogFlag { get => (ELogTypeFlag)m_Configs.logFlag; set => m_Configs.logFlag = (int)value; }
 
         /// <summary>
         /// 接收unity log，view需要监听
@@ -318,19 +310,16 @@ namespace Saro.XConsole
         // logentry index to show
         private List<int> m_LogEntryIndicesToShow;
 
-        private Queue<LogEntry> m_LogQueue;
-        private readonly object m_LogQueueLock = new object();
+        private ConcurrentQueue<LogEntry> m_LogQueue;
+        //private Queue<LogEntry> m_LogQueue;
+        //private readonly object m_LogQueueLock = new object();
 
         private int m_InfoCount, m_WarningCount, m_ErrorCount;
 
-        // TODO timestamp 
-        // s_UnCollapsedLogEntryIndices 反向去重，或许可以
-        private List<string> m_Timestamps;
-        private List<int> m_CollapsedTimestampsIndices;
-        private HashSet<int> m_Set;
-
-        internal LogStorage()
+        internal LogStorage(Configs configs)
         {
+            m_Configs = configs;
+
             InitializeConfig();
 
             //Log.INFO("flag: " + m_LogFlag);
@@ -340,18 +329,12 @@ namespace Saro.XConsole
 
         private void InitializeConfig()
         {
-            m_CollapsedLogEntries ??= new List<LogEntry>();
-            m_CollapsedLogEntriesMap ??= new Dictionary<LogEntry, int>();
-            m_UnCollapsedLogEntryIndices ??= new List<int>();
-            m_LogEntryIndicesToShow ??= new List<int>();
+            m_CollapsedLogEntries ??= new();
+            m_CollapsedLogEntriesMap ??= new();
+            m_UnCollapsedLogEntryIndices ??= new();
+            m_LogEntryIndicesToShow ??= new();
 
-            m_LogQueue ??= new Queue<LogEntry>();
-
-            m_Timestamps ??= new List<string>();
-            m_CollapsedTimestampsIndices ??= new List<int>();
-            m_Set ??= new HashSet<int>();
-
-            m_LogFlag = (ELogTypeFlag)UnityEngine.PlayerPrefs.GetInt(k_Terminal_Console_LogFlag, (int)ELogTypeFlag.All);
+            m_LogQueue ??= new();
         }
 
         internal void ClearLog()
@@ -366,11 +349,6 @@ namespace Saro.XConsole
             m_CollapsedLogEntriesMap.Clear();
             m_UnCollapsedLogEntryIndices.Clear();
             m_LogEntryIndicesToShow.Clear();
-
-            m_Timestamps.Clear();
-            m_CollapsedTimestampsIndices.Clear();
-            m_Set.Clear();
-
 
             m_InfoCount = m_WarningCount = m_ErrorCount = 0;
 
@@ -463,10 +441,7 @@ namespace Saro.XConsole
         {
             var entry = LogEntry.Create(logString, stackTrace, logType);
 
-            lock (m_LogQueueLock)
-            {
-                m_LogQueue.Enqueue(entry);
-            }
+            m_LogQueue.Enqueue(entry);
         }
 
         /// <summary>
@@ -475,13 +450,9 @@ namespace Saro.XConsole
         internal void ProcessLogQueue()
         {
             // 是否需要限制每帧处理的数量？？？
-            lock (m_LogQueueLock)
+            if (m_LogQueue.TryDequeue(out var logEntry))
             {
-                while (m_LogQueue.Count > 0)
-                {
-                    LogEntry entry = m_LogQueue.Dequeue();
-                    ProcessLog(entry);
-                }
+                ProcessLog(logEntry);
             }
         }
 
@@ -532,24 +503,19 @@ namespace Saro.XConsole
             return m_LogEntryIndicesToShow.IndexOf(entryIndex);
         }
 
-        internal void SaveSettings()
-        {
-            UnityEngine.PlayerPrefs.SetInt(k_Terminal_Console_LogFlag, (int)m_LogFlag);
-        }
-
         private void SetLogFlag(ELogTypeFlag type)
         {
-            m_LogFlag |= type;
+            LogFlag |= type;
         }
 
         private void UnsetLogFlag(ELogTypeFlag type)
         {
-            m_LogFlag &= ~type;
+            LogFlag &= ~type;
         }
 
         private bool HasLogFlag(ELogTypeFlag type)
         {
-            return (m_LogFlag & type) != 0;
+            return (LogFlag & type) != 0;
         }
     }
 }

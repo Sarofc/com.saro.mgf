@@ -7,18 +7,20 @@ using UnityEngine;
 
 public class ScriptGenTemplate
 {
+    private const string k_MenuItemPrefix = "Assets/Create/MGF/";
+
     // TODO 搞个 GenericMenu 直接数据驱动
 
     private const string k_EventScript_Path = @"Packages\com.saro.mgf\Editor\EditorTools\CodeGen\CodeGen.Template\Templates\Template_EventScript.txt";
     private const string k_UIScript_Path = @"Packages\com.saro.mgf\Editor\EditorTools\CodeGen\CodeGen.Template\Templates\Template_UIScript.txt";
 
-    [MenuItem("Assets/Create/Scripts/Event Script", false, 81)]
+    [MenuItem(k_MenuItemPrefix + "Scripts/Event Script", false, 81)]
     private static void CreateNewEventScript()
     {
         CreateNewScript(k_EventScript_Path);
     }
 
-    [MenuItem("Assets/Create/Scripts/UI Script", false, 81)]
+    [MenuItem(k_MenuItemPrefix + "Scripts/UI Script", false, 81)]
     private static void CreateNewUIScript()
     {
         CreateNewScript(k_UIScript_Path);

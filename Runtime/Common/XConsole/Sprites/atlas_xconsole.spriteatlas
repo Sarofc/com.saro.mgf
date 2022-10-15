@@ -40,6 +40,7 @@ SpriteAtlas:
       allowAlphaSplitting: 0
       enableRotation: 0
       enableTightPacking: 1
+      enableAlphaDilation: 0
     secondaryTextureSettings: {}
     variantMultiplier: 1
     packables:
@@ -47,7 +48,6 @@ SpriteAtlas:
     - {fileID: 2800000, guid: 9263d0032e469f146a937a91068c5083, type: 3}
     - {fileID: 2800000, guid: dc42d7959a945ff4d82e83ca66900834, type: 3}
     - {fileID: 2800000, guid: ab87001f810e52f4699ff2dea4613be6, type: 3}
-    totalSpriteSurfaceArea: 4096
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
@@ -63,5 +63,5 @@ SpriteAtlas:
   - icon_error
   - icon_warning
   m_RenderDataMap: {}
-  m_Tag: DevConsole_Atlas
+  m_Tag: atlas_xconsole
   m_IsVariant: 0

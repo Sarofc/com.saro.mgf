@@ -83,9 +83,15 @@
 - Localization
   - 支持自定义数据源
   - 支持本地化各种类型的资源
-- 代码热更新
+- Hotupdate
   - hybridclr
   - Lua（废弃）
+- XConsole
+  - 游戏内控制台
+  - 支持大量log显示
+  - log折叠、log等级分类
+  - 命令绑定，通过字符串调用
+  - 命令输入补全提示
 
 **Workflow**
 - CodeGen

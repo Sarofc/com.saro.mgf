@@ -15,9 +15,19 @@ MonoBehaviour:
   info: {fileID: 21300000, guid: 9263d0032e469f146a937a91068c5083, type: 3}
   warning: {fileID: 21300000, guid: ab87001f810e52f4699ff2dea4613be6, type: 3}
   error: {fileID: 21300000, guid: 3a8007aa4c6d050469d23097948ceb8f, type: 3}
+  resize: {fileID: 21300000, guid: dc42d7959a945ff4d82e83ca66900834, type: 3}
+  textDefaultColor: {r: 1, g: 1, b: 1, a: 1}
   btnNormalColor: {r: 0.31132078, g: 0.31132078, b: 0.31132078, a: 0.62352943}
   btnSelectedColor: {r: 0, g: 0, b: 0, a: 0.5294118}
   lotItemColor1: {r: 0.5, g: 0.5, b: 0.5, a: 0.27058825}
   lotItemColor2: {r: 0, g: 0, b: 0, a: 0}
-  textDefaultColor: {r: 1, g: 1, b: 1, a: 1}
-  suggestionTextHighlightColor: {r: 1, g: 0.58928937, b: 0, a: 1}
+  logItemSelectColor: {r: 0.35534585, g: 0.6764089, b: 1, a: 0.62352943}
+  logItemBgCountColor: {r: 0, g: 0, b: 0, a: 0.827451}
+  suggestionTextHighlightColor: {r: 1, g: 0.8592559, b: 0, a: 1}
+  bgSuggestionColor: {r: 0, g: 0, b: 0, a: 0.9411765}
+  bgBottomBarColor: {r: 0, g: 0, b: 0, a: 0.5019608}
+  bgLogItemViewColor: {r: 0, g: 0, b: 0, a: 0.5}
+  bgLogDetialViewColor: {r: 0, g: 0, b: 0, a: 0.5}
+  bgTopBarColor: {r: 0, g: 0, b: 0, a: 0.7647059}
+  bgInputSearchColor: {r: 1, g: 1, b: 1, a: 0.1254902}
+  bgInputCommandColor: {r: 1, g: 1, b: 1, a: 0.1254902}

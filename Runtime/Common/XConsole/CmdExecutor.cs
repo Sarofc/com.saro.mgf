@@ -33,10 +33,8 @@ namespace Saro.XConsole
     /// </summary>
     public class CmdExecutor
     {
-        private const string k_CommandHistoryPath = "/cmd.txt";
-
         // 命令map
-        private SortedDictionary<string, Command> m_CommandMap = null;
+        private SortedDictionary<string, CmdData> m_CommandMap = null;
 
         // 参数解析函数map
         private Dictionary<Type, TypeParser> m_TypeMap = null;
@@ -55,100 +53,60 @@ namespace Saro.XConsole
         /// <summary>
         /// 非法字符
         /// </summary>
-        private readonly List<char> m_InvalidChrsForCommandName = new List<char> { ' ', /*'-',*/ '/', '\\', '\b', '\t', };
+        private readonly List<char> m_InvalidChrsForCommandName = new() { ' ', /*'-',*/ '/', '\\', '\b', '\t', };
 
-        public CmdExecutor()
+        private Configs m_Configs;
+
+        public CmdExecutor(Configs configs)
         {
+            m_Configs = configs;
+
             // 初始化各种容器
-            m_CommandMap = new SortedDictionary<string, Command>();
+            m_CommandMap = new SortedDictionary<string, CmdData>();
             m_Args = new Queue<string>(4);
             m_AutoCompleteCache = new List<string>(8);
             m_TypeMap = new Dictionary<Type, TypeParser>();
             m_CommandHistory = new LiteRingBuffer<string>(32);
 
             // 注册内置参数类型解析
-            RegisterType(typeof(string), ParseString);
-            RegisterType(typeof(int), ParseInt);
-            RegisterType(typeof(float), ParseFlot);
-            RegisterType(typeof(bool), ParseBool);
-            RegisterType(typeof(UnityEngine.Vector2), ParseVector2);
-            RegisterType(typeof(UnityEngine.Vector3), ParseVector3);
-            RegisterType(typeof(UnityEngine.Vector4), ParseVector4);
-            RegisterType(typeof(UnityEngine.GameObject), ParseGameobject);
+            RegisterArgTypeParser(typeof(string), ParseString);
+            RegisterArgTypeParser(typeof(int), ParseInt);
+            RegisterArgTypeParser(typeof(float), ParseFlot);
+            RegisterArgTypeParser(typeof(bool), ParseBool);
+            RegisterArgTypeParser(typeof(UnityEngine.Vector2), ParseVector2);
+            RegisterArgTypeParser(typeof(UnityEngine.Vector3), ParseVector3);
+            RegisterArgTypeParser(typeof(UnityEngine.Vector4), ParseVector4);
+            RegisterArgTypeParser(typeof(UnityEngine.GameObject), ParseGameobject);
 
             // 注册内置命令
             AddStaticCommand(typeof(BuiltInCommands));
 
-            // 读取命令历史
-            var fullpath = UnityEngine.Application.persistentDataPath + k_CommandHistoryPath;
-            try
-            {
-                if (System.IO.File.Exists(fullpath))
-                {
-                    using (var fs = new System.IO.FileStream(fullpath, System.IO.FileMode.Open, System.IO.FileAccess.Read))
-                    {
-                        using (var sr = new System.IO.StreamReader(fs))
-                        {
-                            while (!sr.EndOfStream)
-                            {
-                                m_CommandHistory.AddTail(sr.ReadLine());
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Log.ERROR("[Shell] " + e.Message);
-            }
-
-            m_CommandIdx = m_CommandHistory.Length;
-        }
-
-        internal void SaveSettings()
-        {
-            var fullpath = UnityEngine.Application.persistentDataPath + k_CommandHistoryPath;
-            if (m_CommandHistory.Length > 0)
-            {
-                try
-                {
-                    if (!System.IO.File.Exists(fullpath))
-                    {
-                        using (System.IO.File.Create(fullpath))
-                        {
-                        }
-                    }
-
-                    using (var fs = new System.IO.FileStream(fullpath, System.IO.FileMode.Truncate, System.IO.FileAccess.Write))
-                    {
-                        using (var sw = new System.IO.StreamWriter(fs))
-                        {
-                            for (int i = 0; i < m_CommandHistory.Length; i++)
-                            {
-                                sw.WriteLine(m_CommandHistory[i]);
-                            }
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Log.ERROR("[Shell] " + e.Message);
-                }
-            }
+            SetCommandHistory();
         }
 
         #region Command
+
+        private void SetCommandHistory()
+        {
+            var list = m_Configs.cmdHistories;
+            for (int i = 0; i < list.Count; i++)
+            {
+                var cmd = list[i];
+                m_CommandHistory.AddTail(cmd);
+            }
+            m_CommandIdx = m_CommandHistory.Length;
+        }
 
         /// <summary>
         /// 注册参数类型解析函数
         /// </summary>
         /// <param name="type"></param>
         /// <param name="fn"></param>
-        internal void RegisterType(Type type, TypeParser fn)
+        internal void RegisterArgTypeParser(Type type, TypeParser fn)
         {
             if (m_TypeMap.ContainsKey(type))
             {
-                Log.WARN("[Shell] Already contains this type: " + type);
+                Log.WARN("[XConsole] Already contains this type: " + type);
                 return;
             }
 
@@ -160,11 +118,11 @@ namespace Saro.XConsole
         /// </summary>
         /// <param name="classType"></param>
         /// <param name="instance"></param>
-        internal void AddCommandInstance(Type classType, object instance)
+        internal void AddInstanceCommand(Type classType, object instance)
         {
             if (instance == null)
             {
-                Log.ERROR("[Shell] Instance couldn't be null!");
+                Log.ERROR("[XConsole] Instance couldn't be null!");
                 return;
             }
 
@@ -173,9 +131,9 @@ namespace Saro.XConsole
             {
                 if (method != null)
                 {
-                    CommandAttribute attribute = method.GetCustomAttribute<CommandAttribute>();
+                    XCommandAttribute attribute = method.GetCustomAttribute<XCommandAttribute>();
                     if (attribute != null)
-                        InternalAddCommand(attribute.command, attribute.description, method, instance);
+                        InternalAddCommand(attribute.cmd, attribute.desc, method, instance);
                 }
             }
         }
@@ -183,82 +141,70 @@ namespace Saro.XConsole
         /// <summary>
         /// 移除命令
         /// </summary>
-        /// <param name="command">命令名称</param>
-        internal void RemoveCommand(string command)
+        /// <param name="cmd">命令名称</param>
+        internal void RemoveCommand(string cmd)
         {
-            if (m_CommandMap.ContainsKey(command))
+            if (m_CommandMap.ContainsKey(cmd))
             {
-                m_CommandMap.Remove(command);
+                m_CommandMap.Remove(cmd);
             }
         }
 
         /// <summary>
         /// 执行命令
         /// </summary>
-        /// <param name="commandLine">包括命令名称以及参数</param>
-        internal void ExecuteCommand(string commandLine)
+        /// <param name="cmdLine">包括命令名称以及参数</param>
+        internal void ExecuteCommand(string cmdLine)
         {
             // parse command
             // [0] is command
             // others are parameters
-            Queue<string> args = ParseCommandLine(commandLine);
+            Queue<string> args = ParseCommandLine(cmdLine);
             if (args.Count <= 0)
             {
-                Log.ERROR("[Shell] Command shouln't be null");
+                Log.ERROR("[XConsole] Command shouln't be null");
                 return;
             }
 
             // 除非是空串，不管命令是否有效，先都记录下来
-            PushCommandHistory(commandLine);
+            PushCommandHistory(cmdLine);
 
             string commandStr = args.Dequeue();
 
-            if (!m_CommandMap.TryGetValue(commandStr, out Command command))
+            if (!m_CommandMap.TryGetValue(commandStr, out CmdData command))
             {
-                Log.ERROR("[Shell] Can't find this command : " + commandStr);
+                Log.ERROR("[XConsole] Can't find this command : " + commandStr);
             }
             else if (!command.IsValid())
             {
-                Log.ERROR("[Shell] This command is not valid : " + commandStr);
+                Log.ERROR("[XConsole] This command is not valid : " + commandStr);
             }
             else
             {
                 if (!command.IsParamsCountMatch(args.Count))
                 {
-                    Log.ERROR($"[Shell] {commandStr} : Parameters count mismatch, expected count : {command.ParamsTypes.Length}. Type : {string.Join<object>(",", command.ParamsTypes)}");
+                    Log.ERROR($"[XConsole] {commandStr} : Parameters count mismatch, expected count : {command.ParamsTypes.Count}. Type : {string.Join<object>(",", command.ParamsTypes)}");
                     return;
                 }
 
-                object[] paramters = new object[command.ParamsTypes.Length];
-                for (int i = 0; i < command.ParamsTypes.Length; i++)
+                object[] paramters = new object[command.ParamsTypes.Count];
+                for (int i = 0; i < command.ParamsTypes.Count; i++)
                 {
                     if (!m_TypeMap.TryGetValue(command.ParamsTypes[i], out TypeParser typeParse))
                     {
-                        Log.ERROR("[Shell] This paramter type is unsupported : " + command.ParamsTypes[i].Name);
+                        Log.ERROR("[XConsole] This paramter type is unsupported : " + command.ParamsTypes[i].Name);
                         return;
                     }
 
                     if (typeParse?.Invoke(args.Peek(), out paramters[i]) == false)
                     {
-                        Log.ERROR($"[Shell] Can't parse {args.Peek()} to type {command.ParamsTypes[i].Name}");
+                        Log.ERROR($"[XConsole] Can't parse {args.Peek()} to type {command.ParamsTypes[i].Name}");
                     }
 
                     args.Dequeue();
                 }
                 // call method
                 command.Execute(paramters);
-            }
-        }
-
-        /// <summary>
-        /// 程序集里所有静态命令
-        /// </summary>
-        internal void AddAllStaticCommand()
-        {
-            IEnumerable<Type> types = TypeUtility.GetSubClassTypesAllAssemblies(typeof(ICommandRegister));
-            foreach (Type type in types)
-            {
-                AddStaticCommand(type);
             }
         }
 
@@ -273,9 +219,9 @@ namespace Saro.XConsole
             {
                 if (method != null)
                 {
-                    CommandAttribute attribute = method.GetCustomAttribute<CommandAttribute>();
+                    XCommandAttribute attribute = method.GetCustomAttribute<XCommandAttribute>();
                     if (attribute != null)
-                        InternalAddCommand(attribute.command, attribute.description, method, null);
+                        InternalAddCommand(attribute.cmd, attribute.desc, method, null);
                 }
             }
         }
@@ -284,7 +230,7 @@ namespace Saro.XConsole
         /// 获取所有命令
         /// </summary>
         /// <returns></returns>
-        internal IEnumerable<Command> GetAllCommands()
+        internal IReadOnlyCollection<CmdData> GetAllCommands()
         {
             return m_CommandMap.Values;
         }
@@ -294,9 +240,9 @@ namespace Saro.XConsole
         /// </summary>
         /// <param name="commandStr"></param>
         /// <returns></returns>
-        internal Command TryGetCommand(string commandStr)
+        internal CmdData TryGetCommand(string commandStr)
         {
-            if (m_CommandMap.TryGetValue(commandStr, out Command command))
+            if (m_CommandMap.TryGetValue(commandStr, out CmdData command))
                 return command;
 
             return null;
@@ -309,7 +255,7 @@ namespace Saro.XConsole
             {
                 if (m_InvalidChrsForCommandName.Contains(chr))
                 {
-                    Log.ERROR("[Shell] invalid characters : " + string.Join(",", m_InvalidChrsForCommandName));
+                    Log.ERROR("[XConsole] invalid characters : " + string.Join(",", m_InvalidChrsForCommandName));
                     return;
                 }
             }
@@ -329,7 +275,7 @@ namespace Saro.XConsole
                 else
                 {
                     // command is not valid, return
-                    Log.ERROR("[Shell] Unsupported type : " + type);
+                    Log.ERROR("[XConsole] Unsupported type : " + type);
                     return;
                 }
             }
@@ -353,7 +299,7 @@ namespace Saro.XConsole
             sb.Append("<color=yellow>)</color>").Append(" : ").Append(methodInfo.ReturnType.Name);
 
             // store to map
-            m_CommandMap[command] = new Command(methodInfo, paramTypes, instance, StringBuilderCache.GetStringAndRelease(sb));
+            m_CommandMap[command] = new CmdData(methodInfo, paramTypes, instance, StringBuilderCache.GetStringAndRelease(sb));
         }
 
         #endregion
@@ -449,6 +395,13 @@ namespace Saro.XConsole
         {
             m_CommandHistory.AddTail(cmd);
             m_CommandIdx = m_CommandHistory.Length;
+
+            // config
+            m_Configs.cmdHistories.Clear();
+            for (int i = 0; i < m_CommandHistory.Length; i++)
+            {
+                m_Configs.cmdHistories.Add(m_CommandHistory[i]);
+            }
         }
 
         #endregion
@@ -604,7 +557,6 @@ namespace Saro.XConsole
                 return true;
             }
 
-            output = new UnityEngine.Vector4();
             return false;
         }
 

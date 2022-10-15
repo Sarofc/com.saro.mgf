@@ -1,18 +1,17 @@
-﻿#if true
-
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Saro.XConsole
 {
-    internal class Command
+    internal class CmdData
     {
         private readonly MethodInfo m_Method;
         private readonly Type[] m_ParamsTypes;
         private readonly object m_Instance;
         private readonly string m_MethodSignature;
 
-        public Command(MethodInfo method, Type[] paramsTypes, object instance, string methodSignature)
+        public CmdData(MethodInfo method, Type[] paramsTypes, object instance, string methodSignature)
         {
             this.m_Method = method;
             this.m_ParamsTypes = paramsTypes;
@@ -29,7 +28,7 @@ namespace Saro.XConsole
             return true;
         }
 
-        public Type[] ParamsTypes => m_ParamsTypes;
+        public IReadOnlyList<Type> ParamsTypes => m_ParamsTypes;
 
         public bool IsParamsCountMatch(int count)
         {
@@ -51,5 +50,3 @@ namespace Saro.XConsole
         }
     }
 }
-
-#endif

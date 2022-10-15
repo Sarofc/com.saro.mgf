@@ -55,7 +55,7 @@ namespace Saro.UI
 
             base.OnInspectorGUI();
 
-            EditorGUILayout.HelpBox("0.点击[规则添加]自动绑定组件\n1. 通过右键菜单Create/Scripts/UI Script创建UI简本\n2.拖拽UI脚本到UIScript\n3.点击[生成代码]", MessageType.Info);
+            EditorGUILayout.HelpBox("0.点击[规则添加]自动绑定组件\n1. 通过右键菜单Create/MGF/Scripts/UI Script创建UI简本\n2.拖拽UI脚本到UIScript\n3.点击[生成代码]", MessageType.Info);
         }
 
         protected override string OnPatternStringGUI()

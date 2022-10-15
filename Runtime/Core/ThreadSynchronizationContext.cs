@@ -15,7 +15,7 @@ namespace Saro
         // 线程同步队列,发送接收socket回调都放到该队列,由poll线程统一执行
         private readonly ConcurrentQueue<Action> m_Queue;
 
-        private Action m_Action;
+        private Action m_TempAction;
 
         private ThreadSynchronizationContext(int threadId)
         {
@@ -29,14 +29,16 @@ namespace Saro
             {
                 // 目前如果积累了大量消息，某几帧可能会卡顿
                 // TODO 时间切片？
-                if (!m_Queue.TryDequeue(out m_Action))
+                // TODO 缓存了 Action，能避免gc？
+                if (!m_Queue.TryDequeue(out m_TempAction))
                 {
                     return;
                 }
 
                 try
                 {
-                    m_Action();
+                    m_TempAction();
+                    //m_TempAction = null;
                 }
                 catch (Exception e)
                 {

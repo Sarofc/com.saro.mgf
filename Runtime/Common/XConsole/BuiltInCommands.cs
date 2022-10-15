@@ -1,34 +1,32 @@
-﻿#if true
-
-using System;
-using System.IO;
-using UnityEngine;
+﻿
 
 namespace Saro.XConsole
 {
-    internal partial class BuiltInCommands : ICommandRegister
+    using System;
+    using System.IO;
+    using UnityEngine;
+
+    internal partial class BuiltInCommands
     {
-        [Command("core.all_commands", "所有命令")]
+        [XCommand("core.all_commands", "所有命令")]
         public static void all_commands()
         {
-            /*
             var sb = StringBuilderCache.Get();
-            foreach (Command v in XConsoleGUI.Instance.GetAllCommands())
+            foreach (var cmd in XConsole.GetAllCommands())
             {
-                sb.AppendLine(v.ToString());
+                sb.AppendLine(cmd.ToString());
             }
 
             Log.INFO(StringBuilderCache.GetStringAndRelease(sb));
-       */
         }
 
-        [Command("core.save_log", "保存日志")]
+        [XCommand("core.save_log", "保存日志")]
         public static void save_log()
         {
             try
             {
-                string path = Path.Combine(Application.persistentDataPath, DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss") + ".txt");
-                //File.WriteAllText(path, Terminal.Console.GetLog());
+                string path = Path.Combine(Application.persistentDataPath, "log_" + DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss") + ".txt");
+                File.WriteAllText(path, XConsole.GetLog());
 
                 Log.INFO("Save log file to : " + path);
             }
@@ -38,17 +36,36 @@ namespace Saro.XConsole
             }
         }
 
-        [Command("core.clear_cmd_histories", "清理命令历史")]
+        [XCommand("core.clear_cmd_histories", "清理命令历史")]
         public static void clear_cmd_histories()
         {
-            //XConsoleGUI.Instance.ClearCommandHistory();
+            XConsole.ClearCommandHistory();
         }
 
-        [Command("core.clear_log", "清除所有日志")]
+        [XCommand("core.clear_log", "清除所有日志")]
         public static void clear_log()
         {
+            XConsole.ClearLog();
+        }
+    }
+}
 
-            //Terminal.Console.ClearLog();
+#if UNITY_EDITOR
+
+namespace Saro.XConsole
+{
+    using Cysharp.Threading.Tasks;
+
+    internal partial class BuiltInCommands
+    {
+        [XCommand("core.test.generate_large_logs", "测试！生成大量log")]
+        private static async void generate_large_logs()
+        {
+            for (int i = 0; i < 5000; i++)
+            {
+                Log.INFO("generate large logs: " + i);
+                await UniTask.Delay(5);
+            }
         }
     }
 }

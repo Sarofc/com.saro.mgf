@@ -16,5 +16,5 @@ MonoBehaviour:
   focusCmdInput: 9
   preCmdHistory: 273
   nextCmdHistory: 274
-  minWindowWidth: 120
-  minWindowHeight: 120
+  listViewRefreshSpeed: 8
+  flushConsoleInterval: 0.05

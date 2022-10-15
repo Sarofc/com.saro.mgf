@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Saro.UI;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -16,17 +16,61 @@ namespace Saro.XConsole
         [InlineEditor]
         public XConsoleTheme theme;
 
-        //public PersientConfigs configs;
+        [ReadOnly]
+        public Configs configs;
 
         private CmdExecutor m_Executor;
         private LogStorage m_LogStorge;
         private Transform m_Window;
 
+        #region API
 
-        public void ExecuteCommand(string commandLine)
+        public static void AddInstanceCommand(Type classType, object instance)
         {
-            m_Executor.ExecuteCommand(commandLine);
+            Instance.m_Executor.AddInstanceCommand(classType, instance);
         }
+
+        public static void AddStaticCommand(Type classType)
+        {
+            Instance.m_Executor.AddStaticCommand(classType);
+        }
+
+        public static void RemoveCommand(string cmd)
+        {
+            Instance.m_Executor.RemoveCommand(cmd);
+        }
+
+        public static void ExecuteCommand(string cmdLine)
+        {
+            Instance.m_Executor.ExecuteCommand(cmdLine);
+        }
+
+        public static void RegisterArgTypeParser(Type type, TypeParser parser)
+        {
+            Instance.m_Executor.RegisterArgTypeParser(type, parser);
+        }
+
+        public static IReadOnlyCollection<CmdData> GetAllCommands()
+        {
+            return Instance.m_Executor.GetAllCommands();
+        }
+
+        public static void ClearCommandHistory()
+        {
+            Instance.m_Executor.ClearCommandHistory();
+        }
+
+        public static void ClearLog()
+        {
+            Instance.m_LogStorge.ClearLog();
+        }
+
+        public static string GetLog()
+        {
+            return Instance.m_LogStorge.GetLog();
+        }
+
+        #endregion
 
         #region LogView
 
@@ -39,6 +83,8 @@ namespace Saro.XConsole
             }
         }
         private List<int> m_SearchLogEntryIndexes = new();
+
+        internal int CurrentSelectIndex { get; private set; } = -1;
 
         private bool InSearch => !string.IsNullOrEmpty(input_Search.text);
         public int GetCellCount()
@@ -57,9 +103,14 @@ namespace Saro.XConsole
             logItem.Refresh(this, logEntry, index, m_LogStorge.IsCollapsedEnable);
         }
 
-        internal void UpdateDetialView(string content)
+        internal void UpdateDetialView(string content, int index)
         {
             txt_DetailLog.text = content;
+            CurrentSelectIndex = index;
+
+            RequireFlushToConsole = true;
+
+            txt_DetailLog.SetLayoutDirty();
         }
 
         #endregion
@@ -80,7 +131,18 @@ namespace Saro.XConsole
         private void ApplyTheme()
         {
             // button state
-            SetImageState(go_ResizeButton.GetComponent<Image>(), false);
+            //SetImageState(go_ResizeButton.GetComponent<Image>(), false);
+
+            img_icon_Info.sprite = theme.GetSprite(LogType.Log);
+            img_icon_Warning.sprite = theme.GetSprite(LogType.Warning);
+            img_icon_Error.sprite = theme.GetSprite(LogType.Error);
+            img_icon_ResizeButton.sprite = theme.resize;
+
+            go_TopBar.GetComponent<Image>().color = theme.bgTopBarColor;
+            go_LogItemView.GetComponent<Image>().color = theme.bgLogItemViewColor;
+            go_LogDetialView.GetComponent<Image>().color = theme.bgLogDetialViewColor;
+            go_BottomBar.GetComponent<Image>().color = theme.bgBottomBarColor;
+
             SetButtonState(btn_Close, false);
             SetButtonState(btn_Clear, false);
 
@@ -93,11 +155,17 @@ namespace Saro.XConsole
             txt_ErrorCount.color = theme.textDefaultColor;
             txt_InfoCount.color = theme.textDefaultColor;
             txt_WarningCount.color = theme.textDefaultColor;
+
+            img_bg_Suggestion.color = theme.bgSuggestionColor;
             txt_Suggestion.color = theme.textDefaultColor;
 
             var logItem = go_LogItem.GetComponent<LogItem>();
             logItem.txt_LogCount.color = theme.textDefaultColor;
             logItem.txt_LogEntry.color = theme.textDefaultColor;
+            logItem.txt_LogCount.transform.parent.GetComponent<Image>().color = theme.logItemBgCountColor;
+
+            input_Search.GetComponent<Image>().color = theme.bgInputSearchColor;
+            input_Command.GetComponent<Image>().color = theme.bgInputCommandColor;
         }
 
         private void SetButtonState(Button button, bool state)
@@ -110,6 +178,27 @@ namespace Saro.XConsole
             image.color = state ? theme.btnSelectedColor : theme.btnNormalColor;
         }
 
+        private const string k_ConfigFile = "saro_xconsole_config";
+        private void LoadConfigs()
+        {
+            if (PlayerPrefs.HasKey(k_ConfigFile))
+            {
+                var json = PlayerPrefs.GetString(k_ConfigFile);
+                var obj = JsonConvert.DeserializeObject<Configs>(json);
+                configs = obj;
+            }
+            else
+            {
+                configs = new Configs();
+            }
+        }
+
+        private void SaveConfigs()
+        {
+            var json = JsonConvert.SerializeObject(configs);
+            PlayerPrefs.SetString(k_ConfigFile, json);
+        }
+
         #region Unity Method
 
         protected override void Awake()
@@ -118,11 +207,15 @@ namespace Saro.XConsole
             DontDestroyOnLoad(gameObject);
 
             Binder = GetComponent<UIBinder>();
-            m_LogStorge = new LogStorage();
-            m_Executor = new CmdExecutor();
+
+            LoadConfigs();
+
+            m_LogStorge = new LogStorage(configs);
+            m_Executor = new CmdExecutor(configs);
+            go_ResizeButton.GetComponent<ResizeButton>().configs = configs;
 
             ListView.DoAwake(this);
-            ListView.SetRefreshSpeed(36);
+            ListView.SetRefreshSpeed(settings.listViewRefreshSpeed);
 
             m_Window = transform.Find("Root/Window");
 
@@ -132,13 +225,10 @@ namespace Saro.XConsole
         }
 
 
-        IEnumerator Start()
+        void Start()
         {
+            UpdateSuggestionText(null);
             OpenWindow(false);
-
-            yield return null;
-
-            FilterLog();
         }
 
         protected override void OnDestroy()
@@ -147,28 +237,33 @@ namespace Saro.XConsole
             Unregister();
         }
 
+        private float m_FlushTimer = 0f;
         private void LateUpdate()
         {
+            ProcessKey();
+
             m_LogStorge.ProcessLogQueue();
 
-            FlushToConsole();
-
-            ProcessKey();
+            if (m_FlushTimer >= settings.flushConsoleInterval)
+            {
+                FlushToConsole();
+                m_FlushTimer -= settings.flushConsoleInterval;
+            }
+            else
+            {
+                m_FlushTimer += Time.deltaTime;
+            }
         }
 
         private void OnApplicationQuit()
         {
-            Log.INFO("----------------quit");
-
 #if UNITY_EDITOR || UNITY_STANDALONE
-            SaveSettings();
+            SaveConfigs();
 #endif
         }
 
         private void OnApplicationPause(bool pause)
         {
-            Log.INFO("----------------pause");
-
 #if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)
             SaveSettings();
 #endif
@@ -193,25 +288,7 @@ namespace Saro.XConsole
 
         private void Unregister()
         {
-            //m_ResizeBtn.triggers.Clear();
-
-            //btn_Close.onClick.RemoveListener(OnCloseClick);
-            //btn_Clear.onClick.RemoveListener(OnClearBtnClick);
-            //btn_Collapse.onClick.RemoveListener(OnCollapseBtbClick);
-
-            //btn_Info.onClick.RemoveListener(OnFilterInfoBtnClick);
-            //btn_Warning.onClick.RemoveListener(OnFilterWarningBtnClick);
-            //btn_Error.onClick.RemoveListener(OnFilterErrorBtnClick);
-
-            //input_Command.onValidateInput -= OnValidateCommand;
-            //input_Command.onValueChanged.RemoveListener(OnChangedCommand);
-
             m_LogStorge.LogMessageReceived -= UpdateWindow;
-        }
-
-        private void SaveSettings()
-        {
-            Log.INFO("----------------save settings");
         }
 
         #endregion
@@ -224,6 +301,7 @@ namespace Saro.XConsole
             {
                 RequireFlushToConsole = true;
                 UpdateTexts(m_InfoCount, m_WarningCount, m_ErrorCount, true);
+                FilterLog();
             }
             else
             {
@@ -243,6 +321,13 @@ namespace Saro.XConsole
             {
                 RequireFlushToConsole = false;
                 ListView.ReloadData();
+
+                // snap to bottom
+                if (ListView.verticalNormalizedPosition <= 0.1f)
+                {
+                    ListView.verticalNormalizedPosition = 0f;
+                    //ListView.JumpTo(((ISuperScrollRectDataProvider)this).GetCellCount() - 1);
+                }
             }
         }
 
@@ -252,21 +337,21 @@ namespace Saro.XConsole
             {
                 m_WarningCount = warningCount;
                 if (m_Opened || force)
-                    txt_WarningCount.text = m_WarningCount.ToString();
+                    txt_WarningCount.text = m_WarningCount > 999 ? "99+" : m_WarningCount.ToString();
             }
 
             if (m_InfoCount != infoCount || force)
             {
                 m_InfoCount = infoCount;
                 if (m_Opened || force)
-                    txt_InfoCount.text = m_InfoCount.ToString();
+                    txt_InfoCount.text = m_InfoCount > 999 ? "99+" : m_InfoCount.ToString();
             }
 
             if (m_ErrorCount != errorCount || force)
             {
                 m_ErrorCount = errorCount;
                 if (m_Opened || force)
-                    txt_ErrorCount.text = m_ErrorCount.ToString();
+                    txt_ErrorCount.text = m_ErrorCount > 999 ? "99+" : m_ErrorCount.ToString();
             }
         }
 
@@ -293,6 +378,8 @@ namespace Saro.XConsole
             m_LogStorge.FilterLog();
 
             UpdateSearch(input_Search.text);
+
+            UpdateDetialView(string.Empty, -1);
 
             RequireFlushToConsole = true;
         }
@@ -403,29 +490,42 @@ namespace Saro.XConsole
 
         private void UpdateSuggestionText(string newString)
         {
-            if (string.IsNullOrEmpty(newString))
+            var suggestionText = string.Empty;
+
+            if (!string.IsNullOrEmpty(newString))
             {
-                txt_Suggestion.text = string.Empty;
-                LayoutRebuilder.ForceRebuildLayoutImmediate(txt_Suggestion.transform.parent as RectTransform);
-                return;
+                var suggestiongList = m_Executor.GetSuggestionCommand();
+                var sb = StringBuilderCache.Get(256);
+                for (int i = 0; i < suggestiongList.Count; i++)
+                {
+                    var cmd = suggestiongList[i];
+                    if (string.Equals(newString, cmd, System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        sb.AppendColorText(cmd, theme.suggestionTextHighlightColor);
+                    }
+                    else
+                    {
+                        sb.Append(cmd);
+                    }
+                    if (i < suggestiongList.Count - 1) sb.AppendLine();
+                }
+                suggestionText = StringBuilderCache.GetStringAndRelease(sb);
             }
 
-            var suggestiongList = m_Executor.GetSuggestionCommand();
-            var sb = StringBuilderCache.Get(256);
-            for (int i = 0; i < suggestiongList.Count; i++)
+            if (string.IsNullOrEmpty(suggestionText))
             {
-                var cmd = suggestiongList[i];
-                if (string.Equals(newString, cmd, System.StringComparison.OrdinalIgnoreCase))
-                {
-                    sb.AppendColorText(cmd, theme.suggestionTextHighlightColor);
-                }
-                else
-                {
-                    sb.Append(cmd);
-                }
-                if (i < suggestiongList.Count - 1) sb.AppendLine();
+                if (img_bg_Suggestion.gameObject.activeSelf == true)
+                    img_bg_Suggestion.gameObject.SetActive(false);
             }
-            txt_Suggestion.text = StringBuilderCache.GetStringAndRelease(sb);
+            else
+            {
+                if (img_bg_Suggestion.gameObject.activeSelf == false)
+                    img_bg_Suggestion.gameObject.SetActive(true);
+
+                txt_Suggestion.SetLayoutDirty();
+            }
+
+            txt_Suggestion.text = suggestionText;
         }
 
         private void OnChangedCommand(string newString)
@@ -503,6 +603,8 @@ namespace Saro.XConsole
             m_LogStorge.ClearLog();
 
             UpdateSearch(input_Search.text);
+
+            UpdateDetialView(string.Empty, -1);
         }
 
         #endregion
@@ -515,24 +617,32 @@ namespace Saro.XConsole
         // don't modify this scope
 
         //>>begin
-		public UnityEngine.UI.Button btn_Clear => Binder.GetRef<UnityEngine.UI.Button>("btn_Clear");
-		public UnityEngine.UI.Button btn_Collapse => Binder.GetRef<UnityEngine.UI.Button>("btn_Collapse");
-		public UnityEngine.UI.InputField input_Search => Binder.GetRef<UnityEngine.UI.InputField>("input_Search");
-		public UnityEngine.UI.Button btn_Info => Binder.GetRef<UnityEngine.UI.Button>("btn_Info");
-		public UnityEngine.UI.Text txt_InfoCount => Binder.GetRef<UnityEngine.UI.Text>("txt_InfoCount");
-		public UnityEngine.UI.Button btn_Warning => Binder.GetRef<UnityEngine.UI.Button>("btn_Warning");
-		public UnityEngine.UI.Text txt_WarningCount => Binder.GetRef<UnityEngine.UI.Text>("txt_WarningCount");
-		public UnityEngine.UI.Button btn_Error => Binder.GetRef<UnityEngine.UI.Button>("btn_Error");
-		public UnityEngine.UI.Text txt_ErrorCount => Binder.GetRef<UnityEngine.UI.Text>("txt_ErrorCount");
-		public UnityEngine.UI.Button btn_Close => Binder.GetRef<UnityEngine.UI.Button>("btn_Close");
-		public UnityEngine.GameObject go_LogItem => Binder.GetRef<UnityEngine.GameObject>("go_LogItem");
-		public UnityEngine.GameObject go_LogItemView => Binder.GetRef<UnityEngine.GameObject>("go_LogItemView");
-		public UnityEngine.UI.Text txt_DetailLog => Binder.GetRef<UnityEngine.UI.Text>("txt_DetailLog");
-		public UnityEngine.UI.InputField input_Command => Binder.GetRef<UnityEngine.UI.InputField>("input_Command");
-		public UnityEngine.UI.Text txt_Suggestion => Binder.GetRef<UnityEngine.UI.Text>("txt_Suggestion");
-		public UnityEngine.GameObject go_ResizeButton => Binder.GetRef<UnityEngine.GameObject>("go_ResizeButton");
+        public UnityEngine.GameObject go_TopBar => Binder.GetRef<UnityEngine.GameObject>("go_TopBar");
+        public UnityEngine.UI.Button btn_Clear => Binder.GetRef<UnityEngine.UI.Button>("btn_Clear");
+        public UnityEngine.UI.Button btn_Collapse => Binder.GetRef<UnityEngine.UI.Button>("btn_Collapse");
+        public UnityEngine.UI.InputField input_Search => Binder.GetRef<UnityEngine.UI.InputField>("input_Search");
+        public UnityEngine.UI.Button btn_Info => Binder.GetRef<UnityEngine.UI.Button>("btn_Info");
+        public UnityEngine.UI.Image img_icon_Info => Binder.GetRef<UnityEngine.UI.Image>("img_icon_Info");
+        public UnityEngine.UI.Text txt_InfoCount => Binder.GetRef<UnityEngine.UI.Text>("txt_InfoCount");
+        public UnityEngine.UI.Button btn_Warning => Binder.GetRef<UnityEngine.UI.Button>("btn_Warning");
+        public UnityEngine.UI.Image img_icon_Warning => Binder.GetRef<UnityEngine.UI.Image>("img_icon_Warning");
+        public UnityEngine.UI.Text txt_WarningCount => Binder.GetRef<UnityEngine.UI.Text>("txt_WarningCount");
+        public UnityEngine.UI.Button btn_Error => Binder.GetRef<UnityEngine.UI.Button>("btn_Error");
+        public UnityEngine.UI.Image img_icon_Error => Binder.GetRef<UnityEngine.UI.Image>("img_icon_Error");
+        public UnityEngine.UI.Text txt_ErrorCount => Binder.GetRef<UnityEngine.UI.Text>("txt_ErrorCount");
+        public UnityEngine.UI.Button btn_Close => Binder.GetRef<UnityEngine.UI.Button>("btn_Close");
+        public UnityEngine.GameObject go_LogItemView => Binder.GetRef<UnityEngine.GameObject>("go_LogItemView");
+        public UnityEngine.GameObject go_LogItem => Binder.GetRef<UnityEngine.GameObject>("go_LogItem");
+        public UnityEngine.GameObject go_LogDetialView => Binder.GetRef<UnityEngine.GameObject>("go_LogDetialView");
+        public UnityEngine.UI.Text txt_DetailLog => Binder.GetRef<UnityEngine.UI.Text>("txt_DetailLog");
+        public UnityEngine.GameObject go_BottomBar => Binder.GetRef<UnityEngine.GameObject>("go_BottomBar");
+        public UnityEngine.UI.InputField input_Command => Binder.GetRef<UnityEngine.UI.InputField>("input_Command");
+        public UnityEngine.UI.Image img_bg_Suggestion => Binder.GetRef<UnityEngine.UI.Image>("img_bg_Suggestion");
+        public UnityEngine.UI.Text txt_Suggestion => Binder.GetRef<UnityEngine.UI.Text>("txt_Suggestion");
+        public UnityEngine.GameObject go_ResizeButton => Binder.GetRef<UnityEngine.GameObject>("go_ResizeButton");
+        public UnityEngine.UI.Image img_icon_ResizeButton => Binder.GetRef<UnityEngine.UI.Image>("img_icon_ResizeButton");
 
-	//<<end
+        //<<end
 
         // =============================================
     }
