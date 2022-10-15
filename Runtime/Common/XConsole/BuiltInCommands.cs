@@ -1,6 +1,4 @@
-﻿
-
-namespace Saro.XConsole
+﻿namespace Saro.XConsole
 {
     using System;
     using System.IO;

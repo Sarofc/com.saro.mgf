@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Saro.XConsole
 {
-    internal class CmdData
+    public class CmdData
     {
         private readonly MethodInfo m_Method;
         private readonly Type[] m_ParamsTypes;
@@ -13,10 +13,10 @@ namespace Saro.XConsole
 
         public CmdData(MethodInfo method, Type[] paramsTypes, object instance, string methodSignature)
         {
-            this.m_Method = method;
-            this.m_ParamsTypes = paramsTypes;
-            this.m_Instance = instance;
-            this.m_MethodSignature = methodSignature;
+            m_Method = method;
+            m_ParamsTypes = paramsTypes;
+            m_Instance = instance;
+            m_MethodSignature = methodSignature;
         }
 
         public bool IsValid()

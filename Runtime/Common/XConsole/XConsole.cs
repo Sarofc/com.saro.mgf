@@ -9,15 +9,17 @@ using UnityEngine.UI;
 
 namespace Saro.XConsole
 {
-    internal partial class XConsole : MonoSingleton<XConsole>, ISuperScrollRectDataProvider
+    public partial class XConsole : MonoSingleton<XConsole>, ISuperScrollRectDataProvider
     {
         [InlineEditor]
-        public XConsoleSettings settings;
+        [SerializeField]
+        internal XConsoleSettings settings;
         [InlineEditor]
-        public XConsoleTheme theme;
+        [SerializeField]
+        internal XConsoleTheme theme;
 
         [ReadOnly]
-        public Configs configs;
+        internal Configs configs;
 
         private CmdExecutor m_Executor;
         private LogStorage m_LogStorge;
@@ -25,14 +27,19 @@ namespace Saro.XConsole
 
         #region API
 
-        public static void AddInstanceCommand(Type classType, object instance)
+        public static void AddInstanceCommands(Type classType, object instance)
         {
-            Instance.m_Executor.AddInstanceCommand(classType, instance);
+            Instance.m_Executor.AddInstanceCommands(classType, instance);
         }
 
-        public static void AddStaticCommand(Type classType)
+        public static void AddStaticCommands(Type classType)
         {
-            Instance.m_Executor.AddStaticCommand(classType);
+            Instance.m_Executor.AddStaticCommands(classType);
+        }
+
+        public static void RemoveAllCommands(Type classType)
+        {
+            Instance?.m_Executor.RemoveAllCommands(classType);
         }
 
         public static void RemoveCommand(string cmd)
@@ -82,7 +89,7 @@ namespace Saro.XConsole
                 return m_LogStorge.LogEntryIndicesToShow;
             }
         }
-        private List<int> m_SearchLogEntryIndexes = new();
+        private List<int> m_SearchLogEntryIndexes = new(2048);
 
         internal int CurrentSelectIndex { get; private set; } = -1;
 
@@ -119,7 +126,7 @@ namespace Saro.XConsole
 
         private SuperScrollRect ListView => go_LogItemView.GetComponent<SuperScrollRect>();
 
-        public bool RequireFlushToConsole { get; private set; }
+        private bool RequireFlushToConsole { get; set; }
 
         private bool m_Opened;
 
@@ -130,9 +137,6 @@ namespace Saro.XConsole
         [Button(nameof(ApplyTheme))]
         private void ApplyTheme()
         {
-            // button state
-            //SetImageState(go_ResizeButton.GetComponent<Image>(), false);
-
             img_icon_Info.sprite = theme.GetSprite(LogType.Log);
             img_icon_Warning.sprite = theme.GetSprite(LogType.Warning);
             img_icon_Error.sprite = theme.GetSprite(LogType.Error);
@@ -283,12 +287,12 @@ namespace Saro.XConsole
             input_Command.onValueChanged.AddListener(OnChangedCommand);
             input_Search.onValueChanged.AddListener(UpdateSearch);
 
-            m_LogStorge.LogMessageReceived += UpdateWindow;
+            m_LogStorge.OnLogUpdate += UpdateWindow;
         }
 
         private void Unregister()
         {
-            m_LogStorge.LogMessageReceived -= UpdateWindow;
+            m_LogStorge.OnLogUpdate -= UpdateWindow;
         }
 
         #endregion
@@ -320,10 +324,13 @@ namespace Saro.XConsole
             if (RequireFlushToConsole && m_Opened)
             {
                 RequireFlushToConsole = false;
+
+                var pos = ListView.verticalNormalizedPosition;
+
                 ListView.ReloadData();
 
                 // snap to bottom
-                if (ListView.verticalNormalizedPosition <= 0.1f)
+                if (pos <= 0.1f)
                 {
                     ListView.verticalNormalizedPosition = 0f;
                     //ListView.JumpTo(((ISuperScrollRectDataProvider)this).GetCellCount() - 1);
@@ -355,22 +362,17 @@ namespace Saro.XConsole
             }
         }
 
-        private void UpdateWindow(bool has, int index, int infoCount, int warningCount, int errorCount)
+        private void UpdateWindow(int infoCount, int warningCount, int errorCount)
         {
             UpdateTexts(infoCount, warningCount, errorCount);
 
-            // update force
-            if (index == -1)
+            // TODO 性能较差 
+            if (!string.IsNullOrEmpty(input_Search.text))
             {
-                return;
+                UpdateSearch(input_Search.text);
             }
 
             RequireFlushToConsole = true;
-
-            //if (ListView.verticalNormalizedPosition <= 0.15f)
-            {
-                //ListView.JumpTo(GetCellCount() - 1);
-            }
         }
 
         private void FilterLog()

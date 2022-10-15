@@ -2127,11 +2127,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   settings: {fileID: 11400000, guid: 50cb8283e5e2e684683f0daae0623af9, type: 2}
   theme: {fileID: 11400000, guid: de3b43fde4722fc44abd4bc2a1540334, type: 2}
-  configs:
-    width: 600
-    height: 350
-    logFlag: 62
-    cmdHistories: []
 --- !u!1 &3283631683221613576
 GameObject:
   m_ObjectHideFlags: 0
@@ -4535,7 +4530,7 @@ MonoBehaviour:
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 1
-    m_VerticalOverflow: 1
+    m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 
 --- !u!1 &7791761545779189368

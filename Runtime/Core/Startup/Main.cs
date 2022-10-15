@@ -18,14 +18,18 @@ namespace Saro
      */
     public sealed partial class Main : MonoSingleton<Main>
     {
-        protected async override void Awake()
+        protected override void Awake()
         {
             base.Awake();
 
             DontDestroyOnLoad(gameObject);
 
             SynchronizationContext.SetSynchronizationContext(ThreadSynchronizationContext.Current);
+        }
 
+        // 考量是，丢场景里的mono脚本的Awake执行完毕后，再启动会合适一些
+        private async void Start()
+        {
             var startupTypes = TypeUtility.GetSubClassTypesAllAssemblies(typeof(IStartup));
 
             if (startupTypes != null && startupTypes.Count != 1)
@@ -440,6 +444,7 @@ namespace Saro
     }
 
 #if UNITY_EDITOR
+
     [CustomEditor(typeof(Main))]
     public class MainEditor : Editor
     {

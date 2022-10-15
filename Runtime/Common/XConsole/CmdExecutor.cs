@@ -1,9 +1,6 @@
-﻿#if true
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Saro.Utility;
 
 namespace Saro.XConsole
 {
@@ -34,16 +31,16 @@ namespace Saro.XConsole
     public class CmdExecutor
     {
         // 命令map
-        private SortedDictionary<string, CmdData> m_CommandMap = null;
+        private SortedDictionary<string, CmdData> m_CommandMap;
 
         // 参数解析函数map
-        private Dictionary<Type, TypeParser> m_TypeMap = null;
+        private Dictionary<Type, TypeParser> m_TypeMap;
 
         // 解析后的参数队列，包括命令名称
-        private Queue<string> m_Args = null;
+        private Queue<string> m_Args;
 
         // 自动补全缓存
-        private List<string> m_AutoCompleteCache = null;
+        private List<string> m_AutoCompleteCache;
         private int m_IdxOfCommandCache = -1;
 
         // 命令历史记录
@@ -69,17 +66,10 @@ namespace Saro.XConsole
             m_CommandHistory = new LiteRingBuffer<string>(32);
 
             // 注册内置参数类型解析
-            RegisterArgTypeParser(typeof(string), ParseString);
-            RegisterArgTypeParser(typeof(int), ParseInt);
-            RegisterArgTypeParser(typeof(float), ParseFlot);
-            RegisterArgTypeParser(typeof(bool), ParseBool);
-            RegisterArgTypeParser(typeof(UnityEngine.Vector2), ParseVector2);
-            RegisterArgTypeParser(typeof(UnityEngine.Vector3), ParseVector3);
-            RegisterArgTypeParser(typeof(UnityEngine.Vector4), ParseVector4);
-            RegisterArgTypeParser(typeof(UnityEngine.GameObject), ParseGameobject);
+            RegisterBuiltInTypeParsers();
 
             // 注册内置命令
-            AddStaticCommand(typeof(BuiltInCommands));
+            AddStaticCommands(typeof(BuiltInCommands));
 
             SetCommandHistory();
         }
@@ -113,12 +103,49 @@ namespace Saro.XConsole
             m_TypeMap.Add(type, fn);
         }
 
+
+        /// <summary>
+        /// 绑定指定类里的静态命令
+        /// </summary>
+        /// <param name="classType"></param>
+        internal void AddStaticCommands(Type classType)
+        {
+            MethodInfo[] methods = classType.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            foreach (MethodInfo method in methods)
+            {
+                if (method != null)
+                {
+                    XCommandAttribute attribute = method.GetCustomAttribute<XCommandAttribute>();
+                    if (attribute != null)
+                        InternalAddCommand(attribute.cmd, attribute.desc, method, null);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 移除给定类型的所有命令，包括static/instance
+        /// </summary>
+        /// <param name="classType"></param>
+        internal void RemoveAllCommands(Type classType)
+        {
+            MethodInfo[] methods = classType.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            foreach (MethodInfo method in methods)
+            {
+                if (method != null)
+                {
+                    XCommandAttribute attribute = method.GetCustomAttribute<XCommandAttribute>();
+                    if (attribute != null)
+                        RemoveCommand(attribute.cmd);
+                }
+            }
+        }
+
         /// <summary>
         /// 绑定实例命令
         /// </summary>
         /// <param name="classType"></param>
         /// <param name="instance"></param>
-        internal void AddInstanceCommand(Type classType, object instance)
+        internal void AddInstanceCommands(Type classType, object instance)
         {
             if (instance == null)
             {
@@ -173,11 +200,11 @@ namespace Saro.XConsole
 
             if (!m_CommandMap.TryGetValue(commandStr, out CmdData command))
             {
-                Log.ERROR("[XConsole] Can't find this command : " + commandStr);
+                Log.ERROR($"[XConsole] Can't find this command : {commandStr}");
             }
             else if (!command.IsValid())
             {
-                Log.ERROR("[XConsole] This command is not valid : " + commandStr);
+                Log.ERROR($"[XConsole] This command is not valid : {commandStr}");
             }
             else
             {
@@ -205,24 +232,7 @@ namespace Saro.XConsole
                 }
                 // call method
                 command.Execute(paramters);
-            }
-        }
-
-        /// <summary>
-        /// 绑定指定类里的静态命令
-        /// </summary>
-        /// <param name="classType"></param>
-        internal void AddStaticCommand(Type classType)
-        {
-            MethodInfo[] methods = classType.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-            foreach (MethodInfo method in methods)
-            {
-                if (method != null)
-                {
-                    XCommandAttribute attribute = method.GetCustomAttribute<XCommandAttribute>();
-                    if (attribute != null)
-                        InternalAddCommand(attribute.cmd, attribute.desc, method, null);
-                }
+                Log.INFO($"<color=#F1831D>> {cmdLine}</color>");
             }
         }
 
@@ -406,7 +416,19 @@ namespace Saro.XConsole
 
         #endregion
 
-        #region Parse command
+        #region Parse Args
+
+        private void RegisterBuiltInTypeParsers()
+        {
+            RegisterArgTypeParser(typeof(string), ParseString);
+            RegisterArgTypeParser(typeof(int), ParseInt);
+            RegisterArgTypeParser(typeof(float), ParseFlot);
+            RegisterArgTypeParser(typeof(bool), ParseBool);
+            RegisterArgTypeParser(typeof(UnityEngine.Vector2), ParseVector2);
+            RegisterArgTypeParser(typeof(UnityEngine.Vector3), ParseVector3);
+            RegisterArgTypeParser(typeof(UnityEngine.Vector4), ParseVector4);
+            RegisterArgTypeParser(typeof(UnityEngine.GameObject), ParseGameobject);
+        }
 
         private Queue<string> ParseCommandLine(string input)
         {
@@ -570,5 +592,3 @@ namespace Saro.XConsole
         #endregion
     }
 }
-
-#endif

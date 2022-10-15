@@ -17,4 +17,4 @@ MonoBehaviour:
   preCmdHistory: 273
   nextCmdHistory: 274
   listViewRefreshSpeed: 8
-  flushConsoleInterval: 0.05
+  flushConsoleInterval: 0.06

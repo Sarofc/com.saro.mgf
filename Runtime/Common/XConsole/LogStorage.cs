@@ -1,8 +1,7 @@
-﻿#if true
-
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Saro.XConsole
 {
@@ -28,7 +27,7 @@ namespace Saro.XConsole
 
             public int count;
 
-            private static Stack<LogEntry> s_Pool = new();
+            private static Stack<LogEntry> s_Pool = new(1024 * 5);
             private static readonly object s_PoolLock = new();
 
             public static LogEntry Create(string logString, string stackTrace, UnityEngine.LogType logType)
@@ -284,10 +283,11 @@ namespace Saro.XConsole
         private Configs m_Configs;
         private ELogTypeFlag LogFlag { get => (ELogTypeFlag)m_Configs.logFlag; set => m_Configs.logFlag = (int)value; }
 
+        public delegate void LogUpdate(int infoCount, int warningCount, int errorCount);
         /// <summary>
         /// 接收unity log，view需要监听
         /// </summary>
-        public event Action<bool, int, int, int, int> LogMessageReceived;
+        public event LogUpdate OnLogUpdate;
         /// <summary>
         /// 折叠日志条目，每条都是唯一的，重复的不再添加进来
         /// </summary>
@@ -299,18 +299,18 @@ namespace Saro.XConsole
         public IReadOnlyList<int> LogEntryIndicesToShow => m_LogEntryIndicesToShow;
 
         // store unique logentry
-        private List<LogEntry> m_CollapsedLogEntries;
+        private List<LogEntry> m_CollapsedLogEntries = new(1024 * 5);
         /// <summary>
         /// logentry to index. see 
         /// <see cref="m_CollapsedLogEntries"/>
         /// </summary>
-        private Dictionary<LogEntry, int> m_CollapsedLogEntriesMap;
+        private Dictionary<LogEntry, int> m_CollapsedLogEntriesMap = new(1024 * 5);
         // uncollapsed list index
-        private List<int> m_UnCollapsedLogEntryIndices;
+        private List<int> m_UnCollapsedLogEntryIndices = new(1024 * 5);
         // logentry index to show
-        private List<int> m_LogEntryIndicesToShow;
+        private List<int> m_LogEntryIndicesToShow = new(1024 * 5);
 
-        private ConcurrentQueue<LogEntry> m_LogQueue;
+        private ConcurrentQueue<LogEntry> m_LogQueue = new();
         //private Queue<LogEntry> m_LogQueue;
         //private readonly object m_LogQueueLock = new object();
 
@@ -320,21 +320,9 @@ namespace Saro.XConsole
         {
             m_Configs = configs;
 
-            InitializeConfig();
-
             //Log.INFO("flag: " + m_LogFlag);
 
             UnityEngine.Application.logMessageReceivedThreaded += Application_logMessageReceivedThreaded;
-        }
-
-        private void InitializeConfig()
-        {
-            m_CollapsedLogEntries ??= new();
-            m_CollapsedLogEntriesMap ??= new();
-            m_UnCollapsedLogEntryIndices ??= new();
-            m_LogEntryIndicesToShow ??= new();
-
-            m_LogQueue ??= new();
         }
 
         internal void ClearLog()
@@ -352,7 +340,7 @@ namespace Saro.XConsole
 
             m_InfoCount = m_WarningCount = m_ErrorCount = 0;
 
-            LogMessageReceived?.Invoke(false, -1, m_InfoCount, m_WarningCount, m_ErrorCount);
+            OnLogUpdate?.Invoke(m_InfoCount, m_WarningCount, m_ErrorCount);
         }
 
         /// <summary>
@@ -362,15 +350,12 @@ namespace Saro.XConsole
         internal void FilterLog()
         {
             m_LogEntryIndicesToShow.Clear();
-
-            if (HasLogFlag(ELogTypeFlag.Collapsed))
+            if (IsCollapsedEnable)
             {
                 for (int i = 0; i < m_CollapsedLogEntries.Count; i++)
                 {
                     var entry = m_CollapsedLogEntries[i];
-                    if (HasLogFlag(ELogTypeFlag.Info) && entry.logType == UnityEngine.LogType.Log ||
-                        HasLogFlag(ELogTypeFlag.Warning) && entry.logType == UnityEngine.LogType.Warning ||
-                        HasLogFlag(ELogTypeFlag.Error) && entry.logType == UnityEngine.LogType.Error)
+                    if (ShouldAddToShow(entry.logType))
                     {
                         m_LogEntryIndicesToShow.Add(i);
                     }
@@ -381,9 +366,7 @@ namespace Saro.XConsole
                 for (int i = 0; i < m_UnCollapsedLogEntryIndices.Count; i++)
                 {
                     var entry = m_CollapsedLogEntries[m_UnCollapsedLogEntryIndices[i]];
-                    if (HasLogFlag(ELogTypeFlag.Info) && entry.logType == UnityEngine.LogType.Log ||
-                        HasLogFlag(ELogTypeFlag.Warning) && entry.logType == UnityEngine.LogType.Warning ||
-                        HasLogFlag(ELogTypeFlag.Error) && entry.logType == UnityEngine.LogType.Error)
+                    if (ShouldAddToShow(entry.logType))
                     {
                         m_LogEntryIndicesToShow.Add(m_UnCollapsedLogEntryIndices[i]);
                     }
@@ -479,30 +462,34 @@ namespace Saro.XConsole
                 //s_CollapsedTimestampsIndices.Add(index);
             }
 
-            if (!(HasLogFlag(ELogTypeFlag.Collapsed) && has))
+            if (!(IsCollapsedEnable && has))
             {
-                if (HasLogFlag(ELogTypeFlag.Error) ||
-                    HasLogFlag(ELogTypeFlag.Warning) ||
-                    HasLogFlag(ELogTypeFlag.Info))
+                if (ShouldAddToShow(entry.logType))
                 {
                     m_LogEntryIndicesToShow.Add(index);
                 }
             }
 
-            if (type == UnityEngine.LogType.Error) m_ErrorCount++;
-            if (type == UnityEngine.LogType.Warning) m_WarningCount++;
-            if (type == UnityEngine.LogType.Log) m_InfoCount++;
+            if (type == LogType.Error) m_ErrorCount++;
+            if (type == LogType.Warning) m_WarningCount++;
+            if (type == LogType.Log) m_InfoCount++;
 
             m_UnCollapsedLogEntryIndices.Add(index);
 
-            LogMessageReceived?.Invoke(has, index, m_InfoCount, m_WarningCount, m_ErrorCount);
+            OnLogUpdate?.Invoke(m_InfoCount, m_WarningCount, m_ErrorCount);
+        }
+
+        private bool ShouldAddToShow(LogType logType)
+        {
+            return (HasLogFlag(ELogTypeFlag.Info) && logType == LogType.Log) ||
+                        (HasLogFlag(ELogTypeFlag.Warning) && logType == LogType.Warning) ||
+            (HasLogFlag(ELogTypeFlag.Error) && (logType == LogType.Error || logType == LogType.Assert || logType == UnityEngine.LogType.Exception));
         }
 
         internal int GetEntryIndexAtIndicesToShow(int entryIndex)
         {
             return m_LogEntryIndicesToShow.IndexOf(entryIndex);
         }
-
         private void SetLogFlag(ELogTypeFlag type)
         {
             LogFlag |= type;
@@ -519,5 +506,3 @@ namespace Saro.XConsole
         }
     }
 }
-
-#endif

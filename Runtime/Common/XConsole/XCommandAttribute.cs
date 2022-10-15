@@ -1,6 +1,4 @@
-﻿#if true
-
-using System;
+﻿using System;
 
 namespace Saro.XConsole
 {
@@ -17,5 +15,3 @@ namespace Saro.XConsole
         }
     }
 }
-
-#endif
