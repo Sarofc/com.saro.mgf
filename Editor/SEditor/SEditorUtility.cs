@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Saro.SEditor
 {
-    public static class SEditorUtility
+    public static partial class SEditorUtility
     {
         public static readonly GUIStyle SmallTickbox = new GUIStyle("ShurikenToggle");
         private static readonly Color _splitterdark = new Color(0.12f, 0.12f, 0.12f, 1.333f);
