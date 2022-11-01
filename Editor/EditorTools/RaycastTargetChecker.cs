@@ -16,7 +16,7 @@
 
         private static RaycastTargetChecker instance = null;
 
-        [MenuItem("MGF/Tools/RaycastTarget Checker")]
+        [MenuItem("MGF Tools/Debug/RaycastTarget Checker")]
         private static void Open()
         {
             instance = instance ?? EditorWindow.GetWindow<RaycastTargetChecker>("RaycastTargets");

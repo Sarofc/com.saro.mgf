@@ -31,7 +31,7 @@ namespace Saro.Pool
 
         private bool IsValid() => m_CachedObjectID != 0 && m_Object != null && m_Object.ObjectID == m_CachedObjectID;
 
-        public static explicit operator T(in ObjectHandle<T> handle) => handle.Object;
+        public static implicit operator T(in ObjectHandle<T> handle) => handle.Object;
 
         public static implicit operator bool(in ObjectHandle<T> handle) => handle.IsValid();
 
