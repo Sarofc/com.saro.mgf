@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Unity.Collections;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,65 +15,85 @@ public class EditorIconViewer : EditorWindow
         w.Show();
     }
 
-    private HashSet<string> blackList = new HashSet<string>
+    private HashSet<string> m_BlackList = new()
     {
-       "SceneView RT",
-       "GUIViewHDRRT",
-       "Font Texture",
-       "CurveTexture",
-       "GizmoIconAtlas_pix32",
+        "SceneView RT",
+        "GUIViewHDRRT",
+        "Font Texture",
+        "CurveTexture",
+        "GizmoIconAtlas_pix32",
     };
 
-    private List<UnityEngine.Object> _objects;
+    private List<Texture> m_Textures;
 
-    private string _search = "";
-    private Vector2 scroll;
+    private string m_Search = "";
+    private Vector2 m_Scroll;
 
     private void OnGUI()
     {
+        if (GUILayout.Button("Reload"))
+        {
+            FindTextures(true);
+        }
+
+        FindTextures();
+
         GUILayout.BeginHorizontal("HelpBox");
         GUILayout.Space(30);
-        _search = EditorGUILayout.TextField("", _search, "SearchTextField", GUILayout.MaxWidth(position.x / 3));
+        m_Search = EditorGUILayout.TextField("", m_Search, "SearchTextField");
         GUILayout.Label("", "SearchCancelButtonEmpty");
         GUILayout.EndHorizontal();
 
-        if (_objects == null)
+        m_Scroll = GUILayout.BeginScrollView(m_Scroll);
+
+        foreach (Texture texture in m_Textures)
         {
-            _objects = Resources.FindObjectsOfTypeAll(typeof(Texture)).Where(o =>
-            {
-                var assetPath = AssetDatabase.GetAssetPath(o);
-                return !(assetPath.StartsWith("Assets") || assetPath.StartsWith("Packages"));
-            }).ToList();
-            _objects.Sort((pA, pB) => string.Compare(pA.name, pB.name, StringComparison.OrdinalIgnoreCase));
-        }
-
-        scroll = GUILayout.BeginScrollView(scroll);
-
-        foreach (UnityEngine.Object oo in _objects)
-        {
-            if (oo is Cubemap) continue;
-            if (oo is Texture3D) continue;
-            if (oo is Texture2DArray) continue;
-            if (oo is CubemapArray) continue;
-
-            Texture texture = oo as Texture;
-
             if (texture == null) continue;
-
-            //Debug.LogError(AssetDatabase.GetAssetPath(oo));
-
-            if (texture.name == "")
-                continue;
-
-            if (blackList.Contains(texture.name)) continue;
-
-            var lowerSearch = _search.ToLower();
+            var lowerSearch = m_Search.ToLower();
             if (lowerSearch != "" && !texture.name.ToLower().Contains(lowerSearch))
                 continue;
 
             DrawIconItem(texture);
         }
         GUILayout.EndScrollView();
+    }
+
+    private void OnDestroy()
+    {
+        m_Textures.Clear();
+    }
+
+    private void FindTextures(bool force = false)
+    {
+        if (m_Textures == null || force)
+        {
+            m_Textures = Resources.FindObjectsOfTypeAll<Texture>()
+                .Where(texture =>
+                {
+                    var assetPath = AssetDatabase.GetAssetPath(texture);
+                    return !(assetPath.StartsWith("Assets") || assetPath.StartsWith("Packages"));
+                })
+                .Where(texture =>
+                {
+                    if (texture == null) return false;
+
+                    if (texture is Cubemap) return false;
+                    if (texture is Texture3D) return false;
+                    if (texture is Texture2DArray) return false;
+                    if (texture is CubemapArray) return false;
+
+                    if (texture.name == "")
+                        return false;
+
+                    if (texture.name.Contains("(Generated)")) return false;
+                    if (m_BlackList.Contains(texture.name)) return false;
+
+                    return true;
+                })
+                .ToList();
+
+            m_Textures.Sort((pA, pB) => string.Compare(pA.name, pB.name, StringComparison.OrdinalIgnoreCase));
+        }
     }
 
     private void DrawIconItem(Texture texture)
@@ -82,8 +104,32 @@ public class EditorIconViewer : EditorWindow
             CopyText("EditorGUIUtility.FindTexture(\"" + texture.name + "\")");
         }
         GUILayout.Space(40);
-        EditorGUILayout.SelectableLabel(texture.name);
+        if (GUILayout.Button(new GUIContent(texture.name, "Save to png"), EditorStyles.linkLabel))
+        {
+            if (texture is Texture2D _tex)
+            {
+                var path = EditorUtility.SaveFilePanel("save to png", Application.dataPath, _tex.name, "png");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    // _tex.isReadable == false 时，有的能导出，有的会抛异常 Read/Write，例如 VisualScript 相关的都会异常
+                    //Debug.LogError($"{_tex.name}.{nameof(Texture2D.isReadable)} : " + _tex.isReadable);
+
+                    var rawData = _tex.GetRawTextureData(); // must get a copy
+
+                    var tmpTex = new Texture2D(_tex.width, _tex.height, _tex.format, false);
+                    tmpTex.LoadRawTextureData(rawData);
+                    File.WriteAllBytes(path, tmpTex.EncodeToPNG());
+                    GameObject.DestroyImmediate(tmpTex);
+                }
+            }
+            else
+            {
+                this.ShowNotification(new GUIContent("error. not texture 2d"), 1f);
+            }
+        }
+        //EditorGUILayout.SelectableLabel(texture.name);
         GUILayout.Space(50);
+
         GUILayout.EndHorizontal();
         GUILayout.Space(10);
     }
