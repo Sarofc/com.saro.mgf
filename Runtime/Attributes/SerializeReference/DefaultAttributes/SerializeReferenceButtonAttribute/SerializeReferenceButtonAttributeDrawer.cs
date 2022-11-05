@@ -27,4 +27,5 @@ public class SerializeReferenceButtonAttributeDrawer : PropertyDrawer
         //EditorGUI.EndProperty();
     }
 }
+
 #endif

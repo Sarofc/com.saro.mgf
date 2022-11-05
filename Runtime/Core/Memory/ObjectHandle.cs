@@ -26,7 +26,7 @@ namespace Saro.Pool
         public ObjectHandle(T obj)
         {
             m_Object = obj;
-            m_CachedObjectID = obj.ObjectID;
+            m_CachedObjectID = obj == null ? 0 : obj.ObjectID;
         }
 
         private bool IsValid() => m_CachedObjectID != 0 && m_Object != null && m_Object.ObjectID == m_CachedObjectID;

@@ -22,5 +22,5 @@ public class SerializeReferenceMenuAttributeDrawer : PropertyDrawer
         EditorGUI.EndProperty();
     }
 }
-#endif
 
+#endif
