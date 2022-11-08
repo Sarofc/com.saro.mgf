@@ -23,7 +23,7 @@ namespace Saro.Gameplay.Effect
         public static EffectManager Current => Main.Resolve<EffectManager>();
 
         private GameObject m_EffectRoot;
-        private int m_GlobalObjectID;
+        private static int s_GlobalObjectID;
 
         public string EffectPath { get; private set; }
 
@@ -76,7 +76,7 @@ namespace Saro.Gameplay.Effect
             effect.transform.position = position;
 
             effect.Init();
-            effect.ObjectID = ++m_GlobalObjectID;
+            effect.ObjectID = /*s_GlobalObjectID == uint.MaxValue ? 1 :*/ ++s_GlobalObjectID;
 
             return new(effect);
         }
@@ -115,7 +115,7 @@ namespace Saro.Gameplay.Effect
             }
 
             effect.Init();
-            effect.ObjectID = ++m_GlobalObjectID;
+            effect.ObjectID = ++s_GlobalObjectID;
 
             return new(effect);
         }

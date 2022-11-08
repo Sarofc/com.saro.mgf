@@ -148,6 +148,7 @@ namespace Saro.Utility
 
         public static implicit operator FAnimationCurve(UnityEngine.AnimationCurve uAnimationCurve)
         {
+            if (uAnimationCurve == null) return null;
             var fAnimationCurve = new FAnimationCurve
             {
                 keys = new FKeyframe[uAnimationCurve.keys.Length]
@@ -161,6 +162,7 @@ namespace Saro.Utility
 
         public static implicit operator UnityEngine.AnimationCurve(FAnimationCurve fAnimationCurve)
         {
+            if (fAnimationCurve == null) return null;
             var uAnimationCurve = new UnityEngine.AnimationCurve();
             for (int i = 0; i < fAnimationCurve.keys.Length; i++)
             {
@@ -171,24 +173,24 @@ namespace Saro.Utility
 
 #if UNITY_EDITOR
         [SerializeField]
-        private AnimationCurve m_Size_Editor;
+        private AnimationCurve m_Curve_Editor;
 
         [OnDeserialized]
         private void AfterDeserialization(StreamingContext ctx)
         {
-            m_Size_Editor = this;
+            m_Curve_Editor = this;
         }
 
         [OnSerializing]
         private void BeforeSerialization(StreamingContext ctx)
         {
-            if (m_Size_Editor != null)
+            if (m_Curve_Editor != null)
             {
-                keys = new FKeyframe[m_Size_Editor.keys.Length];
+                keys = new FKeyframe[m_Curve_Editor.keys.Length];
 
-                for (int i = 0; i < m_Size_Editor.keys.Length; i++)
+                for (int i = 0; i < m_Curve_Editor.keys.Length; i++)
                 {
-                    keys[i] = m_Size_Editor.keys[i];
+                    keys[i] = m_Curve_Editor.keys[i];
                 }
             }
         }

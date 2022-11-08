@@ -78,7 +78,10 @@ namespace Saro.UI
                 {
                     if (type == typeof(GameObject))
                     {
-                        m_ReferenceBinder.Add(child.name, child.gameObject);
+                        if (child.gameObject.TryGetComponent<UIBinder>(out var binder))
+                            m_ReferenceBinder.Add(child.name, binder);
+                        else
+                            m_ReferenceBinder.Add(child.name, child.gameObject);
                     }
                     else
                     {

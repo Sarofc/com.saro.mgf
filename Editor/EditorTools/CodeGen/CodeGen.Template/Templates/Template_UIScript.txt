@@ -8,7 +8,7 @@ using UnityEngine.UI;
 namespace #NAMESPACE#.UI
 {
 
-    [UIWindow((int)EGameUI.#SCRIPTNAME#, "Assets/Res/Prefabs/UI/#SCRIPTNAME#.prefab")]
+    [UIWindow((int)EGameUI.#SCRIPTNAME#, "Assets/Res/Prefab/UI/#SCRIPTNAME#.prefab")]
     public partial class #SCRIPTNAME# : UIWindow
     {
         public #SCRIPTNAME#(string resPath) : base(resPath)

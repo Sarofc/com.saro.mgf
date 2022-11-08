@@ -206,7 +206,7 @@ namespace Saro.Audio
 #if UNITY_EDITOR
             audioPlayer.name = "AudioPlayer-" + s_GlobalObjectID;
 #endif
-            audioPlayer.ObjectID = ++s_GlobalObjectID;
+            audioPlayer.ObjectID = /*s_GlobalObjectID == uint.MaxValue ? 1 :*/ ++s_GlobalObjectID;
         }
 
         private void OnDestroyAudioPlayerInstance(AudioPlayer audioPlayer)

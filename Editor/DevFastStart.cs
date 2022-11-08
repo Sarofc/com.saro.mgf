@@ -14,6 +14,7 @@ using Sirenix.OdinInspector;
 
 namespace Saro.Dev
 {
+    // TODO 推出播放后，还原播放前的场景
     public sealed class DevFastStartSO : ScriptableObject
     {
         public const string k_ConfigAssetPath = "ProjectSettings/DevFastStart.json";
