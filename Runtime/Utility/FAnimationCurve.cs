@@ -157,6 +157,9 @@ namespace Saro.Utility
             {
                 fAnimationCurve.keys[i] = uAnimationCurve.keys[i];
             }
+#if UNITY_EDITOR
+            fAnimationCurve.m_Curve_Editor = uAnimationCurve;
+#endif
             return fAnimationCurve;
         }
 
