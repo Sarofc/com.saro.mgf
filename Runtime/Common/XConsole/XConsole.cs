@@ -29,32 +29,38 @@ namespace Saro.XConsole
 
         public static void AddInstanceCommands(Type classType, object instance)
         {
-            Instance.m_Executor.AddInstanceCommands(classType, instance);
+            if (Instance != null)
+                Instance.m_Executor.AddInstanceCommands(classType, instance);
         }
 
         public static void AddStaticCommands(Type classType)
         {
-            Instance.m_Executor.AddStaticCommands(classType);
+            if (Instance != null)
+                Instance.m_Executor.AddStaticCommands(classType);
         }
 
         public static void RemoveAllCommands(Type classType)
         {
-            Instance?.m_Executor.RemoveAllCommands(classType);
+            if (Instance != null)
+                Instance.m_Executor.RemoveAllCommands(classType);
         }
 
         public static void RemoveCommand(string cmd)
         {
-            Instance.m_Executor.RemoveCommand(cmd);
+            if (Instance != null)
+                Instance.m_Executor.RemoveCommand(cmd);
         }
 
         public static void ExecuteCommand(string cmdLine)
         {
-            Instance.m_Executor.ExecuteCommand(cmdLine);
+            if (Instance != null)
+                Instance.m_Executor.ExecuteCommand(cmdLine);
         }
 
         public static void RegisterArgTypeParser(Type type, TypeParser parser)
         {
-            Instance.m_Executor.RegisterArgTypeParser(type, parser);
+            if (Instance != null)
+                Instance.m_Executor.RegisterArgTypeParser(type, parser);
         }
 
         public static IReadOnlyCollection<CmdData> GetAllCommands()
@@ -555,11 +561,13 @@ namespace Saro.XConsole
                     {
                         m_SearchLogEntryIndexes.Add(index);
                     }
+#if UNITY_EDITOR
                     // 目前stacktrace，也加进来
                     else if (entry.stackTrace.Contains(search, StringComparison.OrdinalIgnoreCase))
                     {
                         m_SearchLogEntryIndexes.Add(index);
                     }
+#endif
                 }
             }
             RequireFlushToConsole = true;
