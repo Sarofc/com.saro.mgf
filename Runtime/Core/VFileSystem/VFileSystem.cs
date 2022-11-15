@@ -171,7 +171,7 @@ namespace Saro.IO
             try
             {
 #if UNITY_ANDROID && !UNITY_EDITOR
-                if (FileUtility.IsAndroidStreammingAssetPath(fullPath))
+                if (FileUtility.IsAndroidStreamingAssetFile(fullPath))
                 {
                     stream = new AndroidVFileStream(fullPath, mode, access);
                 }

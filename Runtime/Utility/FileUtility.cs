@@ -1,20 +1,19 @@
-﻿#if UNITY_ANDROID && !UNITY_EDITOR
+﻿#if (UNITY_ANDROID || UNITY_WEBGL) && !UNITY_EDITOR
 #define USE_INDEXES
 #endif
 
-#if UNITY_ANDROID
+#if UNITY_ANDROID || UNITY_WEBGL
 #define BUILD_INDEXES
 #endif
 
 using System.IO;
 using System.Text;
 using UnityEngine;
-
-#if USE_INDEXES
+using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using UnityEngine.Networking;
-#endif
 
 namespace Saro.Utility
 {
@@ -24,7 +23,8 @@ namespace Saro.Utility
     // webgl  可能也需要
 
     /// <summary>
-    /// 跨平台文件处理，针对安卓StreammingAssests目录
+    /// 跨平台文件处理，针对StreammingAssests目录
+    /// <code>webgl只能使用async方法</code>
     /// </summary>
     public static class FileUtility
     {
@@ -32,34 +32,41 @@ namespace Saro.Utility
 
 #if USE_INDEXES
         private const string k_AndroidFileSystemPrefixString = "jar:";
+        private const string k_HttpPrefixString = "http";
         private static HashSet<string> s_Indexes;
 #endif
 
-        static FileUtility()
+        public static async UniTask LoadIndexesAsync()
         {
 #if USE_INDEXES
-            var file = Application.streamingAssetsPath + "/" + k_IndexesName;
-            var request = UnityWebRequest.Get(file);
-            request.SendWebRequest();
-            while (!request.isDone) { }
-            var content = request.downloadHandler.text;
-
-            request.Dispose();
-
-            var lines = content.Split('\n');
-
-            s_Indexes = new HashSet<string>();
-            foreach (var line in lines)
-            {
-                s_Indexes.Add(line);
-            }
-
             Log.INFO($"[USE_INDEXES]. LoadIndexes.");
+
+            var indexPath = Application.streamingAssetsPath + "/" + k_IndexesName;
+
+            var request = UnityWebRequest.Get(indexPath);
+            await request.SendWebRequest();
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                var content = request.downloadHandler.text;
+                var lines = content.Split('\n');
+
+                s_Indexes = new HashSet<string>();
+                foreach (var line in lines)
+                    s_Indexes.Add(line);
+            }
+            else
+            {
+                Log.ERROR($"[USE_INDEXES]. LoadIndexes Error: {request.error}");
+            }
 #endif
         }
 
         public static void BuildIndexes()
         {
+            var indexPath = Application.streamingAssetsPath + "/" + k_IndexesName;
+            if (File.Exists(indexPath))
+                File.Delete(indexPath);
+
 #if BUILD_INDEXES
             var sb = new StringBuilder(2048);
             var files = Directory.GetFiles(Application.streamingAssetsPath, "*", SearchOption.AllDirectories);
@@ -72,14 +79,14 @@ namespace Saro.Utility
                 // win android 下， appendline 貌似是 \r\n 
             }
 
-            File.WriteAllText(Application.streamingAssetsPath + "/" + k_IndexesName, sb.ToString());
+            File.WriteAllText(indexPath, sb.ToString());
 #endif
         }
 
         public static string ReadAllText(string file)
         {
 #if USE_INDEXES
-            if (IsAndroidStreammingAssetPath(file))
+            if (ShouldUseUnityWebRequest(file))
             {
                 var request = UnityWebRequest.Get(file);
                 request.SendWebRequest();
@@ -87,14 +94,13 @@ namespace Saro.Utility
                 return request.downloadHandler.text;
             }
 #endif
-
             return File.ReadAllText(file);
         }
 
         public static byte[] ReadAllBytes(string file)
         {
 #if USE_INDEXES
-            if (IsAndroidStreammingAssetPath(file))
+            if (ShouldUseUnityWebRequest(file))
             {
                 var request = UnityWebRequest.Get(file);
                 request.SendWebRequest();
@@ -102,8 +108,49 @@ namespace Saro.Utility
                 return request.downloadHandler.data;
             }
 #endif
-
             return File.ReadAllBytes(file);
+        }
+
+        public static async UniTask<string> ReadAllTextAsync(string file)
+        {
+#if USE_INDEXES
+            if (ShouldUseUnityWebRequest(file))
+            {
+                var request = UnityWebRequest.Get(file);
+                await request.SendWebRequest();
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    return request.downloadHandler.text;
+                }
+                else
+                {
+                    Log.ERROR($"FileUtility:ReadAllBytesAsync failed. file: {file} error: {request.error}");
+                    return null;
+                }
+            }
+#endif
+            return await File.ReadAllTextAsync(file);
+        }
+
+        public static async UniTask<byte[]> ReadAllBytesAsync(string file)
+        {
+#if USE_INDEXES
+            if (ShouldUseUnityWebRequest(file))
+            {
+                var request = UnityWebRequest.Get(file);
+                await request.SendWebRequest();
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    return request.downloadHandler.data;
+                }
+                else
+                {
+                    Log.ERROR($"FileUtility:ReadAllBytesAsync failed. file: {file} error: {request.error}");
+                    return null;
+                }
+            }
+#endif
+            return await File.ReadAllBytesAsync(file);
         }
 
         public static bool Exists(string path)
@@ -116,29 +163,51 @@ namespace Saro.Utility
                 if (s_Indexes == null)
                     return false;
 
-                if (!IsAndroidStreammingAssetPath(path))
+                if (!ShouldUseUnityWebRequest(path))
                     return false;
 
                 var resPath = path.Remove(0, Application.streamingAssetsPath.Length);
 
                 exists = s_Indexes.Contains(resPath);
 
-                Log.INFO($"[USE_INDEXES] exists: {exists} index: {resPath} path: {path}");
+                // Log.INFO($"[USE_INDEXES] exists: {exists} index: {resPath} path: {path}");
             }
 #endif
 
             return exists;
         }
 
-        public static bool IsAndroidStreammingAssetPath(string file)
+        public static bool ShouldUseUnityWebRequest(string file)
         {
-#if USE_INDEXES
-            if (file.StartsWith(k_AndroidFileSystemPrefixString, StringComparison.Ordinal))
-            {
+#if USE_INDEXES && UNITY_WEBGL
+            if (IsHttpFile(file))
                 return true;
-            }
 #endif
 
+#if USE_INDEXES && UNITY_ANDROID
+            if (IsAndroidStreamingAssetFile(file))
+                return true;
+#endif
+
+            return false;
+        }
+
+
+        public static bool IsHttpFile(string file)
+        {
+#if USE_INDEXES && UNITY_WEBGL
+            if (file.StartsWith(k_HttpPrefixString, StringComparison.Ordinal))
+                return true;
+#endif
+            return false;
+        }
+
+        public static bool IsAndroidStreamingAssetFile(string file)
+        {
+#if USE_INDEXES && UNITY_ANDROID
+            if (file.StartsWith(k_AndroidFileSystemPrefixString, StringComparison.Ordinal))
+                return true;
+#endif
             return false;
         }
     }

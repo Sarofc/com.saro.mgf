@@ -275,7 +275,7 @@ namespace Saro.XConsole
         private void OnApplicationPause(bool pause)
         {
 #if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)
-            SaveSettings();
+            SaveConfigs();
 #endif
         }
 

@@ -35,6 +35,23 @@ namespace Saro.Core
             return await LoadAssetRefAsync(assetPath, typeof(T)) as T;
         }
 
+        public IAssetHandle LoadAssetRefAsync_Handle<T>(string assetPath)
+        {
+            if (string.IsNullOrEmpty(assetPath))
+            {
+                Log.ERROR($"assetPath is null or empty");
+                return null;
+            }
+
+            var type = typeof(T);
+            if (!m_AssetCache.TryGetValue(assetPath, out var handle))
+            {
+                handle = m_AssetManager.LoadAssetAsync(assetPath, type);
+                m_AssetCache.Add(assetPath, handle);
+            }
+            return handle;
+        }
+
         public Object LoadAssetRef(string assetPath, Type type)
         {
             if (string.IsNullOrEmpty(assetPath))
@@ -48,7 +65,6 @@ namespace Saro.Core
                 handle = m_AssetManager.LoadAsset(assetPath, type);
                 m_AssetCache.Add(assetPath, handle);
             }
-
             return handle.Asset;
         }
 
@@ -65,10 +81,8 @@ namespace Saro.Core
                 handle = m_AssetManager.LoadAssetAsync(assetPath, type);
                 m_AssetCache.Add(assetPath, handle);
             }
-
             if (!handle.IsDone)
                 await handle;
-
             return handle.Asset;
         }
 
@@ -88,7 +102,6 @@ namespace Saro.Core
             {
                 item.Value.DecreaseRefCount();
             }
-
             m_AssetCache.Clear();
         }
 

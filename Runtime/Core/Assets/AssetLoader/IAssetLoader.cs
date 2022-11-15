@@ -83,6 +83,11 @@ namespace Saro.Core
         /// </summary>
         UniTask<T> LoadAssetRefAsync<T>(string assetPath) where T : Object => throw new NotImplementedException("泛型接口未实现");
 
+        /// <summary>
+        /// 异步加载资源，且缓存handle
+        /// </summary>
+        IAssetHandle LoadAssetRefAsync_Handle<T>(string assetPath) => throw new NotImplementedException("泛型接口未实现");
+
         #endregion
     }
 }

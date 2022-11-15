@@ -122,10 +122,14 @@ namespace Saro.Audio
             // TODO 工作流优化
             //  Editor 创建 AudioMixer，以及需要的文件夹，方便其他项目接入
 
-            var handle = m_AssetManager.LoadAssetAsync(AudioAssetPath + "GameMixer.mixer", typeof(AudioMixer));
+            var handle = LoadAssetAsync("GameMixer.mixer", typeof(AudioMixer));
             handle.IncreaseRefCount();
             await handle;
             m_AudioMixer = handle.Asset as AudioMixer;
+            if (m_AudioMixer == null)
+            {
+                return;
+            }
 
             AudioMixerGroup[] findEffectGroup = m_AudioMixer.FindMatchingGroups("Master/SE");
             AudioMixerGroup[] findBGMGroup = m_AudioMixer.FindMatchingGroups("Master/BGM");
@@ -589,8 +593,6 @@ namespace Saro.Audio
     {
         public string AudioAssetPath { get; private set; }
 
-        private readonly IAssetManager m_AssetManager = Main.Resolve<IAssetManager>();
-
         public async UniTask InitializeAsync(string audioAssetPath)
         {
             AudioAssetPath = audioAssetPath;
@@ -600,12 +602,12 @@ namespace Saro.Audio
 
         public IAssetHandle LoadAsset(string assetPath, Type type)
         {
-            return m_AssetManager.LoadAsset(AudioAssetPath + assetPath, type);
+            return IAssetManager.Current.LoadAsset(AudioAssetPath + assetPath, type);
         }
 
         public IAssetHandle LoadAssetAsync(string assetPath, Type type)
         {
-            return m_AssetManager.LoadAssetAsync(AudioAssetPath + assetPath, type);
+            return IAssetManager.Current.LoadAssetAsync(AudioAssetPath + assetPath, type);
         }
     }
 }

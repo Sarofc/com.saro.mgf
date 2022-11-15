@@ -34,32 +34,45 @@ namespace Saro.Core
             return await LoadAssetRefAsync(assetPath, typeof(T)) as T;
         }
 
-        public Object LoadAssetRef(string assetPath, Type type)
+        public IAssetHandle LoadAssetRefAsync_Handle<T>(string assetPath)
         {
-            var handle = m_AssetCache.Get(assetPath);
+            if (string.IsNullOrEmpty(assetPath))
+            {
+                Log.ERROR($"assetPath is null or empty");
+                return null;
+            }
 
+            var type = typeof(T);
+            var handle = m_AssetCache.Get(assetPath);
             if (handle == null)
             {
                 handle = m_AssetManager.LoadAsset(assetPath, type);
                 m_AssetCache.Put(assetPath, handle);
             }
+            return handle;
+        }
 
+        public Object LoadAssetRef(string assetPath, Type type)
+        {
+            var handle = m_AssetCache.Get(assetPath);
+            if (handle == null)
+            {
+                handle = m_AssetManager.LoadAsset(assetPath, type);
+                m_AssetCache.Put(assetPath, handle);
+            }
             return handle.Asset;
         }
 
         public async UniTask<Object> LoadAssetRefAsync(string assetPath, Type type)
         {
             var handle = m_AssetCache.Get(assetPath);
-
             if (handle == null)
             {
                 handle = m_AssetManager.LoadAssetAsync(assetPath, type);
                 m_AssetCache.Put(assetPath, handle);
             }
-
             if (!handle.IsDone)
                 await handle;
-
             return handle.Asset;
         }
 

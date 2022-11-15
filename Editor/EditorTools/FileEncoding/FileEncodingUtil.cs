@@ -5,6 +5,8 @@ namespace Saro.Utility
 {
     public class FileEncodingUtil
     {
+        private static byte[] s_UTF8Bom = Encoding.UTF8.GetPreamble();
+
         public static Encoding GetEncoding(string fileName)
         {
             using (FileStream fs = new FileStream(fileName, FileMode.Open))
@@ -54,13 +56,12 @@ namespace Saro.Utility
             return reVal;
         }
 
-        private static bool IsUTF8WithoutBOM(byte[] data)
+        public static bool IsUTF8WithoutBOM(byte[] data)
         {
-            var bytes = Encoding.UTF8.GetPreamble();
-            if (bytes.Length > data.Length) return false;
-            for (int i = 0; i < bytes.Length; i++)
+            if (s_UTF8Bom.Length > data.Length) return false;
+            for (int i = 0; i < s_UTF8Bom.Length; i++)
             {
-                if (bytes[i] != data[i]) return false;
+                if (s_UTF8Bom[i] != data[i]) return false;
             }
             return true;
         }

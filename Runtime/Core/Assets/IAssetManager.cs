@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
+using System.Text;
 using UnityEngine;
 
 namespace Saro.Core
@@ -67,20 +68,36 @@ namespace Saro.Core
         void DeleteDLC();
 
         #region RawFile
+         
+        // TODO 看情况再加吧
+
+        ///// <summary>
+        ///// 加载RawFile文本
+        ///// </summary>
+        ///// <param name="assetName">  是相对路径 eg. xxx.raw
+        ///// <returns></returns>
+        //string GetRawFileText(string assetName, Encoding encoding = null);
+
+        ///// <summary>
+        ///// 异步加载RawFile文本
+        ///// </summary>
+        ///// <param name="assetName">  是相对路径 eg. Assets/ResRaw/xxx.raw
+        ///// <returns></returns>
+        //UniTask<string> GetRawFileTextAsync(string assetName, Encoding encoding = null);
 
         /// <summary>
-        /// 加载RawFile资源
+        /// 加载RawFile字节数组
         /// </summary>
         /// <param name="assetName">  是相对路径 eg. xxx.raw
         /// <returns></returns>
-        byte[] GetRawFile(string assetName);
+        byte[] GetRawFileBytes(string assetName);
 
         /// <summary>
-        /// 异步加载RawFile资源
+        /// 异步加载RawFile字节数组
         /// </summary>
         /// <param name="assetName">  是相对路径 eg. Assets/ResRaw/xxx.raw
         /// <returns></returns>
-        UniTask<byte[]> GetRawFileAsync(string assetName);
+        UniTask<byte[]> GetRawFileBytesAsync(string assetName);
 
         /// <summary>
         /// 获取RawFile文件路径
@@ -90,7 +107,7 @@ namespace Saro.Core
         string GetRawFilePath(string assetName);
 
         /// <summary>
-        /// 获取RawFile文件路径，如没有则会去remote下载
+        /// 获取RawFile文件路径，如没有则会去remote下载。若返回空串，则表示下载失败
         /// </summary>
         /// <param name="assetName">  是相对路径 eg. Assets/ResRaw/xxx.raw
         /// <returns></returns>

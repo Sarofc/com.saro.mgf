@@ -1,14 +1,12 @@
 ﻿# 工具开发
 
 **杂项**
-- [x] 要迁移到.net standard 2.1，旧版本不再维护了
 - [ ] 处理多播委托+=/-=的gc问题（考虑替换城自己写的Delegates，list vs linkedlist，tmp有个FastAction，可以参考）
-- [x] 测试android
-- [x] API整理，往huatuo支持的方向考虑，不再考虑lua、ilrt
+- [ ] webgl支持
 - [ ] exception 调整优化
 - [ ] iservice的一些管理器抽象成接口，例如音效尽可能抽象为支持fmod、wwise无缝切换
 - [ ] vfs提供readasync接口
-- [ ] gameplaytag改为基础库，优化性能
+- [ ] 接入正式版版hybirdclr
 
 **async/await最佳实践**
 - [ ] 测试一下async有没有延迟一帧，还是说一帧就能完成
@@ -23,9 +21,6 @@
     - 似乎完全没必要做rc=0时的延迟回收机制，上层模块自己管理就好了，可以考虑对象池这一层来做
 - [ ] MoonAsset里的各种数组，可不可以无序？可以的话，直接反向循环，或者进行swap back操作，减少数组copy消耗
 - [x] IAssetHandle池化，优先级低，先研究下其必要性，收益不大则不要考虑，先把其他整完后再来处理！=》上层有缓存了，可以不用考虑了
-- [x] 路径规划
-    - ab路径、额外数据路径（表格、自定义数据 之类的）
-    - 各个平台加载路径、本地路径、热更路径
 - [ ] 资源热更新，加载流程梳理，使其更健壮
     - [x] 自动补充下载 ui处理，下载时，提示ui
     - [x] 需要新增一个API，用来校验本地资源完整性，通过manifest来处理
@@ -35,6 +30,7 @@
     - [x] 避免读取到未下载完成的资源。下载时搞个.tmp后缀，下载完成后，去掉
     - [x] 下载器组件测试，包括切片下载
     - [ ] 下载器组件，限速功能有问题，应提供一个默认速度，[最小，最大]速度，设置速度应在这个区间里
+    - [ ] 自动补充下载相关异步api需要返回文件状态，例如GetRawFileAsync。同时事件也需要完善下，OnLoadAsset相关的。
 - [ ] builtinshader 和 收集的svb不是一个包有没有问题？
 - [x] 编辑器下支持读取打包后ab，从dlc目录而非streammingasset目录
 - [ ] 大量资源文件，取文件 hash 前2位字符作为文件夹，避免同一文件夹文件数量过多
@@ -46,7 +42,9 @@
   - [x] 1.支持LoadRawAsset在编辑器下的加载？项目自己用宏控制
   - [x] 2.框架只管理硬盘文件（wwise,bank,vfs），叫做rawfile。vfs相关打包加载，项目自己实现
   - [x] 3.rawfile同bundle，维护一个assetpath到rawfile的映射，可以随意appendhash
+  - [ ] 4.rawfile新增readalltext接口，现在只有readallbytes接口
 - [ ] tmp 打包要剔除掉 resources 目录？改起来貌似不怎么方便
+- [ ] api整理，优化
 
 **UI模块**
 - [ ] UI估计还是要重构下，需要更清爽、简洁
@@ -91,6 +89,8 @@
 **XConsole**
 - [x] 重写UI
 - [ ] 整理代码，测试
+- [ ] log过长后，要截断
+- [ ] 保存配置，OnApplicationPause平台差异处理
 
 **网络**
 
