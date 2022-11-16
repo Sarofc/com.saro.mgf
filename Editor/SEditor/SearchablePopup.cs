@@ -216,7 +216,7 @@ namespace Saro.SEditor
 
         public override Vector2 GetWindowSize()
         {
-            return new Vector2(base.GetWindowSize().x,
+            return new Vector2(300f,
                 Mathf.Min(600, list.MaxLength * ROW_HEIGHT +
                 EditorStyles.toolbar.fixedHeight));
         }
