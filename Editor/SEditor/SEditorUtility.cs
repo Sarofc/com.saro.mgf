@@ -5,7 +5,8 @@ namespace Saro.SEditor
 {
     public static partial class SEditorUtility
     {
-        public static readonly GUIStyle SmallTickbox = new GUIStyle("ShurikenToggle");
+        public static GUIStyle SmallTickbox => m_SmallTickbox ??= new GUIStyle("ShurikenToggle");
+        private static GUIStyle m_SmallTickbox;
         private static readonly Color _splitterdark = new Color(0.12f, 0.12f, 0.12f, 1.333f);
         private static readonly Color _splitterlight = new Color(0.6f, 0.6f, 0.6f, 1.333f);
         public static Color Splitter { get { return EditorGUIUtility.isProSkin ? _splitterdark : _splitterlight; } }
