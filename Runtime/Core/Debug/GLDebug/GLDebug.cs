@@ -10,9 +10,10 @@ namespace Saro.Diagnostics
     }
 
     // TODO 
-    // 1. 场景中又sprite renderer，切旋转了90度时，GLDraw的旋转不对
+    // 1. 场景中有sprite renderer，且旋转了90度时，GLDraw的旋转不对
     // 2. api 参数位置调整！
     // 3. 添加 宏，可以选择剔除掉画线开销
+    // 4. 大量物体时，性能很差
     public static class GLDebug
     {
         public static void DebugSquare(Vector3 origin, Vector3 extents, Color color, Quaternion orientation,
