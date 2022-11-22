@@ -12,6 +12,7 @@ using System.Diagnostics;
 using Debug = UnityEngine.Debug;
 using Saro.Utility;
 using ShowInInspectorAttribute = Saro.SEditor.ShowInInspectorAttribute;
+using Unity.Mathematics;
 
 namespace Saro.SEditor
 {
@@ -412,6 +413,36 @@ namespace Saro.SEditor
                 var obj = EditorGUILayout.LayerField(name, (LayerMask)value);
                 return (true, obj);
             }
+
+            #region mathematics
+
+            if (t == typeof(float2))
+            {
+                var obj = (float2)EditorGUILayout.Vector2Field(name, (float2)value);
+                return (true, obj);
+            }
+
+            if (t == typeof(float3))
+            {
+                var obj = (float3)EditorGUILayout.Vector3Field(name, (float3)value);
+                return (true, obj);
+            }
+
+            if (t == typeof(float4))
+            {
+                var obj = (float4)EditorGUILayout.Vector4Field(name, (float4)value);
+                return (true, obj);
+            }
+
+            if (t == typeof(quaternion))
+            {
+                var quat = (quaternion)value;
+                var vec4 = EditorGUILayout.Vector4Field(name, quat.value);
+                var obj = new quaternion(vec4);
+                return (true, obj);
+            }
+
+            #endregion
 
             if (t.IsSubclassOf(typeof(Enum)))
             {
