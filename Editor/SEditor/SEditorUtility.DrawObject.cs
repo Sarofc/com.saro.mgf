@@ -377,10 +377,10 @@ namespace Saro.SEditor
 
             if (t == typeof(Quaternion))
             {
+                // TODO test
                 var quat = (Quaternion)value;
-                var vec4 = new Vector4(quat.x, quat.y, quat.z, quat.w);
-                vec4 = EditorGUILayout.Vector4Field(name, vec4);
-                var obj = new Quaternion(vec4.x, vec4.y, vec4.z, vec4.w);
+                var vec3 = EditorGUILayout.Vector3Field(name, quat.eulerAngles);
+                var obj = Quaternion.Euler(vec3.x, vec3.y, vec3.z);
                 return (true, obj);
             }
 
@@ -436,9 +436,9 @@ namespace Saro.SEditor
 
             if (t == typeof(quaternion))
             {
-                var quat = (quaternion)value;
-                var vec4 = EditorGUILayout.Vector4Field(name, quat.value);
-                var obj = new quaternion(vec4);
+                var quat = (Quaternion)(quaternion)value;
+                var vec3 = EditorGUILayout.Vector3Field(name, quat.eulerAngles);
+                var obj = quaternion.EulerXYZ(math.radians(vec3));
                 return (true, obj);
             }
 
