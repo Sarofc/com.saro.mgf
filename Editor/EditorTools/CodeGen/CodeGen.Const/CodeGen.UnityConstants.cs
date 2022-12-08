@@ -1,4 +1,5 @@
 ﻿using Microsoft.CSharp;
+using Saro.CodeGen;
 using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
@@ -12,7 +13,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace CodeGen
+namespace Saro.CodeGen
 {
     public class UnityConstantsCodeGen : EditorWindow
     {

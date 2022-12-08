@@ -24,7 +24,7 @@
 
 using UnityEngine;
 
-namespace Newtonsoft.Json.UnityConverters.Math
+namespace Newtonsoft.Json.UnityConverters
 {
     /// <summary>
     /// Custom Newtonsoft.Json converter <see cref="JsonConverter"/> for the Unity Vector3 type <see cref="Vector3"/>.

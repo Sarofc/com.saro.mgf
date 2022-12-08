@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace CodeGen
+namespace Saro.CodeGen
 {
 
     public class CodeGenHelper

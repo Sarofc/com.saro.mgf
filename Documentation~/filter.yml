@@ -1,0 +1,29 @@
+apiRules:
+  - exclude:
+      # inherited Object methods
+      uidRegex: ^System\.Object\..*$
+      type: Method
+  - exclude:
+      # 排除unitask相关
+      uidRegex: ^Cysharp.*$
+      type: Namespace
+  - exclude:
+      # 排除dotween相关
+      uidRegex: DG.Tweening
+      type: Namespace
+  - exclude:
+      # 排除测试代码
+      uidRegex: ^.*Test.*$
+      type: Namespace
+  - exclude:
+      # 排除sample
+      uidRegex: ^.*Sample.*$
+      type: Namespace
+  - exclude:
+      # 排除unity相关的
+      uidRegex: ^Unity.*$
+      type: Namespace
+  - exclude:
+      hasAttribute:
+        uid: System.ObsoleteAttribute
+      type: Type

@@ -3,7 +3,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace EditorTools.Animation
+namespace Saro.EditorTools.Animation
 {
     public class AnimationClipTool : EditorWindow
     {

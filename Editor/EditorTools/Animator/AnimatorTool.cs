@@ -5,7 +5,7 @@
 //using UnityEditor.Animations;
 
 
-//namespace EditorTools.Animation
+//namespace Saro.EditorTools.Animation
 //{
 //    public class AnimatorBuilderTool : EditorWindow
 //    {

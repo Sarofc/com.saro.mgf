@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace EditorTools.Animation
+namespace Saro.EditorTools.Animation
 {
     public static class AnimationHelper
     {

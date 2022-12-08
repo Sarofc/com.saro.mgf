@@ -2,67 +2,70 @@
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-//带数据的TreeViewItem
-public class AssetViewItem : TreeViewItem
+namespace Saro.EditorTools
 {
-    public ReferenceFinderData.AssetDescription data;
-}
 
-//资源引用树
-public class AssetTreeView : TreeView
-{
-    //图标宽度
-    private const float kIconWidth = 18f;
-
-    //列表高度
-    private const float kRowHeights = 20f;
-    public AssetViewItem assetRoot;
-
-    private GUIStyle stateGUIStyle = new GUIStyle { richText = true, alignment = TextAnchor.MiddleCenter };
-
-    //列信息
-    private enum MyColumns
+    //带数据的TreeViewItem
+    public class AssetViewItem : TreeViewItem
     {
-        Name,
-        Path,
-        State,
+        public ReferenceFinderData.AssetDescription data;
     }
 
-    public AssetTreeView(TreeViewState state, MultiColumnHeader multicolumnHeader) : base(state, multicolumnHeader)
+    //资源引用树
+    public class AssetTreeView : TreeView
     {
-        rowHeight = kRowHeights;
-        columnIndexForTreeFoldouts = 0;
-        showAlternatingRowBackgrounds = true;
-        showBorder = false;
-        customFoldoutYOffset = (kRowHeights - EditorGUIUtility.singleLineHeight) * 0.5f; // center foldout in the row since we also center content. See RowGUI
-        extraSpaceBeforeIconAndLabel = kIconWidth;
-    }
+        //图标宽度
+        private const float kIconWidth = 18f;
 
-    //响应右击事件
-    protected override void ContextClickedItem(int id)
-    {
-        SetExpanded(id, !IsExpanded(id));
-    }
+        //列表高度
+        private const float kRowHeights = 20f;
+        public AssetViewItem assetRoot;
 
-    //响应双击事件
-    protected override void DoubleClickedItem(int id)
-    {
-        var item = (AssetViewItem)FindItem(id, rootItem);
-        //在ProjectWindow中高亮双击资源
-        if (item != null)
+        private GUIStyle stateGUIStyle = new GUIStyle { richText = true, alignment = TextAnchor.MiddleCenter };
+
+        //列信息
+        private enum MyColumns
         {
-            var assetObject = AssetDatabase.LoadAssetAtPath(item.data.path, typeof(UnityEngine.Object));
-            EditorUtility.FocusProjectWindow();
-            Selection.activeObject = assetObject;
-            EditorGUIUtility.PingObject(assetObject);
+            Name,
+            Path,
+            State,
         }
-    }
 
-    //生成ColumnHeader
-    public static MultiColumnHeaderState CreateDefaultMultiColumnHeaderState(float treeViewWidth)
-    {
-        var columns = new[]
+        public AssetTreeView(TreeViewState state, MultiColumnHeader multicolumnHeader) : base(state, multicolumnHeader)
         {
+            rowHeight = kRowHeights;
+            columnIndexForTreeFoldouts = 0;
+            showAlternatingRowBackgrounds = true;
+            showBorder = false;
+            customFoldoutYOffset = (kRowHeights - EditorGUIUtility.singleLineHeight) * 0.5f; // center foldout in the row since we also center content. See RowGUI
+            extraSpaceBeforeIconAndLabel = kIconWidth;
+        }
+
+        //响应右击事件
+        protected override void ContextClickedItem(int id)
+        {
+            SetExpanded(id, !IsExpanded(id));
+        }
+
+        //响应双击事件
+        protected override void DoubleClickedItem(int id)
+        {
+            var item = (AssetViewItem)FindItem(id, rootItem);
+            //在ProjectWindow中高亮双击资源
+            if (item != null)
+            {
+                var assetObject = AssetDatabase.LoadAssetAtPath(item.data.path, typeof(Object));
+                EditorUtility.FocusProjectWindow();
+                Selection.activeObject = assetObject;
+                EditorGUIUtility.PingObject(assetObject);
+            }
+        }
+
+        //生成ColumnHeader
+        public static MultiColumnHeaderState CreateDefaultMultiColumnHeaderState(float treeViewWidth)
+        {
+            var columns = new[]
+            {
             //图标+名称
             new MultiColumnHeaderState.Column
             {
@@ -100,69 +103,70 @@ public class AssetTreeView : TreeView
                 canSort = false
             },
         };
-        var state = new MultiColumnHeaderState(columns);
-        return state;
-    }
-
-    protected override TreeViewItem BuildRoot()
-    {
-        return assetRoot;
-    }
-
-    protected override void RowGUI(RowGUIArgs args)
-    {
-        var item = (AssetViewItem)args.item;
-        for (int i = 0; i < args.GetNumVisibleColumns(); ++i)
-        {
-            CellGUI(args.GetCellRect(i), item, (MyColumns)args.GetColumn(i), ref args);
+            var state = new MultiColumnHeaderState(columns);
+            return state;
         }
-    }
 
-    //绘制列表中的每项内容
-    private void CellGUI(Rect cellRect, AssetViewItem item, MyColumns column, ref RowGUIArgs args)
-    {
-        CenterRectUsingSingleLineHeight(ref cellRect);
-        switch (column)
+        protected override TreeViewItem BuildRoot()
         {
-            case MyColumns.Name:
-                {
-                    var iconRect = cellRect;
-                    iconRect.x += GetContentIndent(item);
-                    iconRect.width = kIconWidth;
-                    if (iconRect.x < cellRect.xMax)
+            return assetRoot;
+        }
+
+        protected override void RowGUI(RowGUIArgs args)
+        {
+            var item = (AssetViewItem)args.item;
+            for (int i = 0; i < args.GetNumVisibleColumns(); ++i)
+            {
+                CellGUI(args.GetCellRect(i), item, (MyColumns)args.GetColumn(i), ref args);
+            }
+        }
+
+        //绘制列表中的每项内容
+        private void CellGUI(Rect cellRect, AssetViewItem item, MyColumns column, ref RowGUIArgs args)
+        {
+            CenterRectUsingSingleLineHeight(ref cellRect);
+            switch (column)
+            {
+                case MyColumns.Name:
                     {
-                        var icon = GetIcon(item.data.path);
-                        if (icon != null)
-                            GUI.DrawTexture(iconRect, icon, ScaleMode.ScaleToFit);
+                        var iconRect = cellRect;
+                        iconRect.x += GetContentIndent(item);
+                        iconRect.width = kIconWidth;
+                        if (iconRect.x < cellRect.xMax)
+                        {
+                            var icon = GetIcon(item.data.path);
+                            if (icon != null)
+                                GUI.DrawTexture(iconRect, icon, ScaleMode.ScaleToFit);
+                        }
+                        args.rowRect = cellRect;
+                        base.RowGUI(args);
                     }
-                    args.rowRect = cellRect;
-                    base.RowGUI(args);
-                }
-                break;
-            case MyColumns.Path:
-                {
-                    GUI.Label(cellRect, item.data.path);
-                }
-                break;
-            case MyColumns.State:
-                {
-                    GUI.Label(cellRect, ReferenceFinderData.GetInfoByState(item.data.state), stateGUIStyle);
-                }
-                break;
+                    break;
+                case MyColumns.Path:
+                    {
+                        GUI.Label(cellRect, item.data.path);
+                    }
+                    break;
+                case MyColumns.State:
+                    {
+                        GUI.Label(cellRect, ReferenceFinderData.GetInfoByState(item.data.state), stateGUIStyle);
+                    }
+                    break;
+            }
         }
-    }
 
-    //根据资源信息获取资源图标
-    private Texture2D GetIcon(string path)
-    {
-        Object obj = AssetDatabase.LoadAssetAtPath(path, typeof(Object));
-        if (obj != null)
+        //根据资源信息获取资源图标
+        private Texture2D GetIcon(string path)
         {
-            Texture2D icon = AssetPreview.GetMiniThumbnail(obj);
-            if (icon == null)
-                icon = AssetPreview.GetMiniTypeThumbnail(obj.GetType());
-            return icon;
+            Object obj = AssetDatabase.LoadAssetAtPath(path, typeof(Object));
+            if (obj != null)
+            {
+                Texture2D icon = AssetPreview.GetMiniThumbnail(obj);
+                if (icon == null)
+                    icon = AssetPreview.GetMiniTypeThumbnail(obj.GetType());
+                return icon;
+            }
+            return null;
         }
-        return null;
     }
 }
