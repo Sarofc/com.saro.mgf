@@ -1,4 +1,4 @@
-﻿namespace Saro.SaveSystem
+﻿namespace Saro.Saving
 {
     public interface ISaveDataProvider
     {

@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Saro.SaveSystem
+namespace Saro.Saving
 {
     public interface ISaveData
     {

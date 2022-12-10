@@ -1,10 +1,10 @@
 ﻿namespace Saro.UI
 {
-    public enum EDefaultUI
+    public enum EDefaultUI // 默认ui从负数开始，更方便使用
     {
-        UIAlertDialog = 1,
-        Toast = 2,
-        Loading = 3,
-        UIWaiting = 4,
+        UIAlertDialog = -100,
+        Toast,
+        Loading,
+        UIWaiting,
     }
 }

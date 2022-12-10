@@ -12,7 +12,7 @@ namespace Saro
     [CanEditMultipleObjects]
     public class ReferenceBinderEditor : Editor
     {
-        protected ReferenceBinder m_ReferenceBinder;
+        protected ReferenceBinder m_ReferenceBinder => (ReferenceBinder)target;
 
         protected const string k_AutoReferencePatternValueKey = "mgf_AutoReferencePatternValueKey";
         protected const string k_DefaultAutoReferencePatternValue = "go_;btn_;";
@@ -20,7 +20,7 @@ namespace Saro
 
         protected virtual void OnEnable()
         {
-            m_ReferenceBinder = (ReferenceBinder)target;
+
         }
 
         public override void OnInspectorGUI()

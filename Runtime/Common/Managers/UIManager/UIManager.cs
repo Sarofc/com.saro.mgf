@@ -139,7 +139,10 @@ namespace Saro.UI
                     var attr = type.GetCustomAttribute<UIWindowAttribute>();
                     if (attr == null) continue;
                     attr.Type = type;
-                    m_UIDefCache.Add(attr.Index, attr);
+                    if (m_UIDefCache.ContainsKey(attr.Index))
+                        Log.ERROR($"[UIManager] duplicated attr.Index: '{attr.Type}'");
+                    else
+                        m_UIDefCache.Add(attr.Index, attr);
                 }
             }
         }
@@ -789,6 +792,16 @@ namespace Saro.UI
         #endregion
 
         #region 对外接口
+
+        /// <summary>
+        /// 获取一个窗口
+        /// </summary>
+        /// <param name="uiIndex"></param>
+        /// <returns></returns>
+        public T GetWindow<T>(Enum uiIndex) where T : class, IWindow
+        {
+            return GetWindow(uiIndex) as T;
+        }
 
         /// <summary>
         /// 获取一个窗口

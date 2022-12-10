@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace Saro.SaveSystem
+namespace Saro.Saving
 {
     public sealed class DefaultSaveFile : ISaveFile
     {
@@ -25,19 +25,19 @@ namespace Saro.SaveSystem
             m_SaveDatas = saveDatas;
         }
 
-        public void AddSaveData(ISaveData saveData)
-        {
-            m_SaveDatas.Add(saveData);
-        }
+        //public void AddSaveData(ISaveData saveData)
+        //{
+        //    m_SaveDatas.Add(saveData);
+        //}
 
-        public void ClearSaveDatas()
-        {
-            m_SaveDatas.Clear();
-        }
+        //public void ClearSaveDatas()
+        //{
+        //    m_SaveDatas.Clear();
+        //}
 
         public void Load()
         {
-            ClearSaveDatas();
+            ((ISaveFile)this).ClearSaveDatas();
 
             SaveDataProvider.Load(this);
         }

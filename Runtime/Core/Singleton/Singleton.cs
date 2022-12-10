@@ -1,21 +1,24 @@
 ﻿
 namespace Saro
 {
-
-    /*
-     * Warning: 慎用!!!
-     *      
-     * C#单例
-     *
-     * 需要无参构造函数
-     *
-     */
+    /// <summary>
+    /// C#单例 慎用!!!
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class Singleton<T> where T : class, new()
     {
-        /// <summary>
-        /// 获取实例
-        /// </summary>
-        /// <returns></returns>
+        [System.Obsolete("use \"Instance\" instead")]
+        public static T Get()
+        {
+            return Instance;
+        }
+
+        public static T Instance { get; } = new T();
+    }
+
+    [System.Obsolete("use Singleton", true)]
+    public class _Singleton<T> where T : class, new()
+    {
         [System.Obsolete("use \"Instance\" instead")]
         public static T Get()
         {
@@ -23,7 +26,7 @@ namespace Saro
         }
 
         private static readonly object s_LockObj = new object();
-        private static T s_Instance = null;
+        private static T s_Instance = new();
 
         public static T Instance
         {

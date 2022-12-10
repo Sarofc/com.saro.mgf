@@ -18,7 +18,6 @@ namespace Saro.Localization
         public FDelegates onLanguageChanged = new(128);
 
         private ILocalizationDataProvider m_Provider;
-
         private Dictionary<int, string> m_LanguageLut = new();
 
         public LocalizationManager SetLanguage(ELanguage language)
@@ -45,36 +44,34 @@ namespace Saro.Localization
             return this;
         }
 
+        /// <summary>
+        /// 根据key获取多语言 文本/资源地址
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public string GetValue(int key)
         {
-            //if (string.IsNullOrEmpty(key)) UnityEngine.Debug.LogError("key is null");
-            if (m_LanguageLut == null) UnityEngine.Debug.LogError("lut is null");
+            if (m_LanguageLut == null) Log.ERROR("[Localization] lut is null");
             if (m_LanguageLut.TryGetValue(key, out string value))
-            {
                 return value;
-            }
             return null;
         }
 
         private void OnLanguageChanged()
         {
             m_LanguageLut.Clear();
-
             m_Provider.Load(CurrentLanguage, m_LanguageLut);
-
             onLanguageChanged?.Invoke();
         }
 
         private async UniTask OnLanguageChangedAsync()
         {
             m_LanguageLut.Clear();
-
             var result = await m_Provider.LoadAsync(CurrentLanguage, m_LanguageLut);
-
             if (result)
                 onLanguageChanged?.Invoke();
             else
-                Log.ERROR($"{m_Provider} LoadAsync error");
+                Log.ERROR($"[Localization] {m_Provider.GetType().FullName} LoadAsync error");
         }
 
         void IService.Awake() { }

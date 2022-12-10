@@ -16,7 +16,7 @@ namespace Saro.Localization
             if (m_Target == null) m_Target = GetComponent<T>();
             if (m_Target == null)
             {
-                Debug.LogWarning($"Localized Component is null: {typeof(T)}.");
+                Log.WARN($"[Localization] Localized Component is null: {typeof(T)}.");
                 return;
             }
         }
@@ -26,7 +26,7 @@ namespace Saro.Localization
             if (m_Localization == null) m_Localization = LocalizationManager.Current;
             if (m_Localization == null)
             {
-                Debug.LogWarning("Localization Service hasn't initialized. Initialize Service First.");
+                Log.ERROR("[Localization] LocalizationManager doesn't initialized. Initialize Service First.");
                 return;
             }
 

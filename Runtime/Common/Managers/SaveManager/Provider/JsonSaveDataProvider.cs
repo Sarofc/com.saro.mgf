@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Saro.SaveSystem
+namespace Saro.Saving
 {
     public sealed class JsonSaveDataProvider : ISaveDataProvider
     {
