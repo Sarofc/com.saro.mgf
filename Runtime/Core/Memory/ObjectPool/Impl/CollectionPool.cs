@@ -4,6 +4,7 @@ namespace Saro.Pool
 {
     /// <summary>
     ///   <para>A Collection such as List, HashSet, Dictionary etc can be pooled and reused by using a CollectionPool.</para>
+    ///   <code>thread unsafe</code>
     /// </summary>
     public class CollectionPool<TCollection, TItem> where TCollection : class, ICollection<TItem>, new()
     {

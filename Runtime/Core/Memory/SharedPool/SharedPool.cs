@@ -12,7 +12,7 @@ public static partial class SharedPool
 {
     public const string k_DEBUG_REFERENCE_POOL = "DEBUG_SHARED_POOL";
 
-    private static readonly Dictionary<Type, ReferenceCollection> s_ReferenceCollections = new Dictionary<Type, ReferenceCollection>();
+    private static readonly Dictionary<Type, ReferenceCollection> s_ReferenceCollections = new();
 
     /// <summary>
     /// 获取对象池的数量。
