@@ -18,9 +18,9 @@ namespace Saro.Pool
         public int RentCount { get; private set; }
         public int ReturnCount { get; private set; }
 
-        public ObjectPool(Func<T> createFunc, Action<T> actionOnGet = null, Action<T> actionOnRelease = null, Action<T> actionOnDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000)
+        public ObjectPool(Func<T> onCreate, Action<T> onGet = null, Action<T> onRelease = null, Action<T> onDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000)
         {
-            if (createFunc == null)
+            if (onCreate == null)
             {
                 throw new ArgumentNullException("createFunc");
             }
@@ -30,19 +30,19 @@ namespace Saro.Pool
                 throw new ArgumentException("Max Size must be greater than 0", "maxSize");
             }
             m_Stack = new Stack<T>(defaultCapacity);
-            m_CreateFunc = createFunc;
+            m_OnCreate = onCreate;
+            m_OnGet = onGet;
+            m_OnRelease = onRelease;
+            m_OnDestroy = onDestroy;
             m_MaxSize = maxSize;
-            m_ActionOnGet = actionOnGet;
-            m_ActionOnRelease = actionOnRelease;
-            m_ActionOnDestroy = actionOnDestroy;
             m_CollectionCheck = collectionCheck;
 
             ObjectPoolChecker.Register(this);
         }
 
-        public ObjectPool(Func<UniTask<T>> createFuncAsync, Action<T> actionOnGet = null, Action<T> actionOnRelease = null, Action<T> actionOnDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000)
+        public ObjectPool(Func<UniTask<T>> onCreateAsync, Action<T> onGet = null, Action<T> onRelease = null, Action<T> onDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000)
         {
-            if (createFuncAsync == null)
+            if (onCreateAsync == null)
             {
                 throw new ArgumentNullException("createFuncAsync");
             }
@@ -52,11 +52,11 @@ namespace Saro.Pool
                 throw new ArgumentException("Max Size must be greater than 0", "maxSize");
             }
             m_Stack = new Stack<T>(defaultCapacity);
-            m_CreateFuncAsync = createFuncAsync;
+            m_CreateAsync = onCreateAsync;
             m_MaxSize = maxSize;
-            m_ActionOnGet = actionOnGet;
-            m_ActionOnRelease = actionOnRelease;
-            m_ActionOnDestroy = actionOnDestroy;
+            m_OnGet = onGet;
+            m_OnRelease = onRelease;
+            m_OnDestroy = onDestroy;
             m_CollectionCheck = collectionCheck;
 
             ObjectPoolChecker.Register(this);
@@ -67,17 +67,17 @@ namespace Saro.Pool
             T t;
             if (m_Stack.Count == 0)
             {
-                t = m_CreateFunc();
+                t = m_OnCreate();
                 CountAll += 1;
             }
             else
             {
                 t = m_Stack.Pop();
             }
-            Action<T> actionOnGet = m_ActionOnGet;
-            if (actionOnGet != null)
+            Action<T> onGet = m_OnGet;
+            if (onGet != null)
             {
-                actionOnGet(t);
+                onGet(t);
             }
             RentCount++;
             return t;
@@ -88,17 +88,17 @@ namespace Saro.Pool
             T t;
             if (m_Stack.Count == 0)
             {
-                t = await m_CreateFuncAsync();
+                t = await m_CreateAsync();
                 CountAll += 1;
             }
             else
             {
                 t = m_Stack.Pop();
             }
-            Action<T> actionOnGet = m_ActionOnGet;
-            if (actionOnGet != null)
+            Action<T> onGet = m_OnGet;
+            if (onGet != null)
             {
-                actionOnGet(t);
+                onGet(t);
             }
             RentCount++;
             return t;
@@ -118,25 +118,25 @@ namespace Saro.Pool
                     throw new InvalidOperationException("Trying to release an object that has already been released to the pool.");
                 }
             }
-            m_ActionOnRelease?.Invoke(element);
+            m_OnRelease?.Invoke(element);
             if (CountInactive < m_MaxSize)
             {
                 m_Stack.Push(element);
             }
             else
             {
-                m_ActionOnDestroy?.Invoke(element);
+                m_OnDestroy?.Invoke(element);
             }
             ReturnCount++;
         }
 
         public void Clear()
         {
-            if (m_ActionOnDestroy != null)
+            if (m_OnDestroy != null)
             {
                 foreach (T obj in m_Stack)
                 {
-                    m_ActionOnDestroy(obj);
+                    m_OnDestroy(obj);
                 }
             }
             m_Stack.Clear();
@@ -152,15 +152,15 @@ namespace Saro.Pool
 
         internal readonly Stack<T> m_Stack;
 
-        private readonly Func<T> m_CreateFunc;
+        private readonly Func<T> m_OnCreate;
 
-        private readonly Func<UniTask<T>> m_CreateFuncAsync;
+        private readonly Func<UniTask<T>> m_CreateAsync;
 
-        private readonly Action<T> m_ActionOnGet;
+        private readonly Action<T> m_OnGet;
 
-        private readonly Action<T> m_ActionOnRelease;
+        private readonly Action<T> m_OnRelease;
 
-        private readonly Action<T> m_ActionOnDestroy;
+        private readonly Action<T> m_OnDestroy;
 
         private readonly int m_MaxSize;
 

@@ -3,10 +3,9 @@
     using System.Collections.Generic;
     using System.Diagnostics;
 
-    /*
-     * 需注意，被注册的对象池无法被gc
-     */
-
+    /// <summary>
+    /// 需注意，[编辑器下] 被注册的对象池无法被gc
+    /// </summary>
     public static class ObjectPoolChecker
     {
 #if UNITY_EDITOR
