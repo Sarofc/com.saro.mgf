@@ -7,11 +7,10 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using UnityObject = UnityEngine.Object;
+using UObject = UnityEngine.Object;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
 using Saro.Utility;
-using ShowInInspectorAttribute = Saro.SEditor.ShowInInspectorAttribute;
 using Unity.Mathematics;
 
 namespace Saro.SEditor
@@ -21,6 +20,7 @@ namespace Saro.SEditor
     /// </summary>
     public static partial class SEditorUtility
     {
+        private static GUIContent s_Temp = new();
         ///Custom Object and Attribute Drawers
         private static Dictionary<Type, ObjectDrawer> objectDrawers = new Dictionary<Type, ObjectDrawer>();
         static ObjectDrawer GetCustomDrawer(Type type)
@@ -218,22 +218,32 @@ namespace Saro.SEditor
                 }
             }
 
-            //Then check UnityObjects
-            if (typeof(UnityObject).IsAssignableFrom(t))
-            {
-                if (t == typeof(Component) && (Component)value != null)
-                {
-                    //return ComponentField(name, (Component)value, typeof(Component));
-                }
+            var label = s_Temp;
+            label.text = name;
+            label.tooltip = null;
+            label.image = null;
 
-                var obj = EditorGUILayout.ObjectField(name, (UnityObject)value, t, typeof(Component).IsAssignableFrom(t) || t == typeof(GameObject));
+            if (attributes.FirstOrDefault(a => a is TooltipAttribute) is TooltipAttribute tooltipAttribute)
+            {
+                label.tooltip = tooltipAttribute.tooltip;
+            }
+
+            //Then check UnityObjects
+            if (typeof(UObject).IsAssignableFrom(t))
+            {
+                //if (t == typeof(Component) && (Component)value != null)
+                //{
+                //    //return ComponentField(label, (Component)value, typeof(Component));
+                //}
+
+                var obj = EditorGUILayout.ObjectField(label, (UObject)value, t, typeof(Component).IsAssignableFrom(t) || t == typeof(GameObject));
                 return (true, obj);
             }
 
             ////Force UnityObject field?
             //if (member != null && attributes.Any(a => a is ForceObjectFieldAttribute))
             //{
-            //    return EditorGUILayout.ObjectField(name, value as UnityObject, t, typeof(Component).IsAssignableFrom(t) || t == typeof(GameObject));
+            //    return EditorGUILayout.ObjectField(label, value as UnityObject, t, typeof(Component).IsAssignableFrom(t) || t == typeof(GameObject));
             //}
 
             //Restricted popup values?
@@ -254,22 +264,22 @@ namespace Saro.SEditor
                 //            var prop = type.GetProperty(propName, BindingFlags.Static | BindingFlags.Public);
                 //            var propValue = prop.GetValue(null, null);
                 //            var values = ((IEnumerable)propValue).Cast<object>().ToList();
-                //            return Popup<object>(name, value, values);
+                //            return Popup<object>(label, value, values);
                 //        }
                 //        catch
                 //        {
-                //            EditorGUILayout.LabelField(name, "[PopupField] attribute error!");
+                //            EditorGUILayout.LabelField(label, "[PopupField] attribute error!");
                 //            return value;
                 //        }
                 //    }
-                //    return Popup<object>(name, value, popAtt.values.ToList());
+                //    return Popup<object>(label, value, popAtt.values.ToList());
                 //}
             }
 
             //Check Type of Type
             if (t == typeof(Type))
             {
-                //return Popup<Type>(name, (Type)value, UserTypePrefs.GetPreferedTypesList(typeof(object), true));
+                //return Popup<Type>(label, (Type)value, UserTypePrefs.GetPreferedTypesList(typeof(object), true));
             }
 
             //Check abstract
@@ -277,7 +287,7 @@ namespace Saro.SEditor
             {
                 if ((value != null && value.GetType().IsAbstract) || (value == null && t.IsAbstract))
                 {
-                    EditorGUILayout.LabelField(name, string.Format("abstract ({0})", t.Name));
+                    EditorGUILayout.LabelField(label, string.Format("abstract ({0})", t.Name));
                     return (false, value);
                 }
             }
@@ -302,11 +312,11 @@ namespace Saro.SEditor
                 if (member != null)
                 {
                     //if (attributes.Any(a => a is TagFieldAttribute))
-                    //    return EditorGUILayout.TagField(name, (string)value);
+                    //    return EditorGUILayout.TagField(label, (string)value);
                     var areaAtt = attributes.FirstOrDefault(a => a is TextAreaAttribute) as TextAreaAttribute;
                     if (areaAtt != null)
                     {
-                        GUILayout.Label(name);
+                        GUILayout.Label(label);
                         var areaStyle = new GUIStyle(GUI.skin.GetStyle("TextArea"));
                         areaStyle.wordWrap = true;
                         var s = EditorGUILayout.TextArea((string)value, areaStyle, GUILayout.Height(areaAtt.minLines * EditorGUIUtility.singleLineHeight));
@@ -314,13 +324,13 @@ namespace Saro.SEditor
                     }
                 }
 
-                var obj = EditorGUILayout.TextField(name, (string)value);
+                var obj = EditorGUILayout.TextField(label, (string)value);
                 return (true, obj);
             }
 
             if (t == typeof(bool))
             {
-                var obj = EditorGUILayout.Toggle(name, (bool)value);
+                var obj = EditorGUILayout.Toggle(label, (bool)value);
                 return (true, obj);
             }
 
@@ -330,12 +340,12 @@ namespace Saro.SEditor
                 {
                     //var sField = attributes.FirstOrDefault(a => a is SliderFieldAttribute) as SliderFieldAttribute;
                     //if (sField != null)
-                    //    return (int)EditorGUILayout.Slider(name, (int)value, (int)sField.left, (int)sField.right);
+                    //    return (int)EditorGUILayout.Slider(label, (int)value, (int)sField.left, (int)sField.right);
                     //if (attributes.Any(a => a is LayerFieldAttribute))
-                    //    return EditorGUILayout.LayerField(name, (int)value);
+                    //    return EditorGUILayout.LayerField(label, (int)value);
                 }
 
-                var obj = EditorGUILayout.IntField(name, (int)value);
+                var obj = EditorGUILayout.IntField(label, (int)value);
                 return (true, obj);
             }
 
@@ -345,33 +355,33 @@ namespace Saro.SEditor
                 {
                     //var sField = attributes.FirstOrDefault(a => a is SliderFieldAttribute) as SliderFieldAttribute;
                     //if (sField != null)
-                    //    return EditorGUILayout.Slider(name, (float)value, sField.left, sField.right);
+                    //    return EditorGUILayout.Slider(label, (float)value, sField.left, sField.right);
                 }
-                var obj = EditorGUILayout.FloatField(name, (float)value);
+                var obj = EditorGUILayout.FloatField(label, (float)value);
                 return (true, obj);
             }
 
             if (t == typeof(byte))
             {
-                var obj = Convert.ToByte(Mathf.Clamp(EditorGUILayout.IntField(name, (byte)value), 0, 255));
+                var obj = Convert.ToByte(Mathf.Clamp(EditorGUILayout.IntField(label, (byte)value), 0, 255));
                 return (true, obj);
             }
 
             if (t == typeof(Vector2))
             {
-                var obj = EditorGUILayout.Vector2Field(name, (Vector2)value);
+                var obj = EditorGUILayout.Vector2Field(label, (Vector2)value);
                 return (true, obj);
             }
 
             if (t == typeof(Vector3))
             {
-                var obj = EditorGUILayout.Vector3Field(name, (Vector3)value);
+                var obj = EditorGUILayout.Vector3Field(label, (Vector3)value);
                 return (true, obj);
             }
 
             if (t == typeof(Vector4))
             {
-                var obj = EditorGUILayout.Vector4Field(name, (Vector4)value);
+                var obj = EditorGUILayout.Vector4Field(label, (Vector4)value);
                 return (true, obj);
             }
 
@@ -379,38 +389,38 @@ namespace Saro.SEditor
             {
                 // TODO test
                 var quat = (Quaternion)value;
-                var vec3 = EditorGUILayout.Vector3Field(name, quat.eulerAngles);
+                var vec3 = EditorGUILayout.Vector3Field(label, quat.eulerAngles);
                 var obj = Quaternion.Euler(vec3.x, vec3.y, vec3.z);
                 return (true, obj);
             }
 
             if (t == typeof(Color))
             {
-                var obj = EditorGUILayout.ColorField(name, (Color)value);
+                var obj = EditorGUILayout.ColorField(label, (Color)value);
                 return (true, obj);
             }
 
             if (t == typeof(Rect))
             {
-                var obj = EditorGUILayout.RectField(name, (Rect)value);
+                var obj = EditorGUILayout.RectField(label, (Rect)value);
                 return (true, obj);
             }
 
             if (t == typeof(AnimationCurve))
             {
-                var obj = EditorGUILayout.CurveField(name, (AnimationCurve)value);
+                var obj = EditorGUILayout.CurveField(label, (AnimationCurve)value);
                 return (true, obj);
             }
 
             if (t == typeof(Bounds))
             {
-                var obj = EditorGUILayout.BoundsField(name, (Bounds)value);
+                var obj = EditorGUILayout.BoundsField(label, (Bounds)value);
                 return (true, obj);
             }
 
             if (t == typeof(LayerMask))
             {
-                var obj = EditorGUILayout.LayerField(name, (LayerMask)value);
+                var obj = EditorGUILayout.LayerField(label, (LayerMask)value);
                 return (true, obj);
             }
 
@@ -418,26 +428,26 @@ namespace Saro.SEditor
 
             if (t == typeof(float2))
             {
-                var obj = (float2)EditorGUILayout.Vector2Field(name, (float2)value);
+                var obj = (float2)EditorGUILayout.Vector2Field(label, (float2)value);
                 return (true, obj);
             }
 
             if (t == typeof(float3))
             {
-                var obj = (float3)EditorGUILayout.Vector3Field(name, (float3)value);
+                var obj = (float3)EditorGUILayout.Vector3Field(label, (float3)value);
                 return (true, obj);
             }
 
             if (t == typeof(float4))
             {
-                var obj = (float4)EditorGUILayout.Vector4Field(name, (float4)value);
+                var obj = (float4)EditorGUILayout.Vector4Field(label, (float4)value);
                 return (true, obj);
             }
 
             if (t == typeof(quaternion))
             {
                 var quat = (Quaternion)(quaternion)value;
-                var vec3 = EditorGUILayout.Vector3Field(name, quat.eulerAngles);
+                var vec3 = EditorGUILayout.Vector3Field(label, quat.eulerAngles);
                 var obj = quaternion.EulerXYZ(math.radians(vec3));
                 return (true, obj);
             }
@@ -446,12 +456,7 @@ namespace Saro.SEditor
 
             if (t.IsSubclassOf(typeof(Enum)))
             {
-#if UNITY_5
-				if (t.GetCustomAttributes(typeof(FlagsAttribute), true).FirstOrDefault() != null ){
-					return EditorGUILayout.EnumMaskPopup(new GUIContent(name), (System.Enum)value);
-				}
-#endif
-                var obj = EditorGUILayout.EnumPopup(name, (System.Enum)value);
+                var obj = EditorGUILayout.EnumPopup(label, (System.Enum)value);
                 return (true, obj);
             }
 
@@ -487,7 +492,7 @@ namespace Saro.SEditor
                     ShowSubObject(EditorGUILayout.GetControlRect(), value, name);
                 }
                 else
-                    EditorGUILayout.LabelField(name, $"unhandled type: {t.Name}");
+                    EditorGUILayout.LabelField(label, $"unhandled type: {t.Name}");
             }
 
             GUILayout.EndVertical();
@@ -638,7 +643,7 @@ namespace Saro.SEditor
 
             if (GUILayout.Button("Add Element"))
             {
-                if (!typeof(UnityObject).IsAssignableFrom(keyType))
+                if (!typeof(UObject).IsAssignableFrom(keyType))
                 {
                     object newKey = null;
                     if (keyType == typeof(string))
@@ -756,7 +761,7 @@ namespace Saro.SEditor
         }
 
         [Conditional("UNITY_EDITOR")]
-        public static void SetDirty(UnityObject target)
+        public static void SetDirty(UObject target)
         {
 #if UNITY_EDITOR
             if (Application.isPlaying || target == null) { return; }
