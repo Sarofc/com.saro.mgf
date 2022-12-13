@@ -492,7 +492,7 @@ namespace Saro.SEditor
                     ShowSubObject(EditorGUILayout.GetControlRect(), value, name);
                 }
                 else
-                    EditorGUILayout.LabelField(label, $"unhandled type: {t.Name}");
+                    EditorGUILayout.LabelField(name, $"unhandled type: {t.Name}");
             }
 
             GUILayout.EndVertical();
