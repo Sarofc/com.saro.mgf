@@ -74,20 +74,34 @@ namespace Saro.SEditor
                 asset = AssetDatabase.LoadAssetAtPath(assetPath, assetPathAttribute.AssetType);
             }
 
-            EditorGUI.BeginChangeCheck();
             asset = EditorGUI.ObjectField(position, "[path]" + label.text, asset, assetPathAttribute.AssetType, false);
-            if (EditorGUI.EndChangeCheck())
+            if (asset == null)
             {
-                if (asset == null)
-                {
-                    property.stringValue = null;
-                }
-                else
-                {
-                    assetPath = AssetDatabase.GetAssetPath(asset);
+                property.stringValue = string.Empty;
+            }
+            else
+            {
+                assetPath = AssetDatabase.GetAssetPath(asset);
+                property.stringValue = assetPath;
+            }
 
-                    property.stringValue = assetPath;
-                }
+            // old
+            {
+                //EditorGUI.BeginChangeCheck();
+                //asset = EditorGUI.ObjectField(position, "[path]" + label.text, asset, assetPathAttribute.AssetType, false);
+                //if (EditorGUI.EndChangeCheck())
+                //{
+                //    if (asset == null)
+                //    {
+                //        property.stringValue = null;
+                //    }
+                //    else
+                //    {
+                //        assetPath = AssetDatabase.GetAssetPath(asset);
+
+                //        property.stringValue = assetPath;
+                //    }
+                //}
             }
 
             if (assetPathAttribute.ShowPathPreview)
