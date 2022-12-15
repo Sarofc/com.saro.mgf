@@ -89,13 +89,14 @@ namespace Saro.Diagnostics
             {
                 Shader shader = Shader.Find("GLDebug/GLine");
 
-                if(shader == null)
+                if (shader == null)
                 {
                     Log.ERROR("s_Mat is null. please check GLine.shader is include build.");
                     return;
                 }
 
                 s_Mat = new Material(shader);
+                s_Mat.enableInstancing = true;
 
                 // 内置的shader 不要改！！！
                 //s_Mat.hideFlags = HideFlags.HideAndDontSave;
@@ -151,18 +152,21 @@ namespace Saro.Diagnostics
             if (s_Mat == null)
                 return;
 
-            GL.PushMatrix();
-            s_Mat.SetPass(0);
-            GL.Begin(GL.LINES);
-            for (int num = m_Lines.Count - 1; num >= 0; num--)
+            if (m_Lines.Count > 0)
             {
-                if (m_Lines[num].DurationElapsed(drawLine: true))
+                GL.PushMatrix();
+                s_Mat.SetPass(0);
+                GL.Begin(GL.LINES);
+                for (int num = m_Lines.Count - 1; num >= 0; num--)
                 {
-                    m_Lines.RemoveAt(num);
+                    if (m_Lines[num].DurationElapsed(drawLine: true))
+                    {
+                        m_Lines.RemoveAt(num);
+                    }
                 }
+                GL.End();
+                GL.PopMatrix();
             }
-            GL.End();
-            GL.PopMatrix();
         }
 
         public static void DrawLine(Vector3 start, Vector3 end, Color? color = null, float duration = 0f)
@@ -184,6 +188,11 @@ namespace Saro.Diagnostics
             {
                 Instance.m_Lines.Add(new Line(start, end, color, Time.time, duration));
             }
+        }
+
+        public static void ClearAllLines()
+        {
+            Instance.m_Lines.Clear();
         }
     }
 }

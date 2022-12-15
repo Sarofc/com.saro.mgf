@@ -867,5 +867,10 @@ namespace Saro.Diagnostics
             }
             #endregion
         }
+
+        public static void ClearAllLines()
+        {
+            GLDebugMono.ClearAllLines();
+        }
     }
 }

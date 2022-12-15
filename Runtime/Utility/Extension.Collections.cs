@@ -20,7 +20,7 @@ namespace Saro.Utility
             }
         }
 
-        public static bool AddUnique<T>(this IList<T> list, T element)
+        public static bool AddUnique<T>(this List<T> list, T element)
         {
             if (!list.Contains(element))
             {
