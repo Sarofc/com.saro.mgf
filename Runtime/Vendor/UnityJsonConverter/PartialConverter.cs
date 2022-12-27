@@ -24,11 +24,15 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using Saro.Utility;
 
 namespace Newtonsoft.Json.UnityConverters
 {
     public abstract class PartialConverter : JsonConverter
-    { }
+    {
+        public static JsonConverter[] GetJsonConverters() => TypeUtility.GetSubClassTypesAllAssemblies(typeof(PartialConverter)).Select(t => Activator.CreateInstance(t) as JsonConverter).ToArray();
+    }
 
     /// <summary>
     /// Custom base <c>Newtonsoft.Json.JsonConverter</c> to filter serialized properties.
@@ -62,11 +66,7 @@ namespace Newtonsoft.Json.UnityConverters
         /// <param name="existingValue">The existing value of object being read.</param>
         /// <param name="serializer">The calling serializer.</param>
         [return: MaybeNull]
-        public override object ReadJson(
-            JsonReader reader,
-            Type objectType,
-            [AllowNull] object existingValue,
-            JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, [AllowNull] object existingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null)
             {

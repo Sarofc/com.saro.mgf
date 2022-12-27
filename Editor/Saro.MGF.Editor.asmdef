@@ -3,7 +3,8 @@
     "rootNamespace": "",
     "references": [
         "Saro.MGF",
-        "Unity.Mathematics"
+        "Unity.Mathematics",
+        "ME.ECS.FPMath"
     ],
     "includePlatforms": [
         "Editor"

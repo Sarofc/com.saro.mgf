@@ -1,17 +1,19 @@
 ﻿using System.Collections.Generic;
+using Random = System.Random;
 
 namespace Saro.Utility
 {
     /// <summary>
     /// <code>thread unsafe</code>
     /// </summary>
+    [System.Obsolete("use 'GRandom' instead", true)]
     public static class RandomUtility
     {
-        private static System.Random s_Rnd = new((int)System.DateTime.UtcNow.Ticks);
+        private static Random s_Rnd = new((int)System.DateTime.UtcNow.Ticks);
 
         public static void InitSeed(int seed)
         {
-            s_Rnd = new System.Random(seed);
+            s_Rnd = new Random(seed);
         }
 
         public static int Next(int min, int max)

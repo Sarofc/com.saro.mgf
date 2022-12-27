@@ -13,6 +13,13 @@ using Debug = UnityEngine.Debug;
 using Saro.Utility;
 using Unity.Mathematics;
 
+#if FIXED_POINT_MATH
+using sfloat2 = ME.ECS.Mathematics.float2;
+using sfloat3 = ME.ECS.Mathematics.float3;
+using sfloat4 = ME.ECS.Mathematics.float4;
+using squaternion = ME.ECS.Mathematics.quaternion;
+#endif
+
 namespace Saro.SEditor
 {
     /// <summary>
@@ -387,7 +394,6 @@ namespace Saro.SEditor
 
             if (t == typeof(Quaternion))
             {
-                // TODO test
                 var quat = (Quaternion)value;
                 var vec3 = EditorGUILayout.Vector3Field(label, quat.eulerAngles);
                 var obj = Quaternion.Euler(vec3.x, vec3.y, vec3.z);
@@ -424,7 +430,7 @@ namespace Saro.SEditor
                 return (true, obj);
             }
 
-            #region mathematics
+            #region unity mathematics
 
             if (t == typeof(float2))
             {
@@ -452,6 +458,42 @@ namespace Saro.SEditor
                 return (true, obj);
             }
 
+            #endregion
+
+            #region fixed math
+#if FIXED_POINT_MATH
+            if (t == typeof(sfloat))
+            {
+                var obj = (sfloat)EditorGUILayout.FloatField(label, (float)(sfloat)value);
+                return (true, obj);
+            }
+
+            if (t == typeof(sfloat2))
+            {
+                var obj = (sfloat2)EditorGUILayout.Vector2Field(label, (Vector2)(sfloat2)value);
+                return (true, obj);
+            }
+
+            if (t == typeof(sfloat3))
+            {
+                var obj = (sfloat3)EditorGUILayout.Vector3Field(label, (Vector3)(sfloat3)value);
+                return (true, obj);
+            }
+
+            if (t == typeof(sfloat4))
+            {
+                var obj = (sfloat4)EditorGUILayout.Vector4Field(label, (Vector4)(sfloat4)value);
+                return (true, obj);
+            }
+
+            if (t == typeof(squaternion))
+            {
+                var quat = (Quaternion)(squaternion)value;
+                var vec3 = EditorGUILayout.Vector3Field(label, quat.eulerAngles);
+                var obj = squaternion.EulerXYZ(math.radians(vec3));
+                return (true, obj);
+            }
+#endif
             #endregion
 
             if (t.IsSubclassOf(typeof(Enum)))

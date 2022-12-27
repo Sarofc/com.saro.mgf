@@ -2,6 +2,13 @@
  * https://blog.csdn.net/fucun1984686003/article/details/81086630
  */
 
+#if FIXED_POINT_MATH
+using Single = sfloat;
+#else
+using Single = System.Single;
+#endif
+
+using System;
 using System.Runtime.Serialization;
 using UnityEngine;
 
@@ -13,24 +20,24 @@ namespace Saro.Utility
         /// <summary>
         ///  Describes the tangent when approaching this point from the previous point in the curve.
         /// </summary>
-        public float inTangent;
+        public Single inTangent;
 
         /// <summary>
         /// The out tangent.
         /// </summary>
-        public float outTangent;
+        public Single outTangent;
 
         /// <summary>
         ///  The time of the keyframe.
         /// </summary>
-        public float time;
+        public Single time;
 
         /// <summary>
         /// The value of the curve at keyframe.
         /// </summary>
-        public float value;
+        public Single value;
 
-        public FKeyframe(float inTangent, float outTangent, float time, float value)
+        public FKeyframe(Single inTangent, Single outTangent, Single time, Single value)
         {
             this.inTangent = inTangent;
             this.outTangent = outTangent;
@@ -50,14 +57,14 @@ namespace Saro.Utility
             return sKeyframe;
         }
 
-        public static implicit operator UnityEngine.Keyframe(FKeyframe sKeyframe)
+        public static implicit operator Keyframe(FKeyframe sKeyframe)
         {
-            var uKeyframe = new UnityEngine.Keyframe
+            var uKeyframe = new Keyframe
             {
-                time = sKeyframe.time,
-                value = sKeyframe.value,
-                inTangent = sKeyframe.inTangent,
-                outTangent = sKeyframe.outTangent
+                time = (float)sKeyframe.time,
+                value = (float)sKeyframe.value,
+                inTangent = (float)sKeyframe.inTangent,
+                outTangent = (float)sKeyframe.outTangent
             };
             return uKeyframe;
         }
@@ -66,7 +73,7 @@ namespace Saro.Utility
     /// <summary>
     /// like UnityEngine.AnimationCurve
     /// </summary>
-    [System.Serializable]
+    [Serializable]
     public class FAnimationCurve
 #if UNITY_EDITOR
         : ISerializationCallbackReceiver
@@ -88,7 +95,7 @@ namespace Saro.Utility
             this.keys = keys;
         }
 
-        public float Evaluate(float x)
+        public Single Evaluate(Single x)
         {
             if (keys == null || keys.Length == 0)
             {
@@ -98,7 +105,7 @@ namespace Saro.Utility
         }
 
         // Hermite
-        private float Internal_Evaluate(FKeyframe[] keys, float x)
+        private Single Internal_Evaluate(FKeyframe[] keys, Single x)
         {
             var index = 0;
             for (int i = 0; i < keys.Length; i++)
@@ -124,8 +131,8 @@ namespace Saro.Utility
             var startIndex = index - 1;
             var endIndex = index;
             var t = x - keys[startIndex].time;
-            float off_t = keys[startIndex].time;
-            float off_p = keys[startIndex].value;
+            var off_t = keys[startIndex].time;
+            var off_p = keys[startIndex].value;
             var t0 = keys[startIndex].time - off_t;
             var t1 = keys[endIndex].time - off_t;
 

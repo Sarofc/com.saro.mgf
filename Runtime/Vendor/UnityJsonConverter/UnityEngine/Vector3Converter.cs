@@ -29,9 +29,10 @@ namespace Newtonsoft.Json.UnityConverters
     /// <summary>
     /// Custom Newtonsoft.Json converter <see cref="JsonConverter"/> for the Unity Vector3 type <see cref="Vector3"/>.
     /// </summary>
-    public class RectConverter : PartialConverter<Rect>
+    [UnityEngine.Scripting.Preserve]
+    public class Vector3Converter : PartialConverter<Vector3>
     {
-        protected override void ReadValue(ref Rect value, string name, JsonReader reader, JsonSerializer serializer)
+        protected override void ReadValue(ref Vector3 value, string name, JsonReader reader, JsonSerializer serializer)
         {
             switch (name)
             {
@@ -41,25 +42,20 @@ namespace Newtonsoft.Json.UnityConverters
                 case nameof(value.y):
                     value.y = (float?)reader.ReadAsDouble() ?? 0f;
                     break;
-                case nameof(value.width):
-                    value.width = (float?)reader.ReadAsDouble() ?? 0f;
-                    break;
-                case nameof(value.height):
-                    value.height = (float?)reader.ReadAsDouble() ?? 0f;
+                case nameof(value.z):
+                    value.z = (float?)reader.ReadAsDouble() ?? 0f;
                     break;
             }
         }
 
-        protected override void WriteJsonProperties(JsonWriter writer, Rect value, JsonSerializer serializer)
+        protected override void WriteJsonProperties(JsonWriter writer, Vector3 value, JsonSerializer serializer)
         {
             writer.WritePropertyName(nameof(value.x));
             writer.WriteValue(value.x);
             writer.WritePropertyName(nameof(value.y));
             writer.WriteValue(value.y);
-            writer.WritePropertyName(nameof(value.width));
-            writer.WriteValue(value.width);
-            writer.WritePropertyName(nameof(value.height));
-            writer.WriteValue(value.height);
+            writer.WritePropertyName(nameof(value.z));
+            writer.WriteValue(value.z);
         }
     }
 }

@@ -212,9 +212,8 @@ namespace Saro.Net.Transports
         void INetEventListener.OnPeerConnected(NetPeer peer)
         {
             var peerId = GetMlapiClientId(peer);
-            InvokeOnTransportEvent(NetworkEvent.Connect, peerId, default, Time.time);
-
             m_Peers[peerId] = peer;
+            InvokeOnTransportEvent(NetworkEvent.Connect, peerId, default, Time.time); // 调整，事件最后再抛出
         }
 
         void INetEventListener.OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)

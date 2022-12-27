@@ -115,7 +115,7 @@ namespace Saro
                 service.Update();
             }
 
-            Utility.RandomUtility.Swap(ref m_Updates, ref m_Updates2);
+            GRandom.Swap(ref m_Updates, ref m_Updates2);
         }
     }
 }

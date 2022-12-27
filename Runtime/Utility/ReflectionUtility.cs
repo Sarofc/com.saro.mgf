@@ -50,6 +50,31 @@ namespace Saro.Utility
             return assembly.GetType(typeName);
         }
 
+        public static string GetTypeInfo(Type type)
+        {
+            return $"{type.FullName}, {type.Assembly.GetName().Name}";
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="typeInfo"><see cref="GetTypeInfo"/></param>
+        /// <returns></returns>
+        public static Type GetTypeByTypeInfo(string typeInfo, bool throwOnError = true)
+        {
+            try
+            {
+                var array = typeInfo.Split(", ", StringSplitOptions.RemoveEmptyEntries);
+                return TypeUtility.GetType(array[1], array[0]);
+            }
+            catch (Exception e)
+            {
+                if (throwOnError)
+                    throw e;
+            }
+            return null;
+        }
+
         public static List<Type> GetSubClassTypesAllAssemblies(Type supperClassType, bool includedAbstract = false)
         {
             var ret = new List<Type>();
