@@ -1,15 +1,25 @@
 ﻿#if FIXED_POINT_MATH
 
+using System;
+using System.Diagnostics.CodeAnalysis;
 using ME.ECS.Mathematics;
 
 namespace Newtonsoft.Json.UnityConverters
 {
-    /// <summary>
-    /// Custom Newtonsoft.Json converter <see cref="JsonConverter"/> for the Unity float3 type <see cref="float3"/>.
-    /// </summary>
     [UnityEngine.Scripting.Preserve]
-    public class sfloat3Converter : PartialConverter<float3>
+    public class sfloat3Converter : AutoPartialConverter<float3>
     {
+        [return: MaybeNull]
+        public override object ReadJson(JsonReader reader, Type objectType, [AllowNull] object existingValue, JsonSerializer serializer)
+        {
+            var obj = base.ReadJson(reader, objectType, existingValue, serializer);
+
+            if (reader.TokenType == JsonToken.Comment)
+                reader.Read(); // comment;
+
+            return obj;
+        }
+
         protected override void ReadValue(ref float3 value, string name, JsonReader reader, JsonSerializer serializer)
         {
             switch (name)
@@ -34,6 +44,10 @@ namespace Newtonsoft.Json.UnityConverters
             writer.WriteValue(value.y.RawValue);
             writer.WritePropertyName(nameof(value.z));
             writer.WriteValue(value.z.RawValue);
+
+#if ENABLE_JSON_COMMENT
+            writer.WriteComment("(fp)" + value.ToString());
+#endif
         }
     }
 }

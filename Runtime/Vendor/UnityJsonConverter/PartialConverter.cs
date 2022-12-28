@@ -29,15 +29,19 @@ using Saro.Utility;
 
 namespace Newtonsoft.Json.UnityConverters
 {
-    public abstract class PartialConverter : JsonConverter
+    public interface IAutoJsonConverter
     {
-        public static JsonConverter[] GetJsonConverters() => TypeUtility.GetSubClassTypesAllAssemblies(typeof(PartialConverter)).Select(t => Activator.CreateInstance(t) as JsonConverter).ToArray();
+        public static JsonConverter[] GetJsonConverters() => TypeUtility.GetSubClassTypesAllAssemblies(typeof(IAutoJsonConverter)).Select(t => Activator.CreateInstance(t) as JsonConverter).ToArray();
     }
+
+    public abstract class AutoPartialConverter : JsonConverter, IAutoJsonConverter { }
+
+    public abstract class AutoJsonConverter<T> : JsonConverter<T>, IAutoJsonConverter { }
 
     /// <summary>
     /// Custom base <c>Newtonsoft.Json.JsonConverter</c> to filter serialized properties.
     /// </summary>
-    public abstract class PartialConverter<T> : PartialConverter
+    public abstract class AutoPartialConverter<T> : AutoPartialConverter
         where T : new()
     {
         protected abstract void ReadValue(ref T value, string name, JsonReader reader, JsonSerializer serializer);

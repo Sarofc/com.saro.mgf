@@ -6,7 +6,7 @@ namespace Newtonsoft.Json.UnityConverters
     /// Custom Newtonsoft.Json converter <see cref="JsonConverter"/> for the Unity float3 type <see cref="float4"/>.
     /// </summary>
     [UnityEngine.Scripting.Preserve]
-    public class float4Converter : PartialConverter<float4>
+    public class float4Converter : AutoPartialConverter<float4>
     {
         protected override void ReadValue(ref float4 value, string name, JsonReader reader, JsonSerializer serializer)
         {

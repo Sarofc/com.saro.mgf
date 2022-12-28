@@ -5,15 +5,15 @@ using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Saro;
-using Saro.Utility;
 using UnityEditor;
 using UObject = UnityEngine.Object;
 
 namespace Newtonsoft.Json.UnityConverters
 {
     /// <summary>
-    /// <seealso cref="UObject"/> 序列化为 guid string，仅限编辑器使用
-    /// <code>usage [JsonConverter(typeof(UObjectConverter))]</code>
+    /// 将 <seealso cref="UObject"/> 类型的资源 序列化为 guid string，仅限编辑器使用
+    /// <code>[JsonConverter(typeof(UObjectConverter))]</code>
+    /// <code>List`UObject`or UObject[]  or UObject</code>
     /// </summary>
     public class UObjectToGUIDConverter : JsonConverter
     {
@@ -21,20 +21,16 @@ namespace Newtonsoft.Json.UnityConverters
         {
             return typeof(UObject).IsAssignableFrom(objectType)
                 || typeof(IEnumerable<UObject>).IsAssignableFrom(objectType);
-            //return s_UObjectTypes.Contains(objectType);
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
+            // JValue/JObject/JArray 默认忽略 comment，所以不需要宏
+
             if (typeof(UObject).IsAssignableFrom(objectType))
             {
-                var jObject = JObject.Load(reader);
-                //if (jObject == null)
-                //{
-                //    Log.ERROR($"objectType: {objectType} reader.Path: {reader.Path} reader.Value: {reader.Value}");
-                //    return existingValue;
-                //}
-                return ReadUObject(jObject);
+                var jToken = JToken.ReadFrom(reader);
+                return ReadUObject(jToken);
             }
             else if (typeof(IEnumerable<UObject>).IsAssignableFrom(objectType))
             {
@@ -48,9 +44,11 @@ namespace Newtonsoft.Json.UnityConverters
                     else
                         list = new ArrayList();
 
-                    foreach (var jObject in jArray)
+                    foreach (var jToken in jArray)
                     {
-                        var uobj = ReadUObject(jObject);
+                        //Log.ERROR($"jToken: {jToken} {jToken.GetType()}");
+
+                        var uobj = ReadUObject(jToken);
                         list.Add(uobj);
                     }
 
@@ -62,10 +60,6 @@ namespace Newtonsoft.Json.UnityConverters
                     {
                         var type = objectType.GetElementType();
                         var instance = Array.CreateInstance(type, list.Count);
-                        //for (int i = 0; i < list.Count; i++)
-                        //{
-                        //    instance.SetValue(list[i], i);
-                        //}
                         list.CopyTo(instance, 0);
                         return instance;
                     }
@@ -92,29 +86,20 @@ namespace Newtonsoft.Json.UnityConverters
 
                 writer.WriteEndArray();
             }
-            else
-            {
-                writer.WriteNull();
-            }
         }
 
-        private UObject ReadUObject(JToken jObject)
+        private UObject ReadUObject(JToken jToken)
         {
             try
             {
-                var typeInfo = jObject["$_type"].ToString();
-                var guid = jObject["guid"].ToString();
-
-                var type = TypeUtility.GetTypeByTypeInfo(typeInfo);
+                // 不要type了，AssetDatabase.LoadAssetAtPath 能够知道 加载的类型
+                var guid = jToken["$guid"].Value<string>();
                 var path = AssetDatabase.GUIDToAssetPath(guid);
-
-                //Log.ERROR($"[Array] UObjectToGUIDConverter. objectType: {objectType} existingValue: {existingValue} typeName: {typeInfo} guid: {guid} type: {type}");
-
-                return AssetDatabase.LoadAssetAtPath(path, type);
+                return AssetDatabase.LoadAssetAtPath(path, typeof(UObject));
             }
             catch (Exception e)
             {
-                Log.ERROR(jObject.ToString() + "\n" + e);
+                Log.ERROR(jToken.ToString() + "\n" + e);
             }
             return null;
         }
@@ -123,17 +108,14 @@ namespace Newtonsoft.Json.UnityConverters
         {
             writer.WriteStartObject();
             {
-                //serializer.TypeNameHandling
-
-                writer.WritePropertyName("$_type");
-                writer.WriteValue(TypeUtility.GetTypeInfo(uobj.GetType()));
-
                 var path = AssetDatabase.GetAssetPath(uobj);
                 var guid = AssetDatabase.AssetPathToGUID(path);
-                writer.WritePropertyName("guid");
+                writer.WritePropertyName("$guid");
                 writer.WriteValue(guid);
 
+#if ENABLE_JSON_COMMENT && false // ctrl + k serarh guid
                 writer.WriteComment(path);
+#endif
             }
             writer.WriteEndObject();
         }

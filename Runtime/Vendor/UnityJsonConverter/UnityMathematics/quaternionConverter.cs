@@ -6,7 +6,7 @@ namespace Newtonsoft.Json.UnityConverters
     /// Custom Newtonsoft.Json converter <see cref="JsonConverter"/> for the Unity float3 type <see cref="quaternion"/>.
     /// </summary>
     [UnityEngine.Scripting.Preserve]
-    public class quaternionConverter : PartialConverter<quaternion>
+    public class quaternionConverter : AutoPartialConverter<quaternion>
     {
         protected override void ReadValue(ref quaternion value, string name, JsonReader reader, JsonSerializer serializer)
         {

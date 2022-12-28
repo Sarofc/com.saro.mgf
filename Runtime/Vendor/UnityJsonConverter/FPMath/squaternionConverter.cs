@@ -1,7 +1,8 @@
 ﻿#if FIXED_POINT_MATH
 
+using System;
+using System.Diagnostics.CodeAnalysis;
 using ME.ECS.Mathematics;
-using Newtonsoft.Json.Linq;
 
 namespace Newtonsoft.Json.UnityConverters
 {
@@ -9,8 +10,19 @@ namespace Newtonsoft.Json.UnityConverters
     /// Custom Newtonsoft.Json converter <see cref="JsonConverter"/> for the Unity float3 type <see cref="quaternion"/>.
     /// </summary>
     [UnityEngine.Scripting.Preserve]
-    public class squaternionConverter : PartialConverter<quaternion>
+    public class squaternionConverter : AutoPartialConverter<quaternion>
     {
+        [return: MaybeNull]
+        public override object ReadJson(JsonReader reader, Type objectType, [AllowNull] object existingValue, JsonSerializer serializer)
+        {
+            var obj = base.ReadJson(reader, objectType, existingValue, serializer);
+
+            if (reader.TokenType == JsonToken.Comment)
+                reader.Read(); // comment;
+
+            return obj;
+        }
+
         protected override void ReadValue(ref quaternion value, string name, JsonReader reader, JsonSerializer serializer)
         {
             switch (name)
@@ -40,6 +52,10 @@ namespace Newtonsoft.Json.UnityConverters
             writer.WriteValue(value.value.z.RawValue);
             writer.WritePropertyName(nameof(value.value.w));
             writer.WriteValue(value.value.w.RawValue);
+
+#if ENABLE_JSON_COMMENT
+            writer.WriteComment("(fp)" + value.ToString());
+#endif
         }
     }
 }

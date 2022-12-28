@@ -30,7 +30,7 @@ namespace Newtonsoft.Json.UnityConverters
     /// Custom Newtonsoft.Json converter <see cref="JsonConverter"/> for the Unity Vector3 type <see cref="Vector3"/>.
     /// </summary>
     [UnityEngine.Scripting.Preserve]
-    public class RectConverter : PartialConverter<Rect>
+    public class RectConverter : AutoPartialConverter<Rect>
     {
         protected override void ReadValue(ref Rect value, string name, JsonReader reader, JsonSerializer serializer)
         {

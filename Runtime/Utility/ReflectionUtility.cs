@@ -55,6 +55,13 @@ namespace Saro.Utility
             return $"{type.FullName}, {type.Assembly.GetName().Name}";
         }
 
+        public static bool IsNullableType(Type t)
+        {
+            if (t.IsGenericType)
+                return t.GetGenericTypeDefinition() == typeof(Nullable<>);
+            return false;
+        }
+
         /// <summary>
         /// 
         /// </summary>
