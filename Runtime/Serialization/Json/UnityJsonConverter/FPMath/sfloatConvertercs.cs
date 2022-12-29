@@ -13,15 +13,8 @@ namespace Newtonsoft.Json.UnityConverters
         public override sfloat ReadJson(JsonReader reader, Type objectType, sfloat existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             //Log.ERROR($"Value 1: {reader.Value.ToString()} {reader.ValueType}");
-            if (reader.ValueType == typeof(long))
-            {
-                var rawValue = (uint)(long)reader.Value;
-                existingValue = sfloat.FromRaw(rawValue);
-            }
-            else
-            {
-                Log.ERROR($"[JsonException] sfloat convert failed. {reader.Value} {reader.ValueType}");
-            }
+            var rawValue = (uint)(long)reader.Value;
+            existingValue = sfloat.FromRaw(rawValue);
 
             if (reader.TokenType == JsonToken.Comment)
                 reader.Read();  // read comment
