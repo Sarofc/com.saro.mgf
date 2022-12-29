@@ -2,12 +2,19 @@
 {
     public static partial class MemoryExtensions
     {
-        public static SpanSplitEnumerator<char> Split(this ReadOnlySpan<char> span)
-            => new SpanSplitEnumerator<char>(span, ' ');
-
+        /// <summary>
+        /// 与 <see cref="string.Split(char, StringSplitOptions)"/> <see cref="StringSplitOptions.None"></see> 足有相同行为
+        /// </summary>
+        /// <param name="span"></param>
+        /// <returns></returns>
         public static SpanSplitEnumerator<char> Split(this ReadOnlySpan<char> span, char separator)
             => new SpanSplitEnumerator<char>(span, separator);
 
+        /// <summary>
+        /// 与 <see cref="string.Split(string, StringSplitOptions)"/> <see cref="StringSplitOptions.None"></see> 足有相同行为
+        /// </summary>
+        /// <param name="span"></param>
+        /// <returns></returns>
         public static SpanSplitSequenceEnumerator<char> Split(this ReadOnlySpan<char> span, string separator)
             => new SpanSplitSequenceEnumerator<char>(span, separator);
     }

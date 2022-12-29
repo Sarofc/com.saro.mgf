@@ -5,7 +5,9 @@
         "Saro.MGF",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "Unity.PerformanceTesting"
+        "Unity.PerformanceTesting",
+        "ME.ECS.FPMath",
+        "Unity.Mathematics"
     ],
     "includePlatforms": [
         "Editor"
@@ -13,7 +15,9 @@
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
-    "precompiledReferences": [],
+    "precompiledReferences": [
+        "Newtonsoft.Json.dll"
+    ],
     "autoReferenced": false,
     "defineConstraints": [],
     "versionDefines": [],

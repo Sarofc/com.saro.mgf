@@ -19,7 +19,7 @@ namespace Saro
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void InitState() => s_Random.InitState();
+        public static void InitState(uint seed) => s_Random.InitState(seed);
         /// <summary>Returns a uniformly random float value in the interval [0, 1).</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Single NextFloat() => s_Random.NextFloat();

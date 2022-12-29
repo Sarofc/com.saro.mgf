@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Saro.Utility;
-using Unity.PerformanceTesting;
+//using Unity.PerformanceTesting;
 using UnityEngine;
 
 namespace Saro.MgfTests
 {
-    public class TestSort
+    public class TestArrayUtility_Sort
     {
         static IEnumerable<int[]> valueSource = new List<int[]>
         {

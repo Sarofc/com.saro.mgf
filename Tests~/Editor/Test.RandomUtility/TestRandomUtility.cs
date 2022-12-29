@@ -17,7 +17,7 @@ namespace Saro.MgfTests
         [SetUp]
         public void Start()
         {
-            Saro.Utility.RandomUtility.InitSeed((int)DateTime.Now.Ticks);
+            GRandom.InitState((uint)DateTime.Now.Ticks);
         }
 
         [TestCase(2)]
@@ -36,7 +36,7 @@ namespace Saro.MgfTests
             }
 
 
-            Saro.Utility.RandomUtility.Shuffle(array);
+            GRandom.Shuffle(array);
 
             var counter = 0;
             //bool result = false;
@@ -67,7 +67,7 @@ namespace Saro.MgfTests
                 sum += i;
             }
 
-            Saro.Utility.RandomUtility.Shuffle(list);
+            GRandom.Shuffle(list);
 
             var counter = 0;
             //bool result = false;
@@ -98,13 +98,13 @@ namespace Saro.MgfTests
                 sum += i;
             }
 
-            Saro.Utility.RandomUtility.InitSeed(100);
+            GRandom.InitState(100);
             var clone = list.ToArray();
-            Saro.Utility.RandomUtility.Shuffle(clone);
+            GRandom.Shuffle(clone);
 
-            Saro.Utility.RandomUtility.InitSeed(100);
+            GRandom.InitState(100);
             var clone2 = list.ToArray();
-            Saro.Utility.RandomUtility.Shuffle(clone2);
+            GRandom.Shuffle(clone2);
 
             bool result = true;
             for (int i = 0; i < clone.Length; i++)
@@ -133,14 +133,14 @@ namespace Saro.MgfTests
                 sum += i;
             }
 
-            Saro.Utility.RandomUtility.InitSeed(100);
+            GRandom.InitState(100);
             var clone = new int[array.Length];
             array.CopyTo(clone, 0);
-            Saro.Utility.RandomUtility.Shuffle(clone);
+            GRandom.Shuffle(clone);
 
             var clone2 = new int[array.Length];
             array.CopyTo(clone2, 0);
-            Saro.Utility.RandomUtility.Shuffle(clone2);
+            GRandom.Shuffle(clone2);
 
             bool result = true;
             for (int i = 0; i < clone.Length; i++)

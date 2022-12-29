@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Unity.PerformanceTesting;
+//using Unity.PerformanceTesting;
 using UnityEngine;
 
-namespace Saro.MgfTests
+namespace Saro.MgfTests.Hash
 {
     public class TestCrc32Hash
     {
@@ -58,55 +58,55 @@ namespace Saro.MgfTests
             //Assert.IsTrue(hash1 == hash3, $"GetCrc32 failed. {hash1} != {hash3}");
         }
 
-        [Test, Performance]
-        public void Performance_ToHash_Small_Animator()
-        {
-            Measure.Method(() =>
-            {
-                for (int i = 0; i < 1000; i++)
-                {
-                    var hash1 = Animator.StringToHash(m_SmallString);
-                }
-            })
-             .WarmupCount(5)
-             .MeasurementCount(15)
-             .IterationsPerMeasurement(5)
-             //.GC()
-             .Run();
-        }
+        //[Test, Performance]
+        //public void Performance_ToHash_Small_Animator()
+        //{
+        //    Measure.Method(() =>
+        //    {
+        //        for (int i = 0; i < 1000; i++)
+        //        {
+        //            var hash1 = Animator.StringToHash(m_SmallString);
+        //        }
+        //    })
+        //     .WarmupCount(5)
+        //     .MeasurementCount(15)
+        //     .IterationsPerMeasurement(5)
+        //     //.GC()
+        //     .Run();
+        //}
 
-        [Test, Performance]
-        public void Performance_ToHash_Small_Span()
-        {
-            Measure.Method(() =>
-            {
-                for (int i = 0; i < 1000; i++)
-                {
-                    var hash1 = (int)HashUtility.GetCrc32(m_SmallString);
-                }
-            })
-             .WarmupCount(5)
-             .MeasurementCount(15)
-             .IterationsPerMeasurement(5)
-             //.GC()
-             .Run();
-        }
+        //[Test, Performance]
+        //public void Performance_ToHash_Small_Span()
+        //{
+        //    Measure.Method(() =>
+        //    {
+        //        for (int i = 0; i < 1000; i++)
+        //        {
+        //            var hash1 = (int)HashUtility.GetCrc32(m_SmallString);
+        //        }
+        //    })
+        //     .WarmupCount(5)
+        //     .MeasurementCount(15)
+        //     .IterationsPerMeasurement(5)
+        //     //.GC()
+        //     .Run();
+        //}
 
-        [Test, Performance]
-        public void Performance_ToHash_Big_Span()
-        {
-            Measure.Method((Action)(() =>
-            {
-                for (int i = 0; i < 1000; i++)
-                {
-                    var hash1 = (int)HashUtility.GetCrc32((string)m_BigString);
-                }
-            }))
-             .WarmupCount(5)
-             .MeasurementCount(15)
-             .IterationsPerMeasurement(5)
-             //.GC()
-             .Run();
-        }
+        //[Test, Performance]
+        //public void Performance_ToHash_Big_Span()
+        //{
+        //    Measure.Method((Action)(() =>
+        //    {
+        //        for (int i = 0; i < 1000; i++)
+        //        {
+        //            var hash1 = (int)HashUtility.GetCrc32((string)m_BigString);
+        //        }
+        //    }))
+        //     .WarmupCount(5)
+        //     .MeasurementCount(15)
+        //     .IterationsPerMeasurement(5)
+        //     //.GC()
+        //     .Run();
+        //}
     }
 }

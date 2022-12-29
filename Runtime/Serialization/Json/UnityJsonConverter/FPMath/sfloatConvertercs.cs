@@ -2,6 +2,8 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using Saro;
+using UnityEngine.Rendering.Universal;
 
 namespace Newtonsoft.Json.UnityConverters
 {
@@ -10,16 +12,21 @@ namespace Newtonsoft.Json.UnityConverters
     {
         public override sfloat ReadJson(JsonReader reader, Type objectType, sfloat existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            //if (existingValue is sfloat sfloat)
-            //    return sfloat;
             //Log.ERROR($"Value 1: {reader.Value.ToString()} {reader.ValueType}");
-            var rawValue = (uint)(long)reader.Value;
+            if (reader.ValueType == typeof(long))
+            {
+                var rawValue = (uint)(long)reader.Value;
+                existingValue = sfloat.FromRaw(rawValue);
+            }
+            else
+            {
+                Log.ERROR($"[JsonException] sfloat convert failed. {reader.Value} {reader.ValueType}");
+            }
 
             if (reader.TokenType == JsonToken.Comment)
                 reader.Read();  // read comment
 
-            //Log.ERROR($"Value 2: {reader.Value.ToString()} {reader.ValueType}");
-            return sfloat.FromRaw(rawValue);
+            return existingValue;
         }
 
         public override void WriteJson(JsonWriter writer, sfloat value, JsonSerializer serializer)

@@ -28,18 +28,38 @@ namespace Newtonsoft.Json.UnityConverters
             switch (name)
             {
                 case nameof(value.value.x):
-                    value.value.x = sfloat.FromRaw((uint?)reader.ReadAsDecimal() ?? 0u);
+                    reader.Read();
+                    value.value.x = sfloat.FromRaw((uint)(long)reader.Value);
                     break;
                 case nameof(value.value.y):
-                    value.value.y = sfloat.FromRaw((uint?)reader.ReadAsDecimal() ?? 0u);
+                    reader.Read();
+                    value.value.y = sfloat.FromRaw((uint)(long)reader.Value);
                     break;
                 case nameof(value.value.z):
-                    value.value.z = sfloat.FromRaw((uint?)reader.ReadAsDecimal() ?? 0u);
+                    reader.Read();
+                    value.value.z = sfloat.FromRaw((uint)(long)reader.Value);
                     break;
                 case nameof(value.value.w):
-                    value.value.w = sfloat.FromRaw((uint?)reader.ReadAsDecimal() ?? 0u);
+                    reader.Read();
+                    value.value.w = sfloat.FromRaw((uint)(long)reader.Value);
                     break;
             }
+
+            //switch (name)
+            //{
+            //    case nameof(value.value.x):
+            //        value.value.x = sfloat.FromRaw((uint?)reader.ReadAsDecimal() ?? 0u);
+            //        break;
+            //    case nameof(value.value.y):
+            //        value.value.y = sfloat.FromRaw((uint?)reader.ReadAsDecimal() ?? 0u);
+            //        break;
+            //    case nameof(value.value.z):
+            //        value.value.z = sfloat.FromRaw((uint?)reader.ReadAsDecimal() ?? 0u);
+            //        break;
+            //    case nameof(value.value.w):
+            //        value.value.w = sfloat.FromRaw((uint?)reader.ReadAsDecimal() ?? 0u);
+            //        break;
+            //}
         }
 
         protected override void WriteJsonProperties(JsonWriter writer, quaternion value, JsonSerializer serializer)
