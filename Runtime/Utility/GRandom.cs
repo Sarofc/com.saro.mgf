@@ -40,11 +40,21 @@ namespace Saro
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int NextInt(int min, int max) => s_Random.NextInt(min, max);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int2 NextFloat4(int2 min, int2 max) => s_Random.NextInt2(min, max);
+        public static int2 NextInt2(int2 min, int2 max) => s_Random.NextInt2(min, max);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int3 NextFloat4(int3 min, int3 max) => s_Random.NextInt3(min, max);
+        public static int3 NextInt3(int3 min, int3 max) => s_Random.NextInt3(min, max);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int4 NextFloat4(int4 min, int4 max) => s_Random.NextInt4(min, max);
+        public static int4 NextInt4(int4 min, int4 max) => s_Random.NextInt4(min, max);
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint NextUInt(uint min, uint max) => s_Random.NextUInt(min, max);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint2 NextUInt2(uint2 min, uint2 max) => s_Random.NextUInt2(min, max);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint3 NextUInt3(uint3 min, uint3 max) => s_Random.NextUInt3(min, max);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint4 NextUInt4(uint4 min, uint4 max) => s_Random.NextUInt4(min, max);
     }
 
     partial class GRandom
