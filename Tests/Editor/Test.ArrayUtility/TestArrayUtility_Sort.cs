@@ -20,15 +20,15 @@ namespace Saro.MgfTests
         };
 
         [Test]
-        public void Test_Sort([ValueSource(nameof(valueSource))] int[] src)
+        public void Sort([ValueSource(nameof(valueSource))] int[] src)
         {
             var newList = src.ToArray();
 
             Array.Sort(src);
             ArrayUtility.Sort(newList, 0, newList.Length);
 
-            UnityEngine.Debug.Log("src: " + string.Join(",", src));
-            UnityEngine.Debug.Log("newList: " + string.Join(",", newList));
+            //UnityEngine.Debug.Log("src: " + string.Join(",", src));
+            //UnityEngine.Debug.Log("newList: " + string.Join(",", newList));
 
             for (int i = 0; i < src.Length; i++)
             {

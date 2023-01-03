@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Saro.Core;
+using System.Security.Cryptography;
 
 namespace Saro.Utility
 {
@@ -7,7 +10,7 @@ namespace Saro.Utility
     /// Array.Sort 存在 new Comparison(Comparer<T>.Compare) 的额外内存分配。
     /// 此类，直接使用 Comparer<T> 泛型类，不使用委托
     /// </summary>
-    public static class ArrayUtility
+    public static partial class ArrayUtility
     {
         public static void Sort<T>(T[] keys) where T : IComparable<T>
         {
@@ -22,6 +25,124 @@ namespace Saro.Utility
         public static void Sort<T>(T[] keys, int left, int length, IComparer<T> comparer) where T : IComparable<T>
         {
             ArraySortHelper<T>.IntrospectiveSort(keys, left, length, comparer);
+        }
+    }
+
+    partial class ArrayUtility
+    {
+        public unsafe static void ClearFast<T>(T[] src) where T : unmanaged
+        {
+            var srcSize = (uint)sizeof(T) * (uint)src.Length;
+            if (srcSize == 0) return;
+
+            fixed (T* pSrc = &src[0])
+            {
+                Unsafe.InitBlock(pSrc, 0, srcSize);
+            }
+        }
+
+        public unsafe static void ClearFast<T>(T[] src, int startIndex, int length) where T : unmanaged
+        {
+            if (length > src.Length - startIndex)
+                throw new ArgumentOutOfRangeException(nameof(length));
+
+            var srcSize = (uint)sizeof(T) * (uint)length;
+            if (srcSize == 0) return;
+
+            fixed (T* pSrc = &src[startIndex])
+            {
+                Unsafe.InitBlock(pSrc, 0, srcSize);
+            }
+        }
+
+        public unsafe static void CopyFast<T>(T[] src, int srcStartIndex, T[] dst, int dstStartIndex, int length) where T : unmanaged
+        {
+            var size = (uint)sizeof(T) * (uint)length;
+            if (size == 0) return;
+
+            if (length > src.Length - srcStartIndex)
+                throw new ArgumentOutOfRangeException($"{nameof(src)} {src.Length} < {length}");
+
+            if (length > dst.Length - dstStartIndex)
+                throw new ArgumentOutOfRangeException($"{nameof(dst)} {dst.Length} < {length}");
+
+            fixed (T* pSrc = &src[srcStartIndex])
+            fixed (T* pDst = &dst[dstStartIndex])
+            {
+                Buffer.MemoryCopy(pSrc, pDst, size, size);
+            }
+        }
+
+        /// <summary>
+        /// 缩短array，移除 <see cref="predicate"/> 返回true 的元素
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array"></param>
+        /// <param name="predicate"></param>
+        /// <param name="startIndex"></param>
+        /// <param name="length"></param>
+        /// <returns>移除元素的个数</returns>
+        public static int ShrinkFast<T>(T[] array, Predicate<T> predicate, int startIndex, int length) where T : unmanaged
+        {
+            if (length > array.Length - startIndex)
+                throw new ArgumentOutOfRangeException($"{nameof(array)} < {length}");
+
+            var arrayLength = startIndex + length - 1;
+
+            int remaindCount = 0;
+
+            var slowIndex = startIndex - 1;
+            int midIndex;
+            int fastIndex;
+
+            while (slowIndex < arrayLength)
+            {
+                if (predicate(array[++slowIndex]))
+                {
+                    break;
+                }
+                else
+                {
+                    remaindCount++;
+                }
+            }
+
+            midIndex = slowIndex;
+
+            while (midIndex < arrayLength)
+            {
+                while (midIndex < arrayLength)
+                {
+                    if (!predicate(array[++midIndex]))
+                    {
+                        remaindCount++;
+                        break;
+                    }
+                }
+
+                fastIndex = midIndex;
+                while (fastIndex < arrayLength)
+                {
+                    if (predicate(array[++fastIndex]))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        remaindCount++;
+                    }
+                }
+
+                var _length = fastIndex - midIndex;
+                if (_length > 0)
+                {
+                    ArrayUtility.CopyFast(array, midIndex, array, slowIndex, _length);
+
+                    slowIndex += _length;
+                    midIndex = fastIndex - 1;
+                }
+            }
+            return length - remaindCount;
         }
     }
 

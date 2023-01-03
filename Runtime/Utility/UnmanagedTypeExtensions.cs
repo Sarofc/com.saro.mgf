@@ -7,20 +7,18 @@ namespace Saro.Utility
 {
     public static class UnmanagedTypeExtensions
     {
-        static readonly Dictionary<Type, bool> s_CachedTypes =
-            new Dictionary<Type, bool>();
+        static readonly Dictionary<Type, bool> s_CachedTypes = new();
 
         public static bool IsUnmanagedEx(this Type t)
         {
-            var result = false;
-
             if (s_CachedTypes.ContainsKey(t))
                 return s_CachedTypes[t];
 
+            var result = false;
+
             if (t.IsPrimitive || t.IsPointer || t.IsEnum)
                 result = true;
-            else
-            if (t.IsValueType && t.IsGenericType)
+            else if (t.IsValueType && t.IsGenericType)
             {
                 var areGenericTypesAllBlittable = t.GenericTypeArguments.All(x => IsUnmanagedEx(x));
                 if (areGenericTypesAllBlittable)
@@ -30,8 +28,7 @@ namespace Saro.Utility
                 else
                     return false;
             }
-            else
-            if (t.IsValueType)
+            else if (t.IsValueType)
                 result = t.GetFields(BindingFlags.Public |
                                      BindingFlags.NonPublic | BindingFlags.Instance)
                           .All(x => IsUnmanagedEx(x.FieldType));

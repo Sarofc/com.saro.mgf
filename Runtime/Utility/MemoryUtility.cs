@@ -4,6 +4,7 @@ using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Saro.Core;
 
 namespace Saro.Utility
 {
@@ -214,8 +215,7 @@ namespace Saro.Utility
         /// <summary>
         /// this is not safe if memory overlaps
         /// </summary>
-        public unsafe static void MemCpy<T>
-            (IntPtr source, uint sourceStartIndex, IntPtr destination, uint destinationStartIndex, uint count)
+        public unsafe static void MemCpy<T>(IntPtr source, uint sourceStartIndex, IntPtr destination, uint destinationStartIndex, uint count)
             where T : struct
         {
             var sizeOf = SizeOf<T>();
