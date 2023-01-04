@@ -77,40 +77,10 @@ namespace Saro.IO
         /// </summary>
         private int m_FileDataOffset;
 
-        /*
-         * ++++++++++++++++++++ -> 0
-         * +    HeaderData    +
-         * ++++++++++++++++++++ -> m_BlockDataOffsest
-         * +    BlockData     +
-         * +------------------+
-         * +    BlockData     +
-         * +------------------+
-         * +    BlockData     +
-         * +------------------+
-         * +    ...           +
-         * ++++++++++++++++++++ -> m_StringDataOffset
-         * +    StringData    +
-         * +------------------+
-         * +    StringData    +
-         * +------------------+
-         * +    StringData    +
-         * +------------------+
-         * +    ...           +
-         * ++++++++++++++++++++ -> m_FileDataOffset
-         * +      bytes       +
-         * +------------------+
-         * +                  +
-         * +      bytes       +
-         * +                  +
-         * +------------------+
-         * +      bytes       +
-         * +------------------+
-         * +      bytes       +
-         * +                  +
-         * +------------------+
-         * +      ...         +
-         * ++++++++++++++++++++
-         */
+        // FILE LAYOUT
+        // =========================================================================================================
+        // | HeaderData |          BlockData Segments         |         StringData Segments         |       FileData Segements          |
+        // =========================================================================================================
 
         private VFileSystem(string fullPath, FileAccess access, VFileStream stream)
         {

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Saro.IO
 {
@@ -8,7 +9,14 @@ namespace Saro.IO
         //[ThreadStatic]
         static byte[] s_buffer = new byte[2048]; // TODO 大小多少合适
 
-        public unsafe static void WriteUnmanaged<T>(this BinaryWriter writer, in T obj) where T : unmanaged
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static void EnsureBufferCapacity(int capacity)
+        {
+            if (s_buffer.Length < capacity)
+                s_buffer = new byte[capacity];
+        }
+
+        public unsafe static void WriteUnmanaged<T>(this BinaryWriter writer, ref T obj) where T : unmanaged
         {
             var size = sizeof(T);
             fixed (T* ptr = &obj)
@@ -21,9 +29,13 @@ namespace Saro.IO
         public unsafe static void ReadUnmanaged<T>(this BinaryReader reader, ref T obj) where T : unmanaged
         {
             var size = sizeof(T);
+
+            EnsureBufferCapacity(size);
+
             //Span<byte> buffer = stackalloc byte[size]; // 大小限制
-            Span<byte> buffer = new(s_buffer, 0, size);
-            var count = reader.Read(buffer);
+            //Span<byte> buffer = new(s_buffer, 0, size);
+            //var count = reader.Read(buffer);
+            var count = reader.Read(s_buffer, 0, size);
             Log.Assert(size == count, $"read bytes error: size != count: {size} != {count}");
             fixed (T* ptr = &obj)
             fixed (byte* pSrc = &s_buffer[0])
@@ -59,6 +71,9 @@ namespace Saro.IO
             if (array.Length < arrayLength)
                 array = new T[arrayLength];
             var size = sizeof(T) * arrayLength;
+
+            EnsureBufferCapacity(size);
+
             //Span<byte> buffer = stackalloc byte[size]; // TODO 大小限制
             var count = reader.Read(s_buffer, 0, size);
             Log.Assert(size == count, $"read bytes error: size != count: {size} != {count}");
