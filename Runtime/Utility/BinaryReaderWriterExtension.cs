@@ -50,6 +50,9 @@ namespace Saro.IO
 
         public static void WriteArrayUnmanaged<T>(this BinaryWriter writer, ref T[] array, int length) where T : unmanaged
         {
+            if (length > array.Length)
+                throw new ArgumentOutOfRangeException(nameof(length));
+
             writer.Write(length);
             if (length > 0)
             {
@@ -70,22 +73,27 @@ namespace Saro.IO
             var arrayLength = reader.ReadInt32();
             if (array.Length < arrayLength)
                 array = new T[arrayLength];
-            var size = sizeof(T) * arrayLength;
 
-            EnsureBufferCapacity(size);
-
-            //Span<byte> buffer = stackalloc byte[size]; // TODO 大小限制
-            var count = reader.Read(s_buffer, 0, size);
-            Log.Assert(size == count, $"read bytes error: size != count: {size} != {count}");
-            fixed (T* ptr = &array[0])
-            fixed (byte* pSrc = &s_buffer[0])
+            if(arrayLength > 0)
             {
-                byte* pDst = (byte*)ptr;
+                var size = sizeof(T) * arrayLength;
 
-                //UnsafeUtility.MemCpy(pSrc, pDst, count);
-                Buffer.MemoryCopy(pSrc, pDst, size, size);
-                //Unsafe.CopyBlock(, pDst, (uint)count);
+                EnsureBufferCapacity(size);
+
+                //Span<byte> buffer = stackalloc byte[size]; // TODO 大小限制
+                var count = reader.Read(s_buffer, 0, size);
+                Log.Assert(size == count, $"read bytes error: size != count: {size} != {count}");
+                fixed (T* ptr = &array[0])
+                fixed (byte* pSrc = &s_buffer[0])
+                {
+                    byte* pDst = (byte*)ptr;
+
+                    //UnsafeUtility.MemCpy(pSrc, pDst, count);
+                    Buffer.MemoryCopy(pSrc, pDst, size, size);
+                    //Unsafe.CopyBlock(, pDst, (uint)count);
+                }
             }
+
             return arrayLength;
         }
     }
