@@ -10,12 +10,11 @@ using Single = System.Single;
 
 using System;
 using System.Runtime.Serialization;
-using UnityEngine;
 
 namespace Saro.Utility
 {
     [System.Serializable]
-    public struct FKeyframe
+    public partial struct FKeyframe
     {
         /// <summary>
         ///  Describes the tangent when approaching this point from the previous point in the curve.
@@ -44,40 +43,13 @@ namespace Saro.Utility
             this.time = time;
             this.value = value;
         }
-
-        public static implicit operator FKeyframe(UnityEngine.Keyframe uKeyframe)
-        {
-            FKeyframe sKeyframe = new FKeyframe
-            {
-                time = uKeyframe.time,
-                value = uKeyframe.value,
-                inTangent = uKeyframe.inTangent,
-                outTangent = uKeyframe.outTangent
-            };
-            return sKeyframe;
-        }
-
-        public static implicit operator Keyframe(FKeyframe sKeyframe)
-        {
-            var uKeyframe = new Keyframe
-            {
-                time = (float)sKeyframe.time,
-                value = (float)sKeyframe.value,
-                inTangent = (float)sKeyframe.inTangent,
-                outTangent = (float)sKeyframe.outTangent
-            };
-            return uKeyframe;
-        }
     }
 
     /// <summary>
     /// like UnityEngine.AnimationCurve
     /// </summary>
     [Serializable]
-    public class FAnimationCurve
-#if UNITY_EDITOR
-        : ISerializationCallbackReceiver
-#endif
+    public partial class FAnimationCurve
     {
         /// <summary>
         /// like UnityEngine.Keyframe
@@ -153,67 +125,5 @@ namespace Saro.Utility
             return pt + off_p;
         }
 
-        public static implicit operator FAnimationCurve(UnityEngine.AnimationCurve uAnimationCurve)
-        {
-            if (uAnimationCurve == null) return null;
-            var fAnimationCurve = new FAnimationCurve
-            {
-                keys = new FKeyframe[uAnimationCurve.keys.Length]
-            };
-            for (int i = 0; i < uAnimationCurve.keys.Length; i++)
-            {
-                fAnimationCurve.keys[i] = uAnimationCurve.keys[i];
-            }
-#if UNITY_EDITOR
-            fAnimationCurve.m_Curve_Editor = uAnimationCurve;
-#endif
-            return fAnimationCurve;
-        }
-
-        public static implicit operator UnityEngine.AnimationCurve(FAnimationCurve fAnimationCurve)
-        {
-            if (fAnimationCurve == null) return null;
-            var uAnimationCurve = new UnityEngine.AnimationCurve();
-            for (int i = 0; i < fAnimationCurve.keys.Length; i++)
-            {
-                uAnimationCurve.AddKey(fAnimationCurve.keys[i]);
-            }
-            return uAnimationCurve;
-        }
-
-#if UNITY_EDITOR
-        [SerializeField]
-        private AnimationCurve m_Curve_Editor;
-
-        [OnDeserialized]
-        private void AfterDeserialization(StreamingContext ctx)
-        {
-            m_Curve_Editor = this;
-        }
-
-        [OnSerializing]
-        private void BeforeSerialization(StreamingContext ctx)
-        {
-            if (m_Curve_Editor != null)
-            {
-                keys = new FKeyframe[m_Curve_Editor.keys.Length];
-
-                for (int i = 0; i < m_Curve_Editor.keys.Length; i++)
-                {
-                    keys[i] = m_Curve_Editor.keys[i];
-                }
-            }
-        }
-
-        void ISerializationCallbackReceiver.OnBeforeSerialize()
-        {
-            BeforeSerialization(default);
-        }
-
-        void ISerializationCallbackReceiver.OnAfterDeserialize()
-        {
-            AfterDeserialization(default);
-        }
-#endif
     }
 }

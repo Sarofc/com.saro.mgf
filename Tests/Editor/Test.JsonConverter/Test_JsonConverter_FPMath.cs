@@ -49,20 +49,20 @@ namespace Saro.MgfTests.JsonConverter
         {
             var expectedSerializeClass = new SerializeClass()
             {
-                sfloat = 0.1f,
-                sfloat_array = new[] { (sfloat)0.1f, 0.2f, 0.3f, 0.4f, 0.5f },
+                sfloat = (sfloat)0.1f,
+                sfloat_array = new[] { (sfloat)0.1f, (sfloat)0.2f, (sfloat)0.3f, (sfloat)0.4f, (sfloat)0.5f },
 
-                float2 = new(1.1f, 2.2f),
-                float2_array = new float2[] { new(1.1f, 2.2f), new(0f, 1f) },
+                float2 = new((sfloat)1.1f, (sfloat)2.2f),
+                float2_array = new float2[] { new((sfloat)1.1f, (sfloat)2.2f), new((sfloat)0f, (sfloat)1f) },
 
-                float3 = new(1.1f, 2.2f, 3.3f),
-                float3_list = new() { new(1.1f, 2.2f, 3.3f), new(0f, 1f, 0f) },
+                float3 = new((sfloat)1.1f, (sfloat)2.2f, (sfloat)3.3f),
+                float3_list = new() { new((sfloat)1.1f, (sfloat)2.2f, (sfloat)3.3f), new((sfloat)0f, (sfloat)1f, (sfloat)0f) },
 
-                float4 = new(1.1f, 2.2f, 3.3f, 4.4f),
-                float4_list = new() { new(1.1f, 2.2f, 3.3f, 4.4f), new(0f, 1f, 0f, 1f) },
+                float4 = new((sfloat)1.1f, (sfloat)2.2f, (sfloat)3.3f, (sfloat)4.4f),
+                float4_list = new() { new((sfloat)1.1f, (sfloat)2.2f, (sfloat)3.3f, (sfloat)4.4f), new((sfloat)0f, (sfloat)1f, (sfloat)0f, (sfloat)1f) },
 
-                quaternion = new(1.1f, 2.2f, 3.3f, 4.4f),
-                quaternion_list = new() { new(1.1f, 2.2f, 3.3f, 4.4f), new(0f, 1f, 0f, 1f) },
+                quaternion = new((sfloat)1.1f, (sfloat)2.2f, (sfloat)3.3f, (sfloat)4.4f),
+                quaternion_list = new() { new((sfloat)1.1f, (sfloat)2.2f, (sfloat)3.3f, (sfloat)4.4f), new((sfloat)0f, (sfloat)1f, (sfloat)0f, (sfloat)1f) },
             };
 
             var json = JsonHelper.ToJson(expectedSerializeClass);
