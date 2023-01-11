@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using ME.ECS;
 using ME.ECS.Mathematics;
 
 namespace Newtonsoft.Json.UnityConverters
@@ -44,22 +45,6 @@ namespace Newtonsoft.Json.UnityConverters
                     value.value.w = sfloat.FromRaw((uint)(long)reader.Value);
                     break;
             }
-
-            //switch (name)
-            //{
-            //    case nameof(value.value.x):
-            //        value.value.x = sfloat.FromRaw((uint?)reader.ReadAsDecimal() ?? 0u);
-            //        break;
-            //    case nameof(value.value.y):
-            //        value.value.y = sfloat.FromRaw((uint?)reader.ReadAsDecimal() ?? 0u);
-            //        break;
-            //    case nameof(value.value.z):
-            //        value.value.z = sfloat.FromRaw((uint?)reader.ReadAsDecimal() ?? 0u);
-            //        break;
-            //    case nameof(value.value.w):
-            //        value.value.w = sfloat.FromRaw((uint?)reader.ReadAsDecimal() ?? 0u);
-            //        break;
-            //}
         }
 
         protected override void WriteJsonProperties(JsonWriter writer, quaternion value, JsonSerializer serializer)
@@ -74,7 +59,7 @@ namespace Newtonsoft.Json.UnityConverters
             writer.WriteValue(value.value.w.RawValue);
 
 #if ENABLE_JSON_COMMENT
-            writer.WriteComment("(fp)" + value.ToString());
+            writer.WriteComment("(fp)" + value.ToEuler());
 #endif
         }
     }
