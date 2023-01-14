@@ -124,6 +124,5 @@ namespace Saro.Utility
 
             return pt + off_p;
         }
-
     }
 }

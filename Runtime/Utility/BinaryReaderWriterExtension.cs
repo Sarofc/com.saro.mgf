@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System;
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 namespace Saro.IO
 {
@@ -74,7 +75,7 @@ namespace Saro.IO
             if (array.Length < arrayLength)
                 array = new T[arrayLength];
 
-            if(arrayLength > 0)
+            if (arrayLength > 0)
             {
                 var size = sizeof(T) * arrayLength;
 
@@ -95,6 +96,34 @@ namespace Saro.IO
             }
 
             return arrayLength;
+        }
+
+        public static void WriteListUnmanaged<T>(this BinaryWriter writer, ref List<T> list) where T : unmanaged
+        {
+            writer.Write(list.Count);
+            if (list.Count > 0)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    var item = list[i];
+                    writer.WriteUnmanaged(ref item);
+                }
+            }
+        }
+
+        public static void ReadListUnmanaged<T>(this BinaryReader reader, ref List<T> list) where T : unmanaged
+        {
+            var listCount = reader.ReadInt32();
+            list.Clear();
+            if (listCount > 0)
+            {
+                for (int i = 0; i < listCount; i++)
+                {
+                    T item = default;
+                    reader.ReadUnmanaged(ref item);
+                    list.Add(item);
+                }
+            }
         }
     }
 }
