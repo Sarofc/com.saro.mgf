@@ -141,5 +141,22 @@ namespace Saro.IO.Test
 
             Assert.AreEqual(input, actual);
         }
+
+        [Test]
+        public void SerializeDeserialize_UseIndex_ArrayStruct([ValueSource(nameof(source_ArrayStruct))] TestStruct[] input)
+        {
+            var actual = input.ToArray();
+
+            using var ms = new MemoryStream();
+            using var writer = new BinaryWriter(ms);
+            writer.WriteArrayUnmanaged(ref actual, actual.Length - 1, 1);
+
+            ms.Position = 0;
+            using var reader = new BinaryReader(ms);
+            var actualCount = reader.ReadArrayUnmanaged(ref actual, 1) + 1;
+
+            Assert.AreEqual(input.Length, actualCount);
+            Assert.AreEqual(input, actual);
+        }
     }
 }

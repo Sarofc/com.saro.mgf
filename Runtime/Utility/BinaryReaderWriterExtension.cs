@@ -49,10 +49,13 @@ namespace Saro.IO
             }
         }
 
-        public static void WriteArrayUnmanaged<T>(this BinaryWriter writer, ref T[] array, int length) where T : unmanaged
+        public static void WriteArrayUnmanaged<T>(this BinaryWriter writer, ref T[] array, int length, int index = 0) where T : unmanaged
         {
             if (length > array.Length)
                 throw new ArgumentOutOfRangeException(nameof(length));
+
+            if (index < 0 && index >= array.Length)
+                throw new ArgumentOutOfRangeException(nameof(index));
 
             writer.Write(length);
             if (length > 0)
@@ -60,7 +63,7 @@ namespace Saro.IO
                 unsafe
                 {
                     var size = sizeof(T) * length;
-                    fixed (T* ptr = &array[0])
+                    fixed (T* ptr = &array[index])
                     {
                         Span<byte> buffer = new((byte*)ptr, size);
                         writer.Write(buffer);
@@ -69,9 +72,13 @@ namespace Saro.IO
             }
         }
 
-        public unsafe static int ReadArrayUnmanaged<T>(this BinaryReader reader, ref T[] array) where T : unmanaged
+        public unsafe static int ReadArrayUnmanaged<T>(this BinaryReader reader, ref T[] array, int index = 0) where T : unmanaged
         {
             var arrayLength = reader.ReadInt32();
+
+            if (index < 0 && index >= arrayLength)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
             if (array.Length < arrayLength)
                 array = new T[arrayLength];
 
@@ -81,17 +88,15 @@ namespace Saro.IO
 
                 EnsureBufferCapacity(size);
 
-                //Span<byte> buffer = stackalloc byte[size]; // TODO 大小限制
                 var count = reader.Read(s_buffer, 0, size);
                 Log.Assert(size == count, $"read bytes error: size != count: {size} != {count}");
-                fixed (T* ptr = &array[0])
+                fixed (T* ptr = &array[index])
                 fixed (byte* pSrc = &s_buffer[0])
                 {
                     byte* pDst = (byte*)ptr;
 
                     //UnsafeUtility.MemCpy(pSrc, pDst, count);
                     Buffer.MemoryCopy(pSrc, pDst, size, size);
-                    //Unsafe.CopyBlock(, pDst, (uint)count);
                 }
             }
 

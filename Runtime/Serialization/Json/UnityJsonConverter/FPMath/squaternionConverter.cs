@@ -2,7 +2,6 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using ME.ECS;
 using ME.ECS.Mathematics;
 
 namespace Newtonsoft.Json.UnityConverters
@@ -59,7 +58,7 @@ namespace Newtonsoft.Json.UnityConverters
             writer.WriteValue(value.value.w.RawValue);
 
 #if ENABLE_JSON_COMMENT
-            writer.WriteComment("(fp)" + value.ToEuler());
+            writer.WriteComment("(fp)" + value);
 #endif
         }
     }
