@@ -14,7 +14,7 @@ namespace Saro.Net
         /// <summary>
         /// Delegate for transport network events
         /// </summary>
-        public delegate void TransportEventDelegate(NetworkEvent eventType, ulong clientId, ArraySegment<byte> payload, float receiveTime);
+        public delegate void TransportEventDelegate(NetworkEvent eventType, ulong clientId, ReadOnlySpan<byte> payload, float receiveTime);
 
         /// <summary>
         /// Occurs when the transport has a new transport network event.
@@ -30,7 +30,7 @@ namespace Saro.Net
         /// <param name="clientId">The clientId this event is for</param>
         /// <param name="payload">The incoming data payload</param>
         /// <param name="receiveTime">The time the event was received, as reported by Time.realtimeSinceStartup.</param>
-        protected void InvokeOnTransportEvent(NetworkEvent eventType, ulong clientId, ArraySegment<byte> payload, float receiveTime)
+        protected void InvokeOnTransportEvent(NetworkEvent eventType, ulong clientId, ReadOnlySpan<byte> payload, float receiveTime)
         {
             OnTransportEvent?.Invoke(eventType, clientId, payload, receiveTime);
         }
@@ -41,7 +41,7 @@ namespace Saro.Net
         /// <param name="clientId">The clientId to send to</param>
         /// <param name="payload">The data to send</param>
         /// <param name="networkDelivery">The delivery type (QoS) to send data with</param>
-        public abstract void Send(ulong clientId, ArraySegment<byte> payload, NetworkDelivery qos);
+        public abstract void Send(ulong clientId, ReadOnlySpan<byte> payload, NetworkDelivery qos);
 
         /// <summary>
         /// Connects client to the server

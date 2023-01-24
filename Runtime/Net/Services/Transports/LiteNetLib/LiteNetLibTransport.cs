@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace Saro.Net.Transports
@@ -65,10 +66,10 @@ namespace Saro.Net.Transports
             m_NetManager?.PollEvents();
         }
 
-        public override void Send(ulong clientId, ArraySegment<byte> data, NetworkDelivery qos)
+        public override void Send(ulong clientId, ReadOnlySpan<byte> data, NetworkDelivery qos)
         {
             if (!m_Peers.ContainsKey(clientId)) return;
-            m_Peers[clientId].Send(data.Array, data.Offset, data.Count, ConvertNetworkDelivery(qos));
+            m_Peers[clientId].Send(data, ConvertNetworkDelivery(qos));
         }
 
         // TODO 可能其他网络库需要
@@ -238,10 +239,14 @@ namespace Saro.Net.Transports
             }
 
             byte[] data = m_MessageBuffer;
-            Buffer.BlockCopy(reader.RawData, reader.UserDataOffset, data, 0, size);
+            //Buffer.BlockCopy(reader.RawData, reader.UserDataOffset, data, 0, size);
+            ref var pDst = ref MemoryMarshal.GetReference<byte>(data);
+            ref var pSrc = ref Unsafe.Add(ref MemoryMarshal.GetReference<byte>(reader.RawData), reader.UserDataOffset);
+            Unsafe.CopyBlockUnaligned(ref pDst, ref pSrc, (uint)size);
 
             // The last byte sent is used to indicate the channel so don't include it in the payload.
-            var payload = new ArraySegment<byte>(data, 0, size - 1);
+            //var payload = new ArraySegment<byte>(data, 0, size - 1);
+            var payload = new ReadOnlySpan<byte>(data, 0, size); // TODO size - 1 bug? 全部使用ArraySegment时,是正确的,改为Span后有问题
 
             InvokeOnTransportEvent(NetworkEvent.Data, GetMlapiClientId(peer), payload, Time.time);
 

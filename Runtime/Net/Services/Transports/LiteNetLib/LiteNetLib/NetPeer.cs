@@ -48,7 +48,7 @@ namespace LiteNetLib
     /// <summary>
     /// Network peer. Main purpose is sending messages to specific peer.
     /// </summary>
-    public class NetPeer
+    public partial class NetPeer
     {
         //Ping and RTT
         private int _rtt;
