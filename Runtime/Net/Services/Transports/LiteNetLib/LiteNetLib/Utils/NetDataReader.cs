@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LiteNetLib.Utils
 {
-    public partial class NetDataReader
+    public class NetDataReader
     {
         protected byte[] _data;
         protected int _position;
@@ -50,8 +50,8 @@ namespace LiteNetLib.Utils
         {
             get { return _dataSize - _position; }
         }
-
-        public void SkipBytes(int count)
+        
+        public void SkipBytes(int count) 
         {
             _position += count;
         }
@@ -322,7 +322,7 @@ namespace LiteNetLib.Utils
         public string GetString(int maxLength)
         {
             int bytesCount = GetInt();
-            if (bytesCount <= 0 || bytesCount > maxLength * 2)
+            if (bytesCount <= 0 || bytesCount > maxLength*2)
             {
                 return string.Empty;
             }
@@ -384,7 +384,7 @@ namespace LiteNetLib.Utils
             Buffer.BlockCopy(_data, _position, destination, 0, count);
             _position += count;
         }
-
+        
         public sbyte[] GetSBytesWithLength()
         {
             int length = GetInt();
@@ -393,7 +393,7 @@ namespace LiteNetLib.Utils
             _position += length;
             return outgoingData;
         }
-
+        
         public byte[] GetBytesWithLength()
         {
             int length = GetInt();
@@ -688,19 +688,6 @@ namespace LiteNetLib.Utils
             _position = 0;
             _dataSize = 0;
             _data = null;
-        }
-    }
-
-    partial class NetDataReader
-    {
-        public Span<byte> GetSpan()
-        {
-            return _data.AsSpan(_position);
-        }
-
-        public Memory<byte> GetMemory()
-        {
-            return _data.AsMemory(_position);
         }
     }
 }

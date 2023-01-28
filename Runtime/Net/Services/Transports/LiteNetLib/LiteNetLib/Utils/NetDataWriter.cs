@@ -1,11 +1,10 @@
 using System;
-using System.Buffers;
 using System.Net;
 using System.Text;
 
 namespace LiteNetLib.Utils
 {
-    public partial class NetDataWriter
+    public class NetDataWriter
     {
         protected byte[] _data;
         protected int _position;
@@ -44,7 +43,7 @@ namespace LiteNetLib.Utils
                 netDataWriter.Put(bytes);
                 return netDataWriter;
             }
-            return new NetDataWriter(true, 0) { _data = bytes, _position = bytes.Length };
+            return new NetDataWriter(true, 0) {_data = bytes, _position = bytes.Length};
         }
 
         /// <summary>
@@ -221,7 +220,7 @@ namespace LiteNetLib.Utils
             Buffer.BlockCopy(data, 0, _data, _position, data.Length);
             _position += data.Length;
         }
-
+        
         public void PutSBytesWithLength(sbyte[] data, int offset, int length)
         {
             if (_autoResize)
@@ -230,7 +229,7 @@ namespace LiteNetLib.Utils
             Buffer.BlockCopy(data, offset, _data, _position + 4, length);
             _position += length + 4;
         }
-
+        
         public void PutSBytesWithLength(sbyte[] data)
         {
             if (_autoResize)
@@ -268,7 +267,7 @@ namespace LiteNetLib.Utils
 
         private void PutArray(Array arr, int sz)
         {
-            ushort length = arr == null ? (ushort)0 : (ushort)arr.Length;
+            ushort length = arr == null ? (ushort) 0 : (ushort)arr.Length;
             sz *= length;
             if (_autoResize)
                 ResizeIfNeed(_position + sz + 2);
