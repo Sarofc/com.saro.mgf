@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -39,7 +41,8 @@ namespace Saro.Utility
             if (input.Length <= 512)
             {
                 var chrSpan = input.AsSpan();
-                //Span<byte> bytesSpan = stackalloc byte[chrSpan.Length * 3]; // 这样更快，但是可能不稳定，且会浪费一定栈空间，如果有比中文更长的话，将会出错
+                //Span<byte> bytesSpan = stackalloc byte[chrSpan.Length * 3]; // 这样更快，但是可能不稳定，且会浪费一定栈空间，如果有比中文更长的话，将会出错。memorypack 是这样处理的，估计是可行的
+
                 var bytesLen = Encoding.UTF8.GetByteCount(chrSpan);
                 Span<byte> bytesSpan = stackalloc byte[bytesLen];
                 Encoding.UTF8.GetBytes(chrSpan, bytesSpan);

@@ -37,6 +37,7 @@ namespace Saro.Net
 
         public string ReadString()
         {
+            // TODO 可以参考 memorypack 来优化 string 读写的效率
             var size = ReadUnmanaged<int>();
             var result = Encoding.UTF8.GetString(GetSpan(size));
             Advance(size);
