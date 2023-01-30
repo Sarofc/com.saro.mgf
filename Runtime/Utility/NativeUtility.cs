@@ -4,27 +4,18 @@ using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Saro.Core;
 
 namespace Saro.Utility
 {
-    public static partial class MemoryUtility
+    public static partial class NativeUtility
     {
-        public unsafe static void GetBytes(uint value, Span<byte> outBytes)
+        public unsafe static ref T NullRef<T>() // where T : unmanaged
         {
-#if UNITY_COLLECTIONS
-            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.As<byte, uint>(ref outBytes[0]) = value;
-#else
-            Unsafe.As<byte, uint>(ref outBytes[0]) = value;
-#endif
-        }
-
-        public unsafe static ref T NullRef<T>()
-        {
+            //RuntimeHelpers.IsReferenceOrContainsReferences
             return ref Unsafe.AsRef<T>(null);
         }
 
-        public unsafe static bool IsNullRef<T>(ref T source)
+        public unsafe static bool IsNullRef<T>(ref T source) // where T : unmanaged
         {
             return Unsafe.AsPointer(ref source) == null;
         }
@@ -76,7 +67,7 @@ namespace Saro.Utility
     /*
      * from Svelto.ECS
      */
-    public static partial class MemoryUtility
+    public static partial class NativeUtility
     {
         public static IntPtr Alloc(uint newCapacityInBytes, EAllocator allocator, bool clear = true)
         {

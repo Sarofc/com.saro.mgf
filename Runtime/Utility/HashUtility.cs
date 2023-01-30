@@ -4,6 +4,8 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
+using Cysharp.Threading.Tasks.Internal;
+using Google.Protobuf.WellKnownTypes;
 
 namespace Saro.Utility
 {
@@ -38,21 +40,24 @@ namespace Saro.Utility
 
         public static uint GetCrc32(string input)
         {
+            var chrSpan = input.AsSpan();
+            var byteCount = Encoding.UTF8.GetByteCount(chrSpan);
             if (input.Length <= 512)
             {
-                var chrSpan = input.AsSpan();
                 //Span<byte> bytesSpan = stackalloc byte[chrSpan.Length * 3]; // 这样更快，但是可能不稳定，且会浪费一定栈空间，如果有比中文更长的话，将会出错。memorypack 是这样处理的，估计是可行的
 
-                var bytesLen = Encoding.UTF8.GetByteCount(chrSpan);
-                Span<byte> bytesSpan = stackalloc byte[bytesLen];
-                Encoding.UTF8.GetBytes(chrSpan, bytesSpan);
+                Span<byte> buffer = stackalloc byte[byteCount];
+                Encoding.UTF8.GetBytes(chrSpan, buffer);
 
-                return CRC32.Compute(bytesSpan);
+                return CRC32.Compute(buffer);
             }
             else
             {
-                var bytesSpan = Encoding.UTF8.GetBytes(input);
-                return CRC32.Compute(bytesSpan);
+                var buffer = ArrayPool<byte>.Shared.Rent(byteCount);
+                Encoding.UTF8.GetBytes(chrSpan, buffer);
+                var result = CRC32.Compute(buffer);
+                ArrayPool<byte>.Shared.Return(buffer); // 应该不用清理，但其他地方需要保证使用长度不出错
+                return result;
             }
         }
 
@@ -126,53 +131,66 @@ namespace Saro.Utility
             if (!BitConverter.IsLittleEndian)
                 throw new PlatformNotSupportedException("Not supported on Big Endian processors");
 
+            HashValue = new byte[4];
+
             m_Table = InitializeTable(polynomial);
             m_Seed = m_Hash = seed;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Initialize()
         {
             m_Hash = m_Seed;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void HashCore(byte[] buffer, int offset, int count)
         {
             m_Hash = CalculateHash(m_Table, m_Hash, buffer, offset, count);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void HashCore(ReadOnlySpan<byte> source)
         {
             m_Hash = CalculateHash(m_Table, m_Hash, source, 0, source.Length);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override byte[] HashFinal()
         {
-            if (HashValue == null)
-                HashValue = new byte[4];
+            //if (HashValue == null)
+            //    HashValue = new byte[4];
 
-            var hashSpan = HashValue.AsSpan();
-            MemoryUtility.GetBytes(~m_Hash, hashSpan);
+            ref var pDst = ref MemoryMarshal.GetReference<byte>(HashValue);
+            Unsafe.WriteUnaligned(ref pDst, ~m_Hash);
+
+            //Unsafe.As<byte, uint>(ref outBytes[0]) = value;
+            //MemoryUtility.GetBytes(~m_Hash, HashValue);
 
             return HashValue;
         }
 
         public override int HashSize => 32;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint Compute(ReadOnlySpan<byte> buffer)
         {
             return Compute(k_DefaultPolynomial, k_DefaultSeed, buffer, 0, buffer.Length);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint Compute(ReadOnlySpan<byte> buffer, int offset, int count)
         {
             return Compute(k_DefaultPolynomial, k_DefaultSeed, buffer, offset, count);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint Compute(uint seed, ReadOnlySpan<byte> buffer)
         {
             return Compute(k_DefaultPolynomial, seed, buffer, 0, buffer.Length);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint Compute(uint polynomial, uint seed, ReadOnlySpan<byte> buffer, int offset, int count)
         {
             return ~CalculateHash(InitializeTable(polynomial), seed, buffer, offset, count);

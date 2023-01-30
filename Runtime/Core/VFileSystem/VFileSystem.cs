@@ -196,7 +196,7 @@ namespace Saro.IO
             fileSystem.m_HeaderData = new HeaderData(maxFileCount, maxBlockCount);
             CalcOffsets(fileSystem);
 
-            Utility.MemoryUtility.StructureToBytes(fileSystem.m_HeaderData, s_CachedBytes, 0, s_HeaderDataSize);
+            Utility.NativeUtility.StructureToBytes(fileSystem.m_HeaderData, s_CachedBytes, 0, s_HeaderDataSize);
 
             stream.Write(s_CachedBytes, 0, s_HeaderDataSize);
             stream.SetLength(fileSystem.m_FileDataOffset);
@@ -216,7 +216,7 @@ namespace Saro.IO
 
             stream.Read(s_CachedBytes, 0, s_HeaderDataSize);
 
-            fileSystem.m_HeaderData = Utility.MemoryUtility.BytesToStructure<HeaderData>(s_CachedBytes, 0, s_HeaderDataSize);
+            fileSystem.m_HeaderData = Utility.NativeUtility.BytesToStructure<HeaderData>(s_CachedBytes, 0, s_HeaderDataSize);
 
             if (!fileSystem.m_HeaderData.IsValid())
                 throw new Exception($"invalid file: {fullPath} \ninfo: {fileSystem.m_HeaderData}");
@@ -232,7 +232,7 @@ namespace Saro.IO
             {
                 stream.Read(s_CachedBytes, 0, s_BlockDataSize);
 
-                BlockData blockData = Utility.MemoryUtility.BytesToStructure<BlockData>(s_CachedBytes, 0, s_BlockDataSize);
+                BlockData blockData = Utility.NativeUtility.BytesToStructure<BlockData>(s_CachedBytes, 0, s_BlockDataSize);
 
                 fileSystem.m_BlockDatas.Add(blockData);
             }
@@ -887,7 +887,7 @@ namespace Saro.IO
         {
             m_HeaderData = m_HeaderData.SetBlockCount(m_BlockDatas.Count);
 
-            Utility.MemoryUtility.StructureToBytes(m_HeaderData, s_CachedBytes, 0, s_HeaderDataSize);
+            Utility.NativeUtility.StructureToBytes(m_HeaderData, s_CachedBytes, 0, s_HeaderDataSize);
 
             m_Stream.Position = 0L;
             m_Stream.Write(s_CachedBytes, 0, s_HeaderDataSize);
@@ -895,7 +895,7 @@ namespace Saro.IO
 
         private void WriteBlockData(int blockIndex)
         {
-            Utility.MemoryUtility.StructureToBytes(m_BlockDatas[blockIndex], s_CachedBytes, 0, s_BlockDataSize);
+            Utility.NativeUtility.StructureToBytes(m_BlockDatas[blockIndex], s_CachedBytes, 0, s_BlockDataSize);
 
             m_Stream.Position = m_BlockDataOffsest + s_BlockDataSize * blockIndex;
             m_Stream.Write(s_CachedBytes, 0, s_BlockDataSize);
@@ -907,12 +907,12 @@ namespace Saro.IO
             m_Stream.Position = m_StringDataOffset + s_StringDataSize * stringIndex;
             m_Stream.Read(s_CachedBytes, 0, s_StringDataSize);
 
-            return Utility.MemoryUtility.BytesToStructure<StringData>(s_CachedBytes, 0, s_StringDataSize);
+            return Utility.NativeUtility.BytesToStructure<StringData>(s_CachedBytes, 0, s_StringDataSize);
         }
 
         private void WriteStringData(int stringIndex, StringData stringData)
         {
-            Utility.MemoryUtility.StructureToBytes(stringData, s_CachedBytes, 0, s_StringDataSize);
+            Utility.NativeUtility.StructureToBytes(stringData, s_CachedBytes, 0, s_StringDataSize);
 
             m_Stream.Position = m_StringDataOffset + s_StringDataSize * stringIndex;
             m_Stream.Write(s_CachedBytes, 0, s_StringDataSize);

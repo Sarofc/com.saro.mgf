@@ -32,7 +32,7 @@ namespace Saro.Collections
             unsafe
             {
 #if DEBUG && !PROFILE_SVELTO              
-                uint sizeOf = (uint)MemoryUtility.SizeOf<T>();
+                uint sizeOf = (uint)NativeUtility.SizeOf<T>();
                 if (index + sizeOf > m_WriteIndex)
                     throw new Exception("no reading authorized");
 #endif                
@@ -45,7 +45,7 @@ namespace Saro.Collections
         {
             unsafe
             {
-                uint sizeOf = (uint)MemoryUtility.SizeOf<T>();
+                uint sizeOf = (uint)NativeUtility.SizeOf<T>();
                 uint writeIndex = (uint)(index * sizeOf);
 
 #if DEBUG && !PROFILE_SVELTO
@@ -65,7 +65,7 @@ namespace Saro.Collections
         {
             unsafe
             {
-                var structSize = MemoryUtility.SizeOf<T>();
+                var structSize = NativeUtility.SizeOf<T>();
 
 #if DEBUG && !PROFILE_SVELTO
                 if (Space - structSize < 0)
@@ -82,7 +82,7 @@ namespace Saro.Collections
         {
             unsafe
             {
-                var structSize = MemoryUtility.SizeOf<T>();
+                var structSize = NativeUtility.SizeOf<T>();
 
                 m_WriteIndex -= (uint)structSize;
 
@@ -95,13 +95,13 @@ namespace Saro.Collections
         {
             unsafe
             {
-                var structSize = (uint)MemoryUtility.SizeOf<T>();
+                var structSize = (uint)NativeUtility.SizeOf<T>();
 
                 uint newCapacityInBytes = structSize * newCapacity;
                 if (m_Ptr == null)
-                    m_Ptr = (byte*)MemoryUtility.Alloc(newCapacityInBytes, allocator);
+                    m_Ptr = (byte*)NativeUtility.Alloc(newCapacityInBytes, allocator);
                 else
-                    m_Ptr = (byte*)MemoryUtility.Realloc((IntPtr)m_Ptr, newCapacityInBytes, allocator, (uint)Count);
+                    m_Ptr = (byte*)NativeUtility.Realloc((IntPtr)m_Ptr, newCapacityInBytes, allocator, (uint)Count);
 
                 m_Capacity = newCapacityInBytes;
             }
@@ -116,7 +116,7 @@ namespace Saro.Collections
                 if (m_Ptr == null)
                     throw new Exception("UnsafeArray: try to dispose an already disposed array");
 #endif
-                MemoryUtility.Free((IntPtr)m_Ptr, allocator);
+                NativeUtility.Free((IntPtr)m_Ptr, allocator);
 
                 m_Ptr = null;
                 m_WriteIndex = 0;

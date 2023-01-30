@@ -34,7 +34,7 @@ namespace Saro.Collections
             if (m_HashType != TypeHash<T>.hash)
                 throw new Exception($"DynamicArray: not expected type used");
 #endif
-            return (m_Array->Count / MemoryUtility.SizeOf<T>());
+            return (m_Array->Count / NativeUtility.SizeOf<T>());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -56,7 +56,7 @@ namespace Saro.Collections
             if (m_HashType != TypeHash<T>.hash)
                 throw new Exception("DynamicArray: not expected type used");
 #endif
-            return (m_Array->Capacity / MemoryUtility.SizeOf<T>());
+            return (m_Array->Capacity / NativeUtility.SizeOf<T>());
         }
 
         public static NativeDynamicArray Alloc<T>(uint newLength = 0) where T : struct
@@ -74,7 +74,7 @@ namespace Saro.Collections
 #else
             NativeDynamicArray rtnStruc = default;
 #endif
-            UnsafeArray* listData = (UnsafeArray*)MemoryUtility.Alloc<UnsafeArray>(1, allocator);
+            UnsafeArray* listData = (UnsafeArray*)NativeUtility.Alloc<UnsafeArray>(1, allocator);
 
             //clear to nullify the pointers
             //MemoryUtility.MemClear((IntPtr) listData, structSize);
@@ -151,7 +151,7 @@ namespace Saro.Collections
             {
 #endif
                 m_Array->Dispose(m_Allocator);
-                MemoryUtility.Free((IntPtr)m_Array, m_Allocator);
+                NativeUtility.Free((IntPtr)m_Array, m_Allocator);
 
 #if ENABLE_DEBUG_CHECKS
             }
@@ -193,7 +193,7 @@ namespace Saro.Collections
             if (m_HashType != TypeHash<T>.hash)
                 throw new Exception("DynamicArray: not expected type used");
 #endif
-            var structSize = (uint)MemoryUtility.SizeOf<T>();
+            var structSize = (uint)NativeUtility.SizeOf<T>();
 
 #if ENABLE_DEBUG_CHECKS
             using (m_ThreadSentinel.TestThreadSafety())
@@ -240,7 +240,7 @@ namespace Saro.Collections
             if (m_HashType != TypeHash<T>.hash)
                 throw new Exception("DynamicArray: not expected type used");
 #endif
-            uint structSize = (uint)MemoryUtility.SizeOf<T>();
+            uint structSize = (uint)NativeUtility.SizeOf<T>();
             uint size = (uint)(count * structSize);
 
 #if ENABLE_DEBUG_CHECKS
@@ -263,7 +263,7 @@ namespace Saro.Collections
             if (m_HashType != TypeHash<T>.hash)
                 throw new Exception("DynamicArray: not expected type used");
 
-            var structSize = (uint)MemoryUtility.SizeOf<T>();
+            var structSize = (uint)NativeUtility.SizeOf<T>();
 
             if (m_Array->Space - (int)structSize < 0)
                 throw new Exception("DynamicArray: no writing authorized");
@@ -363,7 +363,7 @@ namespace Saro.Collections
 #endif
             var count = Count<T>();
             var ret = new T[count];
-            var lengthToCopyInBytes = count * MemoryUtility.SizeOf<T>();
+            var lengthToCopyInBytes = count * NativeUtility.SizeOf<T>();
 
 #if ENABLE_DEBUG_CHECKS
             using (m_ThreadSentinel.TestThreadSafety())
@@ -398,7 +398,7 @@ namespace Saro.Collections
 #endif
                 fixed (void* handle = ret)
                 {
-                    MemoryUtility.MemCpy<T>((IntPtr)m_Array->Ptr, 0, (IntPtr)handle, 0, (uint)capacity);
+                    NativeUtility.MemCpy<T>((IntPtr)m_Array->Ptr, 0, (IntPtr)handle, 0, (uint)capacity);
                 }
 
 #if ENABLE_DEBUG_CHECKS
@@ -421,7 +421,7 @@ namespace Saro.Collections
             using (m_ThreadSentinel.TestThreadSafety())
             {
 #endif
-                MemoryUtility.MemMove<T>((IntPtr)m_Array->Ptr, index + 1, index, (uint)(Count<T>() - (index + 1)));
+                NativeUtility.MemMove<T>((IntPtr)m_Array->Ptr, index + 1, index, (uint)(Count<T>() - (index + 1)));
 
                 m_Array->Pop<T>();
 
@@ -436,7 +436,7 @@ namespace Saro.Collections
             using (m_ThreadSentinel.TestThreadSafety())
             {
 #endif
-                MemoryUtility.MemClear((IntPtr)m_Array->Ptr, (uint)m_Array->Capacity);
+                NativeUtility.MemClear((IntPtr)m_Array->Ptr, (uint)m_Array->Capacity);
 #if ENABLE_DEBUG_CHECKS
             }
 #endif
