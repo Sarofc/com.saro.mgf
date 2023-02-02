@@ -31,32 +31,63 @@ namespace Saro.MgfTests.Hash
         }
 
         [Test]
-        public void CheckHash(
+        public void TestEqual(
             [Values("这是需要hash的文本", "这是需要hash的文本2", "这是需要hash的文本10086")] string input
             )
         {
-            var hash1 = (int)HashUtility.GetCrc32(input);
-            var hash2 = Animator.StringToHash(input);
-            //var hash3 = (int)HashUtility.GetCrc32__OLD(input);
+            var expected = Animator.StringToHash(input);
 
-            Assert.IsTrue(hash1 == hash2, $"GetCrc32 failed. {hash1} != {hash2}");
-            //Assert.IsTrue(hash1 == hash3, $"GetCrc32 failed. {hash1} != {hash3}");
+            for (int i = 0; i < 6; i++)
+            {
+                var actual = (int)HashUtility.GetCrc32(input);
+
+                Assert.IsTrue(actual == expected, $"expected {expected}. actual {actual}");
+            }
         }
 
         [Test]
-        public void CheckHexHash(
+        public void GetCrc32_chars(
             [Values("这是需要hash的文本", "这是需要hash的文本2", "这是需要hash的文本10086")] string input
             )
         {
-            var hash1 = HashUtility.GetCrc32HexHash(input);
-            var hash2 = HashUtility.ToHexString(BitConverter.GetBytes(Animator.StringToHash(input)).AsSpan());
-            //var hash3 = HashUtility.ToHexString(BitConverter.GetBytes(HashUtility.GetCrc32__OLD(input)));
-
-            //Debug.Log("IsLittleEndian: " + BitConverter.IsLittleEndian);
-
-            Assert.IsTrue(hash1 == hash2, $"GetCrc32 failed. {hash1} != {hash2}");
-            //Assert.IsTrue(hash1 == hash3, $"GetCrc32 failed. {hash1} != {hash3}");
+            var actual = (int)HashUtility.GetCrc32(input);
+            var expected = Animator.StringToHash(input);
+            Assert.IsTrue(actual == expected, $"expected {expected}. actual {actual}");
         }
+
+        [Test]
+        public void GetCrc32HexHash_chars(
+            [Values("这是需要hash的文本", "这是需要hash的文本2", "这是需要hash的文本10086")] string input
+            )
+        {
+            var actual = HashUtility.GetCrc32HexHash(input);
+            var expected = HashUtility.ToHexString(BitConverter.GetBytes(Animator.StringToHash(input)));
+            Assert.IsTrue(actual == expected, $"expected {expected}. actual {actual}");
+        }
+
+        [Test]
+        public void GetCrc32_bytes(
+            [Values("这是需要hash的文本", "这是需要hash的文本2", "这是需要hash的文本10086")] string input
+            )
+        {
+            var bytes = Encoding.UTF8.GetBytes(input);
+            var actual = (int)HashUtility.GetCrc32(bytes);
+            var expected = Animator.StringToHash(input);
+            Assert.IsTrue(actual == expected, $"expected {expected}. actual {actual}");
+        }
+
+
+        [Test]
+        public void GetCrc32HexHash_bytes(
+            [Values("这是需要hash的文本", "这是需要hash的文本2", "这是需要hash的文本10086")] string input
+            )
+        {
+            var bytes = Encoding.UTF8.GetBytes(input);
+            var actual = HashUtility.GetCrc32HexHash(bytes);
+            var expected = HashUtility.ToHexString(BitConverter.GetBytes(Animator.StringToHash(input)));
+            Assert.IsTrue(actual == expected, $"expected {expected}. actual {actual}");
+        }
+
 
         //[Test, Performance]
         //public void Performance_ToHash_Small_Animator()

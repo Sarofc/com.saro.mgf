@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Saro.Core;
-using System.Security.Cryptography;
 
 namespace Saro.Utility
 {
@@ -12,6 +10,10 @@ namespace Saro.Utility
     /// </summary>
     public static partial class ArrayUtility
     {
+        internal const int IntrosortSizeThreshold = 16;
+
+        // TODO span 其实 并不需要 left、length 了
+
         public static void Sort<T>(T[] keys) where T : IComparable<T>
         {
             ArraySortHelper<T>.IntrospectiveSort(keys, 0, keys.Length);
@@ -25,6 +27,17 @@ namespace Saro.Utility
         public static void Sort<T>(T[] keys, int left, int length, IComparer<T> comparer) where T : IComparable<T>
         {
             ArraySortHelper<T>.IntrospectiveSort(keys, left, length, comparer);
+        }
+
+        internal static int FloorLog2(int n)
+        {
+            int num = 0;
+            while (n >= 1)
+            {
+                num++;
+                n /= 2;
+            }
+            return num;
         }
     }
 
@@ -146,7 +159,7 @@ namespace Saro.Utility
         }
     }
 
-    internal static class ArraySortHelper<T> where T : IComparable<T>
+    internal static partial class ArraySortHelper<T> where T : IComparable<T>
     {
         internal static void IntrospectiveSort(Span<T> keys, int left, int length)
         {
@@ -159,18 +172,7 @@ namespace Saro.Utility
             {
                 return;
             }
-            IntroSort(keys, left, length + left - 1, 2 * FloorLog2(keys.Length), comparer);
-        }
-
-        private static int FloorLog2(int n)
-        {
-            int num = 0;
-            while (n >= 1)
-            {
-                num++;
-                n /= 2;
-            }
-            return num;
+            IntroSort(keys, left, length + left - 1, 2 * ArrayUtility.FloorLog2(keys.Length), comparer);
         }
 
         private static void IntroSort(Span<T> keys, int lo, int hi, int depthLimit, IComparer<T> comparer)
@@ -178,7 +180,7 @@ namespace Saro.Utility
             while (hi > lo)
             {
                 int num = hi - lo + 1;
-                if (num <= 16)
+                if (num <= ArrayUtility.IntrosortSizeThreshold)
                 {
                     if (num == 1)
                     {
@@ -291,9 +293,7 @@ namespace Saro.Utility
         {
             if (i != j)
             {
-                var t = a[i];
-                a[i] = a[j];
-                a[j] = t;
+                (a[j], a[i]) = (a[i], a[j]);
             }
         }
 

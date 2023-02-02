@@ -1,28 +1,25 @@
-﻿//using NUnit.Framework;
-//using Saro.Utility;
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using Unity.PerformanceTesting;
-//using UnityEngine;
+﻿using NUnit.Framework;
+using Saro.Utility;
 
-//namespace Saro.MgfTests.Hash
-//{
-//    public class TestMD5Hash
-//    {
-//        [SetUp]
-//        public void Setup()
-//        {
+namespace Saro.MgfTests.Hash
+{
+    public class TestMD5Hash
+    {
+        [SetUp]
+        public void Setup()
+        {
 
-//        }
+        }
 
-//        [Test, Performance]
-//        public void Performance_ToHash()
-//        {
-//            // md5 是c#自带的
-//            // TODO 测试 span版本
-//        }
-//    }
-//}
+        [Test]
+        public void MD5_Hash(
+            [Values("这是需要hash的文本", "这是需要hash的文本2", "这是需要hash的文本10086")] string input
+            )
+        {
+            var hash1 = HashUtility.GetMd5HexHash(input);
+            var hash2 = HashUtility.___GetMd5HexHash(input);
+
+            Assert.IsTrue(hash1 == hash2, $"ToHexString failed: {hash1} != {hash2}");
+        }
+    }
+}
