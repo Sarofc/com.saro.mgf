@@ -83,8 +83,8 @@
  - [ ] 生成的文件，如何处理多dll（考虑弄成一个单独的dll，给其他所有程序集引用，感觉可以建一个asmdef），需要考虑到hybridclr的更新问题
 
 **行为树**
-- [ ] 运行时，保持不变，继续优化
 - [x] 编辑器，看怎么处理 =》使用unity自带的graphview
+- [ ] 运行时，保持不变，继续优化
 
 **XConsole**
 - [x] 重写UI
@@ -93,5 +93,7 @@
 - [ ] 保存配置，OnApplicationPause平台差异处理
 
 **网络**
-
-TODO
+- [ ] Transport层抽象
+  - [x] LiteNetLib
+- [ ] 协议层抽象
+  - [x] MemoryPack

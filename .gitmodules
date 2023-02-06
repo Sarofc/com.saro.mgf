@@ -1,0 +1,3 @@
+[submodule "Vendor/unity-toolbar-extender"]
+	path = Vendor/unity-toolbar-extender
+	url = https://github.com/marijnz/unity-toolbar-extender
