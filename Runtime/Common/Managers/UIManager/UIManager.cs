@@ -372,7 +372,7 @@ namespace Saro.UI
                 Debug.LogErrorFormat("未加载UI：{0}", uiIdx);
             }
 
-            return win; ;
+            return win;
         }
 
 
@@ -490,17 +490,13 @@ namespace Saro.UI
 
         private List<int> GetUIListByLayer(EUILayer layer)
         {
-            switch (layer)
+            return layer switch
             {
-                case EUILayer.Bottom:
-                    return m_BottomUIs;
-                case EUILayer.Center:
-                    return m_CenterUIs;
-                case EUILayer.Top:
-                    return m_TopUIs;
-            }
-
-            throw new NotSupportedException($"{layer} is not support");
+                EUILayer.Bottom => m_BottomUIs,
+                EUILayer.Center => m_CenterUIs,
+                EUILayer.Top => m_TopUIs,
+                _ => null, // throw new NotSupportedException($"[UIManager] {layer} is not support"),
+            };
         }
 
         private Transform GetRootByLayer(EUILayer layer)
@@ -583,6 +579,8 @@ namespace Saro.UI
 
         private void AddToUIList(int uiIdx, EUILayer layer)
         {
+            Log.Assert(layer != 0, $"[UIManager] {layer} is 0");
+
             var uiList = GetUIListByLayer(layer);
             if (uiList != null)
             {
