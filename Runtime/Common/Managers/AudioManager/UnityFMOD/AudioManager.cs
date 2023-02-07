@@ -69,7 +69,7 @@ namespace Saro.Audio
             }
         }
 
-        private GameObject m_SoundComponentGO = null;
+        private GameObject m_AudioManagerGO = null;
         private GameObject m_AudioListenerGO = null;
 
         /// <summary>
@@ -80,10 +80,10 @@ namespace Saro.Audio
             public AudioSource AudioSourceBGM { get; set; }
             public IAssetHandle AssetHandle { get; set; }
 
-            public BGMPlayer(GameObject soundComponentGO, AudioMixerGroup backgroundMusicGroup)
+            public BGMPlayer(GameObject audioManagerGO, AudioMixerGroup backgroundMusicGroup)
             {
                 var audioSourceBGM = new GameObject("AudioSourceBGM");
-                audioSourceBGM.transform.parent = soundComponentGO.transform;
+                audioSourceBGM.transform.parent = audioManagerGO.transform;
                 AudioSourceBGM = audioSourceBGM.AddComponent<AudioSource>();
                 AudioSourceBGM.outputAudioMixerGroup = backgroundMusicGroup;
             }
@@ -112,11 +112,11 @@ namespace Saro.Audio
         private bool m_IsStopingBGM;
 
         /// <summary>
-        /// 初始化SoundComponent
+        /// 初始化AudioManager
         /// </summary>
         private async UniTask InternalInitializeAsync()
         {
-            if (m_SoundComponentGO != null)
+            if (m_AudioManagerGO != null)
                 return;
 
             // TODO 工作流优化
@@ -139,16 +139,16 @@ namespace Saro.Audio
             if (findBGMGroup.Length != 0)
                 BackgroundMusicGroup = findBGMGroup[0];
 
-            m_SoundComponentGO = new GameObject($"[{nameof(AudioManager)}]");
+            m_AudioManagerGO = new GameObject($"[{nameof(AudioManager)}]");
             if (Application.isPlaying)
             {
-                GameObject.DontDestroyOnLoad(m_SoundComponentGO);
+                GameObject.DontDestroyOnLoad(m_AudioManagerGO);
             }
             m_AudioListenerGO = new GameObject("AudioListener");
             m_AudioListenerGO.AddComponent<AudioListener>();
-            m_AudioListenerGO.transform.parent = m_SoundComponentGO.transform;
+            m_AudioListenerGO.transform.parent = m_AudioManagerGO.transform;
 
-            m_BGMPlayer = new BGMPlayer(m_SoundComponentGO, BackgroundMusicGroup);
+            m_BGMPlayer = new BGMPlayer(m_AudioManagerGO, BackgroundMusicGroup);
             InitSEAudioSourcePool();
 
             if (m_AudioMixer.GetFloat("SEVolume", out float seVolume))
@@ -164,7 +164,7 @@ namespace Saro.Audio
 
         void IService.Update()
         {
-            if (m_SoundComponentGO == null) return;
+            if (m_AudioManagerGO == null) return;
 
             if (ListenFollowTarget != null)
             {
@@ -175,6 +175,7 @@ namespace Saro.Audio
             }
             else
             {
+                // TODO 丢到初始化
                 m_AudioListenerGO.transform.localPosition = Vector3.zero;
                 m_AudioListenerGO.transform.localRotation = Quaternion.identity;
             }
@@ -199,8 +200,8 @@ namespace Saro.Audio
         private AudioPlayer OnCreateAudioPlayerInstance()
         {
             var gameObject = new GameObject();
-            if (m_SoundComponentGO != null)
-                gameObject.transform.parent = m_SoundComponentGO.transform;
+            if (m_AudioManagerGO != null)
+                gameObject.transform.parent = m_AudioManagerGO.transform;
             var audioPlayer = gameObject.AddComponent<AudioPlayer>();
             return audioPlayer;
         }

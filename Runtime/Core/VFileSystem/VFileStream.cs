@@ -39,6 +39,9 @@ namespace Saro.IO
 
         protected internal abstract void Write(byte[] array, int offset, int count);
 
+        // TODO span api
+        //protected internal abstract void Write(ReadOnlySpan<byte> span);
+
         protected internal void Write(Stream stream, int count)
         {
             int bytesLeft = count;

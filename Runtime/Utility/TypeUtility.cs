@@ -231,4 +231,13 @@ namespace Saro.Utility
             return StringBuilderCache.GetStringAndRelease(sb);
         }
     }
+
+    [System.Obsolete("use 'TypeUtility' instead")]
+    public static class ReflectionUtility
+    {
+        public static List<Type> GetSubClassTypesAllAssemblies(Type supperClassType, bool includedAbstract = false)
+        {
+            return TypeUtility.GetSubClassTypesAllAssemblies(supperClassType, includedAbstract);
+        }
+    }
 }

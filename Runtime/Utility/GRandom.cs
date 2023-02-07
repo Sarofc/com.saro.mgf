@@ -1,13 +1,17 @@
 ﻿#if FIXED_POINT_MATH
 using ME.ECS.Mathematics;
 using Single = sfloat;
+using Random = ME.ECS.Mathematics.Random;
 #else
 using Unity.Mathematics;
 using Single = System.Single;
+using Random = Unity.Mathematics.Random;
 #endif
 
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System;
+
 
 namespace Saro
 {
@@ -15,6 +19,7 @@ namespace Saro
 
     public static partial class GRandom
     {
+        [ThreadStatic]
         private static Random s_Random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
 
 

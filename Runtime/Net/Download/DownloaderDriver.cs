@@ -1,9 +1,6 @@
-﻿
-using System;
-
-namespace Saro.Net
+﻿namespace Saro.Net
 {
-    public sealed class DownloaderDriver : IService
+    internal sealed class DownloaderDriver : IService
     {
         internal static void Create()
         {

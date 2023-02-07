@@ -140,7 +140,7 @@ namespace Saro.XConsole
         private int m_WarningCount;
         private int m_InfoCount;
 
-        [Button(nameof(ApplyTheme))]
+        [Button]
         private void ApplyTheme()
         {
             img_icon_Info.sprite = theme.GetSprite(LogType.Log);

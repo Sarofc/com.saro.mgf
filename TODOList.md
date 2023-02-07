@@ -5,13 +5,12 @@
 - [ ] webgl支持
 - [ ] exception 调整优化
 - [ ] iservice的一些管理器抽象成接口，例如音效尽可能抽象为支持fmod、wwise无缝切换
-- [ ] vfs提供readasync接口
-- [ ] 接入正式版版hybirdclr
+- [ ] vfs提供readasync接口，span接口
 
-**async/await最佳实践**
+<!-- **async/await最佳实践**
 - [ ] 测试一下async有没有延迟一帧，还是说一帧就能完成
 - [ ] 中断async方法得最佳实践，从易用性、稳定性多个角度触发
-- [ ] 测试，使用extension方式支持的await，是否能await多次呢？例如 IAssetHandle对象
+- [ ] 测试，使用extension方式支持的await，是否能await多次呢？例如 IAssetHandle对象 -->
 
 **资源模块**
 - [x] 委托 对异步支援有限，不能等待整个方法体完成，例如OnRemoteAsset，ui出现时机有误，删掉所有资源，runtime模式就有问题，这种情况，就预先async加载，然后，委托里同步加载好了
@@ -78,8 +77,8 @@
 
 **表格工具**
  - [x] 异步接口
- - [ ] 打表前，删掉自动生成的文件，避免出现一些错误
- - [ ] 最好支持，框架点击一个按钮就能直接使用（能不能做成 unity package）
+ - [x] 最好支持，框架点击一个按钮就能直接使用（能不能做成 unity package）=》unity可以直接使用upm了
+ - [x] 打表前，删掉自动生成的文件，避免出现一些错误 =》 自己手动删除，更可控一些
  - [ ] 生成的文件，如何处理多dll（考虑弄成一个单独的dll，给其他所有程序集引用，感觉可以建一个asmdef），需要考虑到hybridclr的更新问题
 
 **行为树**
@@ -88,6 +87,7 @@
 
 **XConsole**
 - [x] 重写UI
+- [ ] 整理成package
 - [ ] 整理代码，测试
 - [ ] log过长后，要截断
 - [ ] 保存配置，OnApplicationPause平台差异处理
@@ -97,3 +97,7 @@
   - [x] LiteNetLib
 - [ ] 协议层抽象
   - [x] MemoryPack
+
+**代码热更新**
+
+- [x] 接入正式版版hybirdclr
