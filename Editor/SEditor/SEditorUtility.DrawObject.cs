@@ -1,5 +1,13 @@
 ﻿#if UNITY_EDITOR
 
+#if FIXED_POINT_MATH
+using sfloat = Saro.FPMath.sfloat;
+using sfloat2 = Saro.FPMath.float2;
+using sfloat3 = Saro.FPMath.float3;
+using sfloat4 = Saro.FPMath.float4;
+using squaternion = Saro.FPMath.quaternion;
+#endif
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,13 +20,6 @@ using System.Diagnostics;
 using Debug = UnityEngine.Debug;
 using Saro.Utility;
 using Unity.Mathematics;
-
-#if FIXED_POINT_MATH
-using sfloat2 = ME.ECS.Mathematics.float2;
-using sfloat3 = ME.ECS.Mathematics.float3;
-using sfloat4 = ME.ECS.Mathematics.float4;
-using squaternion = ME.ECS.Mathematics.quaternion;
-#endif
 
 namespace Saro.SEditor
 {

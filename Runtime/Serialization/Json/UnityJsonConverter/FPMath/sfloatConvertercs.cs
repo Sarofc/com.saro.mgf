@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Saro;
+using Saro.FPMath;
 using UnityEngine.Rendering.Universal;
 
 namespace Newtonsoft.Json.UnityConverters
@@ -24,7 +25,7 @@ namespace Newtonsoft.Json.UnityConverters
 
         public override void WriteJson(JsonWriter writer, sfloat value, JsonSerializer serializer)
         {
-            writer.WriteValue(value.RawValue);
+            writer.WriteValue(value.rawValue);
 
 #if ENABLE_JSON_COMMENT
             writer.WriteComment("(fp)" + value.ToString());

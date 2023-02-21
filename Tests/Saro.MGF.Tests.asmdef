@@ -6,8 +6,8 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "Unity.PerformanceTesting",
-        "ME.ECS.FPMath",
-        "Unity.Mathematics"
+        "Unity.Mathematics",
+        "Saro.FPMath"
     ],
     "includePlatforms": [
         "Editor"

@@ -2,7 +2,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using ME.ECS.Mathematics;
+using Saro.FPMath;
 
 namespace Newtonsoft.Json.UnityConverters
 {
@@ -49,13 +49,13 @@ namespace Newtonsoft.Json.UnityConverters
         protected override void WriteJsonProperties(JsonWriter writer, quaternion value, JsonSerializer serializer)
         {
             writer.WritePropertyName(nameof(value.value.x));
-            writer.WriteValue(value.value.x.RawValue);
+            writer.WriteValue(value.value.x.rawValue);
             writer.WritePropertyName(nameof(value.value.y));
-            writer.WriteValue(value.value.y.RawValue);
+            writer.WriteValue(value.value.y.rawValue);
             writer.WritePropertyName(nameof(value.value.z));
-            writer.WriteValue(value.value.z.RawValue);
+            writer.WriteValue(value.value.z.rawValue);
             writer.WritePropertyName(nameof(value.value.w));
-            writer.WriteValue(value.value.w.RawValue);
+            writer.WriteValue(value.value.w.rawValue);
 
 #if ENABLE_JSON_COMMENT
             writer.WriteComment("(fp)" + value);
