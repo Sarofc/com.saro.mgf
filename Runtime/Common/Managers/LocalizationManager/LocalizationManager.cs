@@ -45,16 +45,22 @@ namespace Saro.Localization
         }
 
         /// <summary>
-        /// 根据key获取多语言 文本/资源地址
+        /// 根据key获取多语言 文本
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="localizedKey"></param>
         /// <returns></returns>
-        public string GetValue(int key)
+        public string GetLocalizedValue(int localizedKey)
         {
             if (m_LanguageLut == null) Log.ERROR("[Localization] lut is null");
-            if (m_LanguageLut.TryGetValue(key, out string value))
+            if (m_LanguageLut.TryGetValue(localizedKey, out string value))
                 return value;
-            return null;
+            return $"!LocalizedKey '{localizedKey}' Not Found";
+        }
+
+        [System.Obsolete("Use 'GetLocalizedValue' instead")]
+        public string GetValue(int localizedKey)
+        {
+            return GetLocalizedValue(localizedKey);
         }
 
         private void OnLanguageChanged()

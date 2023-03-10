@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR && TMP_PRESENT
+﻿#if UNITY_EDITOR && PACKAGE_TMP
 
 namespace Saro.UI
 {

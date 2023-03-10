@@ -1,4 +1,4 @@
-﻿#if URP_ENABLE
+﻿#if PACKAGE_URP
 
 using System.Collections;
 using UnityEngine;

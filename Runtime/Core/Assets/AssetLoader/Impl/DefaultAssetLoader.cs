@@ -81,6 +81,7 @@ namespace Saro.Core
                 handle = m_AssetManager.LoadAssetAsync(assetPath, type);
                 m_AssetCache.Add(assetPath, handle);
             }
+
             if (!handle.IsDone)
                 await handle;
             return handle.Asset;

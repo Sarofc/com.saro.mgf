@@ -19,12 +19,17 @@
         {
             "name": "com.unity.textmeshpro",
             "expression": "",
-            "define": "TMP_PRESENT"
+            "define": "PACKAGE_TMP"
         },
         {
             "name": "com.unity.render-pipelines.universal",
             "expression": "",
-            "define": "URP_ENABLE"
+            "define": "PACKAGE_URP"
+        },
+        {
+            "name": "com.unity.ugui",
+            "expression": "",
+            "define": "PACKAGE_UGUI"
         }
     ],
     "noEngineReferences": false

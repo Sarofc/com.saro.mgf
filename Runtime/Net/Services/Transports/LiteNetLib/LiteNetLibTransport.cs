@@ -144,7 +144,7 @@ namespace Saro.Net.Transports
             {
                 return 0;
             }
-
+            
             return (ulong)m_Peers[clientId].Ping * 2;
         }
 
@@ -293,7 +293,7 @@ namespace Saro.Net.Transports
 
         static int SecondsToMilliseconds(float seconds)
         {
-            return (int)Mathf.Ceil(seconds * 1000);
+            return (int)MathF.Ceiling(seconds * 1000);
         }
     }
 }
