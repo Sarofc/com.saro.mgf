@@ -20,7 +20,7 @@ namespace Saro.Net
             GUI.DragWindow(new Rect(0, 0, 10000, 20));
 
             GUILayout.Label($"Total Download Count: {Downloader.Cache.Count}");
-            GUILayout.Label($"Total Download Speed: {Downloader.FormatBytes(Downloader.TotalDownloadSpeed)}/s");
+            GUILayout.Label($"Total Download Speed: {NetUtility.FormatBytes(Downloader.TotalDownloadSpeed)}/s");
 
             m_Scroll = GUILayout.BeginScrollView(m_Scroll);
 

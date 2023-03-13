@@ -74,19 +74,16 @@ namespace Saro.Net
         }
     }
 
-    // TODO
-    // 1. 下载限速
-    // 2. 搞个debug窗口，显示所有下载进度
     public static class Downloader
     {
+        /// <summary>
+        /// 限速，目前只对 <see cref="HttpDownload"/> 生效
+        /// </summary>
         public static long s_SpeedLimit = 0;
-        public static uint s_MaxDownloads = 2;
-
-        private static readonly List<IDownloadAgent> s_Prepared = new List<IDownloadAgent>();
-        private static readonly List<IDownloadAgent> s_Progressing = new List<IDownloadAgent>();
-        private static readonly Dictionary<string, IDownloadAgent> s_Cache = new Dictionary<string, IDownloadAgent>();
-        private static long s_LastSampleTime;
-        private static long s_LastTotalDownloadedBytes;
+        /// <summary>
+        /// 最大并行下载数
+        /// </summary>
+        public static uint s_MaxParallelDownloads = 2;
 
         /// <summary>
         /// url to IDownloadAgent
@@ -157,37 +154,71 @@ namespace Saro.Net
         /// </summary>
         public static long TotalDownloadSpeed { get; private set; }
 
-        private static readonly double[] k_ByteUnits =
-        {
-            1073741824.0, 1048576.0, 1024.0, 1
-        };
+        private static readonly List<IDownloadAgent> s_Prepared = new List<IDownloadAgent>();
+        private static readonly List<IDownloadAgent> s_Progressing = new List<IDownloadAgent>();
+        private static readonly Dictionary<string, IDownloadAgent> s_Cache = new(StringComparer.Ordinal);
+        private static long s_LastSampleTime;
+        private static long s_LastTotalDownloadedBytes;
 
-        private static readonly string[] k_ByteUnitsNames =
-        {
-            "GB", "MB", "KB", "B"
-        };
+        [System.Obsolete("use 'Create' instead")]
+        public static void Initialize() => Create();
 
-        public static string FormatBytes(long bytes)
+        public static void Create()
         {
-            var size = "0 B";
-            if (bytes == 0) return size;
+            Main.Register<DownloaderDriver>();
+        }
 
-            for (var index = 0; index < k_ByteUnits.Length; index++)
+        internal static void OnUpdate()
+        {
+            if (s_Prepared.Count > 0)
             {
-                var unit = k_ByteUnits[index];
-                if (bytes >= unit)
+                for (var index = 0; index < Math.Min(s_Prepared.Count, s_MaxParallelDownloads - s_Progressing.Count); index++)
                 {
-                    size = $"{bytes / unit:##.##} {k_ByteUnitsNames[index]}";
-                    break;
+                    var download = s_Prepared[index];
+                    s_Prepared.RemoveAt(index--);
+                    s_Progressing.Add(download);
+                    download.Start();
+                    s_GlobalStarted?.Invoke(download);
                 }
             }
 
-            return size;
+            if (s_Progressing.Count > 0)
+            {
+                for (var index = 0; index < s_Progressing.Count; index++)
+                {
+                    var download = s_Progressing[index];
+
+                    download.Update();
+
+                    if (download.Status == EDownloadStatus.Failed || download.Status == EDownloadStatus.Success)
+                    {
+                        s_Progressing.RemoveAt(index--);
+                        download.Complete();
+                        s_GlobalCompleted?.Invoke(download);
+
+                        // 这时候，download才是真正的结束！
+                    }
+                }
+            }
+            else
+            {
+                // s_Cache不清空，有需求，使用 ClearAllDownloads 即可。
+                //if (s_Cache.Count <= 0) return;
+                //s_Cache.Clear();
+
+                //s_LastTotalDownloadedBytes = 0;
+                //s_LastSampleTime = DateTime.Now.Ticks;
+            }
+
+            SampleTest();
         }
 
-        public static void Initialize()
+        internal static void OnDispose()
         {
-            DownloaderDriver.Create();
+            ClearAllDownloads();
+
+            s_GlobalStarted = null;
+            s_GlobalCompleted = null;
         }
 
         public static void ClearAllDownloads()
@@ -231,60 +262,6 @@ namespace Saro.Net
             }
 
             return download;
-        }
-
-        public static void Update()
-        {
-            if (s_Prepared.Count > 0)
-            {
-                for (var index = 0; index < Math.Min(s_Prepared.Count, s_MaxDownloads - s_Progressing.Count); index++)
-                {
-                    var download = s_Prepared[index];
-                    s_Prepared.RemoveAt(index--);
-                    s_Progressing.Add(download);
-                    download.Start();
-                    s_GlobalStarted?.Invoke(download);
-                }
-            }
-
-            if (s_Progressing.Count > 0)
-            {
-                for (var index = 0; index < s_Progressing.Count; index++)
-                {
-                    var download = s_Progressing[index];
-
-                    download.Update();
-
-                    if (download.Status == EDownloadStatus.Failed || download.Status == EDownloadStatus.Success)
-                    {
-                        s_Progressing.RemoveAt(index--);
-                        download.Complete();
-                        s_GlobalCompleted?.Invoke(download);
-
-                        // 这时候，download才是真正的结束！
-                    }
-                }
-            }
-            else
-            {
-                // s_Cache不清空，有需求，使用 ClearAllDownloads 即可。
-                //if (s_Cache.Count <= 0) return;
-                //s_Cache.Clear();
-
-                //s_LastTotalDownloadedBytes = 0;
-                //s_LastSampleTime = DateTime.Now.Ticks;
-            }
-
-            SampleTest();
-        }
-
-
-        public static void Destroy()
-        {
-            ClearAllDownloads();
-
-            s_GlobalStarted = null;
-            s_GlobalCompleted = null;
         }
 
         private static void SampleTest()

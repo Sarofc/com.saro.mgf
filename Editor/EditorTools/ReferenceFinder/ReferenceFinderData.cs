@@ -14,7 +14,7 @@ namespace Saro.EditorTools
         private const string CACHE_PATH = "Library/ReferenceFinderCache";
         private const string CACHE_VERSION = "V1";
         //资源引用信息字典
-        public Dictionary<string, AssetDescription> assetDict = new Dictionary<string, AssetDescription>();
+        public Dictionary<string, AssetDescription> assetDict = new(StringComparer.Ordinal);
 
         //收集资源引用信息并更新缓存
         public void CollectDependenciesInfo()
@@ -177,7 +177,7 @@ namespace Saro.EditorTools
             var serializedDependencyHash = new List<string>();
             var serializedDenpendencies = new List<int[]>();
             //辅助映射字典
-            var guidIndex = new Dictionary<string, int>();
+            var guidIndex = new Dictionary<string, int>(StringComparer.Ordinal);
             //序列化
             using (FileStream fs = File.OpenWrite(CACHE_PATH))
             {

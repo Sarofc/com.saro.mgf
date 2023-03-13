@@ -34,7 +34,7 @@ namespace Saro
             {
                 if (m_DataMap == null)
                 {
-                    m_DataMap = new(m_Datas.Count);
+                    m_DataMap = new(m_Datas.Count, StringComparer.Ordinal);
 
                     foreach (var data in m_Datas)
                     {

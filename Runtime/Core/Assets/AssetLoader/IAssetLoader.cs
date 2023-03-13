@@ -44,11 +44,11 @@ namespace Saro.Core
         /// </summary>
         UniTask<Object> LoadAssetRefAsync(string assetPath, Type type);
 
-        ///// <summary>
-        ///// 卸载指定资源
-        ///// </summary>
-        ///// <param name="assetPath"></param>
-        //void UnloadAssetRef(string assetPath);
+        /// <summary>
+        /// 卸载指定资源
+        /// </summary>
+        /// <param name="assetPath"></param>
+        void UnloadAssetRef(string assetPath);
 
         /// <summary>
         /// 卸载所有资源

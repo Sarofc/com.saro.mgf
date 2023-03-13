@@ -22,7 +22,7 @@ namespace Saro.Core
         void IAssetLoader.Init(int capacity)
         {
             if (m_AssetCache == null)
-                m_AssetCache = new Dictionary<string, IAssetHandle>(capacity);
+                m_AssetCache = new Dictionary<string, IAssetHandle>(capacity, StringComparer.Ordinal);
         }
 
         public T LoadAssetRef<T>(string assetPath) where T : Object
@@ -95,6 +95,19 @@ namespace Saro.Core
         public IAssetHandle LoadAssetAsync(string assetPath, Type type)
         {
             return m_AssetManager.LoadAssetAsync(assetPath, type);
+        }
+
+        public void UnloadAssetRef(string assetPath)
+        {
+            if (m_AssetCache.TryGetValue(assetPath, out var handle))
+            {
+                handle.DecreaseRefCount();
+                m_AssetCache.Remove(assetPath);
+            }
+            else
+            {
+                //Log.INFO($"UnloadAssetRef: {assetPath}");
+            }
         }
 
         public void UnloadAllAssetRef()

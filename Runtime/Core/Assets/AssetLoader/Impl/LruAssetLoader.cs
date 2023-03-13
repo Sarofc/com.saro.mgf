@@ -43,8 +43,7 @@ namespace Saro.Core
             }
 
             var type = typeof(T);
-            var handle = m_AssetCache.Get(assetPath);
-            if (handle == null)
+            if (!m_AssetCache.TryGet(assetPath, out var handle))
             {
                 handle = m_AssetManager.LoadAsset(assetPath, type);
                 m_AssetCache.Put(assetPath, handle);
@@ -54,8 +53,7 @@ namespace Saro.Core
 
         public Object LoadAssetRef(string assetPath, Type type)
         {
-            var handle = m_AssetCache.Get(assetPath);
-            if (handle == null)
+            if (!m_AssetCache.TryGet(assetPath, out var handle))
             {
                 handle = m_AssetManager.LoadAsset(assetPath, type);
                 m_AssetCache.Put(assetPath, handle);
@@ -65,8 +63,7 @@ namespace Saro.Core
 
         public async UniTask<Object> LoadAssetRefAsync(string assetPath, Type type)
         {
-            var handle = m_AssetCache.Get(assetPath);
-            if (handle == null)
+            if (!m_AssetCache.TryGet(assetPath, out var handle))
             {
                 handle = m_AssetManager.LoadAssetAsync(assetPath, type);
                 m_AssetCache.Put(assetPath, handle);
@@ -74,6 +71,18 @@ namespace Saro.Core
             if (!handle.IsDone)
                 await handle;
             return handle.Asset;
+        }
+
+        public void UnloadAssetRef(string assetPath)
+        {
+            if (!m_AssetCache.TryGet(assetPath, out var handle))
+            {
+                m_AssetCache.Remove(assetPath);
+            }
+            else
+            {
+                //Log.INFO($"UnloadAssetRef: {assetPath}");
+            }
         }
 
         public void UnloadAllAssetRef()

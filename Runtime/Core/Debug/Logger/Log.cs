@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Saro
 {
@@ -13,7 +14,7 @@ namespace Saro
 
         private const string k_DefaultKey = "Default";
 
-        private static readonly Dictionary<string, ILogger> s_LoggerMap = new();
+        private static readonly Dictionary<string, ILogger> s_LoggerMap = new(StringComparer.Ordinal);
 
         [System.Diagnostics.Conditional(k_ScriptDefineSymbol)]
         public static void INFO(string msg)

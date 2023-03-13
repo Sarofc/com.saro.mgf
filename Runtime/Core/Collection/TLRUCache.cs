@@ -49,16 +49,18 @@ namespace Saro.Collections
             m_Values = new LinkedList<LRUNode>();
         }
 
-        public TValue Get(TKey key)
+        public bool TryGet(TKey key, out TValue value)
         {
             if (m_CacheLut.TryGetValue(key, out LinkedListNode<LRUNode> node))
             {
                 m_Values.Remove(node);
                 m_Values.AddFirst(node);
-                return node.Value.value;
+                value = node.Value.value;
+                return true;
             }
 
-            return default;
+            value = default;
+            return false;
         }
 
         public void Put(TKey key, TValue value)
@@ -91,6 +93,23 @@ namespace Saro.Collections
                 m_CacheLut.Add(key, newNode);
                 m_Values.AddFirst(newNode);
             }
+        }
+
+        public bool Remove(TKey key)
+        {
+            if (m_CacheLut.TryGetValue(key, out LinkedListNode<LRUNode> node))
+            {
+                m_CacheLut.Remove(key);
+                m_Values.Remove(node);
+
+                if (OnValueRemoved != null)
+                {
+                    OnValueRemoved(node.Value.value);
+                }
+
+                return true;
+            }
+            return false;
         }
 
         public void Clear(bool raiseOnValueRemoved = false)

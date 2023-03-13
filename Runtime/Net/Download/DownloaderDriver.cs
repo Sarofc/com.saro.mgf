@@ -2,11 +2,6 @@
 {
     internal sealed class DownloaderDriver : IService
     {
-        internal static void Create()
-        {
-            Main.Register<DownloaderDriver>();
-        }
-
         private void Main_onApplicationPause(bool value)
         {
             // unity退出后台，线程会挂起/退出，下载线程会gg
@@ -23,12 +18,12 @@
 
         void IService.Update()
         {
-            Downloader.Update();
+            Downloader.OnUpdate();
         }
 
         void IService.Dispose()
         {
-            Downloader.Destroy();
+            Downloader.OnDispose();
 
             Main.onApplicationPause -= Main_onApplicationPause;
         }

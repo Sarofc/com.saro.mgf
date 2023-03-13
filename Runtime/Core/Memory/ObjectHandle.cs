@@ -39,7 +39,7 @@ namespace Saro.Pool
 
         public override bool Equals(object obj)
         {
-            if (!(obj is ObjectHandle<T>)) return false;
+            if (obj is not ObjectHandle<T>) return false;
             return Equals((ObjectHandle<T>)obj);
         }
 
