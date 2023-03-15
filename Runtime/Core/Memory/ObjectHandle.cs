@@ -6,6 +6,7 @@ namespace Saro.Pool
     {
         /// <summary>
         /// 实例ID，从1开始自增，0代表无效
+        /// <code>回收后需要置为0，才能保证if(handle)正确</code>
         /// </summary>
         int ObjectID { get; }
     }
@@ -58,6 +59,11 @@ namespace Saro.Pool
             if (!validA && validB) return false;
 
             return lhs.m_CachedObjectID == rhs.m_CachedObjectID;
+        }
+
+        public override string ToString()
+        {
+            return $"{m_CachedObjectID}:{m_Object}";
         }
     }
 }

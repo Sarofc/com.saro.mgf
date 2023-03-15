@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 
 
@@ -35,7 +36,7 @@ namespace Saro.Pool
         /// 异步租借
         /// </summary>
         /// <returns></returns>
-        UniTask<T> RentAsync();
+        UniTask<T> RentAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// 租借

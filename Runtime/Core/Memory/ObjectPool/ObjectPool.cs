@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Saro.Pool
 {
@@ -40,7 +41,7 @@ namespace Saro.Pool
             ObjectPoolChecker.Register(this);
         }
 
-        public ObjectPool(Func<UniTask<T>> onCreateAsync, Action<T> onGet = null, Action<T> onRelease = null, Action<T> onDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000)
+        public ObjectPool(Func<CancellationToken, UniTask<T>> onCreateAsync, Action<T> onGet = null, Action<T> onRelease = null, Action<T> onDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000)
         {
             if (onCreateAsync == null)
             {
@@ -83,12 +84,12 @@ namespace Saro.Pool
             return t;
         }
 
-        public async UniTask<T> RentAsync()
+        public async UniTask<T> RentAsync(CancellationToken cancellationToken = default)
         {
             T t;
             if (m_Stack.Count == 0)
             {
-                t = await m_CreateAsync();
+                t = await m_CreateAsync(cancellationToken);
                 CountAll += 1;
             }
             else
@@ -154,7 +155,7 @@ namespace Saro.Pool
 
         private readonly Func<T> m_OnCreate;
 
-        private readonly Func<UniTask<T>> m_CreateAsync;
+        private readonly Func<CancellationToken, UniTask<T>> m_CreateAsync;
 
         private readonly Action<T> m_OnGet;
 

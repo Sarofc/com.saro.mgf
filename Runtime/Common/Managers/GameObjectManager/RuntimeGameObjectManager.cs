@@ -2,6 +2,7 @@
 using Saro.Pool;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 namespace Saro.Core
@@ -49,20 +50,55 @@ namespace Saro.Core
             PrefixPath = prefixPath;
         }
 
-        public async UniTask<ObjectHandle<T>> SpawnGameObjectAsync(string assetPath)
+        public async UniTask<T> LoadPrefabAsync(string assetPath)
+        {
+            var path = PrefixPath + assetPath;
+            var prefab = await m_AssetLoader.LoadAssetRefAsync<T>(path);
+
+            if (prefab == null)
+            {
+                Log.ERROR($"[{nameof(RuntimeGameObjectManager<T>)}] {nameof(LoadPrefabAsync)} failed. path: {path}");
+                return default;
+            }
+
+            return prefab;
+        }
+
+        public T LoadPrefab(string assetPath)
+        {
+            var path = PrefixPath + assetPath;
+            var prefab = m_AssetLoader.LoadAssetRef<T>(path);
+
+            if (prefab == null)
+            {
+                Log.ERROR($"[{nameof(RuntimeGameObjectManager<T>)}] {nameof(LoadPrefab)} failed. path: {path}");
+                return default;
+            }
+
+            return prefab;
+        }
+
+        public async UniTask<ObjectHandle<T>> SpawnGameObjectAsync(string assetPath, CancellationToken cancellationToken = default)
         {
             if (!m_ObjectMap.TryGetValue(assetPath, out var pool))
+            {
                 pool = CreateGameObjectPool(assetPath, true);
+                m_ObjectMap.Add(assetPath, pool);
+            }
 
             pool.Use();
-            var instance = await pool.RentAsync();
+            var instance = await pool.RentAsync(cancellationToken);
+
             return new(instance);
         }
 
         public ObjectHandle<T> SpawnGameObject(string assetPath)
         {
             if (!m_ObjectMap.TryGetValue(assetPath, out var pool))
+            {
                 pool = CreateGameObjectPool(assetPath, true);
+                m_ObjectMap.Add(assetPath, pool);
+            }
 
             pool.Use();
             var instance = pool.Rent();
@@ -71,23 +107,24 @@ namespace Saro.Core
 
         public void RecycleGameObject(in ObjectHandle<T> handle)
         {
-            if (handle)
-            {
-                RecycleGameObject(handle.Object);
-            }
+            RecycleGameObject(handle.Object);
         }
 
         public void RecycleGameObject(T instance)
         {
             if (instance == null)
             {
-                Log.ERROR($"[{this.GetType().Name}] {nameof(RecycleGameObject)} failed. Effect is null");
+                Log.ERROR($"[{this.GetType().Name}] {nameof(RecycleGameObject)} failed. instance is null");
                 return;
             }
 
             if (m_ObjectMap.TryGetValue(instance.AssetPath, out var pool))
             {
                 pool.Return(instance);
+            }
+            else
+            {
+                Log.ERROR($"[{this.GetType().Name}] {nameof(RecycleGameObject)} failed. {nameof(instance.AssetPath)}: {instance.AssetPath} not found");
             }
         }
 
@@ -150,7 +187,7 @@ namespace Saro.Core
                 m_AssetName = assetName;
             }
 
-            public GameObjectPool(RuntimeGameObjectManager<T> manager, string assetName, Func<UniTask<T>> onCreateAsync, Action<T> onGet = null, Action<T> onRelease = null, Action<T> onDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000) : base(onCreateAsync, onGet, onRelease, onDestroy, collectionCheck, defaultCapacity, maxSize)
+            public GameObjectPool(RuntimeGameObjectManager<T> manager, string assetName, Func<CancellationToken, UniTask<T>> onCreateAsync, Action<T> onGet = null, Action<T> onRelease = null, Action<T> onDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000) : base(onCreateAsync, onGet, onRelease, onDestroy, collectionCheck, defaultCapacity, maxSize)
             {
                 m_Manager = manager;
                 m_AssetName = assetName;
@@ -186,37 +223,36 @@ namespace Saro.Core
             }
         }
 
+        void onGet(T instance)
+        {
+            instance.transform.SetParent(null);
+            instance.ObjectID = ++s_GlobalObjectID;
+            instance.OnPoolableGet();
+        }
+        void onRelease(T instance)
+        {
+            instance.gameObject.transform.SetParent(m_GameObjectPoolRoot.transform);
+            instance.ObjectID = 0;
+            instance.OnPoolableRelease();
+        }
+        void onDestroy(T instance)
+        {
+            instance.OnPoolableDestroy();
+            GameObject.Destroy(instance.gameObject);
+        }
+
         private GameObjectPool CreateGameObjectPool(string assetPath, bool async)
         {
-            Action<T> onGet = (instance) =>
-            {
-                instance.transform.SetParent(null);
-                instance.ObjectID = ++s_GlobalObjectID;
-                instance.OnPoolableGet();
-            };
-            Action<T> onRelease = (instance) =>
-            {
-                instance.gameObject.transform.SetParent(m_GameObjectPoolRoot.transform);
-                instance.ObjectID = 0;
-                instance.OnPoolableRelease();
-            };
-            Action<T> onDestroy = (instance) =>
-            {
-                instance.OnPoolableDestroy();
-                GameObject.Destroy(instance.gameObject);
-            };
-
             if (async)
             {
                 return new GameObjectPool(this, assetPath,
-                        onCreateAsync: async () =>
+                        onCreateAsync: async (cancellationToken) =>
                         {
-                            var path = PrefixPath + assetPath;
-                            var prefab = await m_AssetLoader.LoadAssetRefAsync<T>(path);
+                            var prefab = await LoadPrefabAsync(assetPath);
 
-                            if (prefab == null)
+                            // 处理cancel操作，这里不抛异常
+                            if (cancellationToken.IsCancellationRequested)
                             {
-                                Log.ERROR($"[{nameof(RuntimeGameObjectManager<T>)}] {nameof(SpawnGameObjectAsync)} failed. path: {path}");
                                 return default;
                             }
 
@@ -234,14 +270,7 @@ namespace Saro.Core
                 return new GameObjectPool(this, assetPath,
                         onCreate: () =>
                         {
-                            var path = PrefixPath + assetPath;
-                            var prefab = m_AssetLoader.LoadAssetRef<T>(path);
-
-                            if (prefab == null)
-                            {
-                                Log.ERROR($"[{this.GetType().Name}] {nameof(SpawnGameObjectAsync)} failed. path: {path}");
-                                return default;
-                            }
+                            var prefab = LoadPrefab(assetPath);
 
                             var instance = GameObject.Instantiate(prefab);
                             instance.AssetPath = assetPath;

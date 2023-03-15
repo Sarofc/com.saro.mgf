@@ -4,6 +4,7 @@ using Saro.Core;
 using Saro.Pool;
 using Saro.Utility;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -107,6 +108,8 @@ namespace Saro.UI
 
     public partial class Toast
     {
+        // TODO 这个可以用 RuntimeGameObjectManager 重构
+
         #region Object Manager
 
         public static string s_AssetName = "Assets/Res/Prefab/UI/Default/Toast.prefab";
@@ -115,7 +118,7 @@ namespace Saro.UI
 
         private static IObjectPool<Toast> s_ObjectPool = new ObjectPool<Toast>(OnCreateAsync, null, OnRelease, OnDestroy, true, 10, 20);
 
-        private static async UniTask<Toast> OnCreateAsync()
+        private static async UniTask<Toast> OnCreateAsync(CancellationToken cancellationToken = default)
         {
             if (s_ToastPoolRoot == null)
             {
@@ -127,6 +130,10 @@ namespace Saro.UI
 
             // TODO
             var prefab = await IAssetManager.Current.LoadAssetAsync(s_AssetName, typeof(Toast)) as Toast;
+
+            if (cancellationToken.IsCancellationRequested) return default;
+            if (prefab == null) return default;
+
             var toast = GameObject.Instantiate(prefab, UIManager.Current.Top.transform);
 
             var canvas = toast.GetOrAddComponent<Canvas>();
