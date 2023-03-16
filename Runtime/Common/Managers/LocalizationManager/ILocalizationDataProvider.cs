@@ -8,8 +8,8 @@ namespace Saro.Localization
     /// </summary>
     public interface ILocalizationDataProvider
     {
-        void Load(ELanguage language, Dictionary<int, string> map);
+        void Load(ELanguage language, Dictionary<string, string> map);
 
-        UniTask<bool> LoadAsync(ELanguage language, Dictionary<int, string> map);
+        UniTask<bool> LoadAsync(ELanguage language, Dictionary<string, string> map);
     }
 }

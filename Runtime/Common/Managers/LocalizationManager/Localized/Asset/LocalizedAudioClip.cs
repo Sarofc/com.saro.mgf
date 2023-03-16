@@ -7,7 +7,7 @@ namespace Saro.Localization
 {
     public class LocalizedAudioClip : ALocalizedAsset<AudioClip>
     {
-        public LocalizedAudioClip(int localizedKey) : base(localizedKey)
+        public LocalizedAudioClip(string localizedKey) : base(localizedKey)
         {
         }
 

@@ -1,16 +1,15 @@
 ﻿using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 
 namespace Saro.Localization
 {
     /*
      * TODO
-     * 
-     * 1. 到底用 int 作为key，还是 string？
-     *    string更可读，但费脑子需要命名。
-     *    int直接，直接递增即可，但意义不明，维护成本可能偏高？但似乎可以生成代码(enum)来解决这个问题
-     * 
+     * 1. 编辑器模式，可以在面板选择key
+     * 2. excel可以分多张表，分别处理 字符串、资源
      */
+
     public sealed class LocalizationManager : IService
     {
         public static LocalizationManager Current => Main.Resolve<LocalizationManager>();
@@ -18,7 +17,7 @@ namespace Saro.Localization
         public FDelegates onLanguageChanged = new(128);
 
         private ILocalizationDataProvider m_Provider;
-        private Dictionary<int, string> m_LanguageLut = new();
+        private Dictionary<string, string> m_LanguageLut = new(StringComparer.Ordinal); // 大小写敏感
 
         public LocalizationManager SetLanguage(ELanguage language)
         {
@@ -49,7 +48,7 @@ namespace Saro.Localization
         /// </summary>
         /// <param name="localizedKey"></param>
         /// <returns></returns>
-        public string GetLocalizedValue(int localizedKey)
+        public string GetLocalizedValue(string localizedKey)
         {
             if (m_LanguageLut == null) Log.ERROR("[Localization] lut is null");
             if (m_LanguageLut.TryGetValue(localizedKey, out string value))
@@ -58,7 +57,7 @@ namespace Saro.Localization
         }
 
         [System.Obsolete("Use 'GetLocalizedValue' instead")]
-        public string GetValue(int localizedKey)
+        public string GetValue(string localizedKey)
         {
             return GetLocalizedValue(localizedKey);
         }

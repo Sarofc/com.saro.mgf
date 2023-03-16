@@ -5,7 +5,7 @@ namespace Saro.Localization
 {
     public class LocalizedString : ALocalizedAsset<string>
     {
-        public LocalizedString(int localizedKey) : base(localizedKey) { }
+        public LocalizedString(string localizedKey) : base(localizedKey) { }
 
         public override string GetLocalizedValue() => LocalizationManager.Current.GetLocalizedValue(LocalizedKey);
 

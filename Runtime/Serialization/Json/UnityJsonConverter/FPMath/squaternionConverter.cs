@@ -49,15 +49,15 @@ namespace Newtonsoft.Json.UnityConverters
         protected override void WriteJsonProperties(JsonWriter writer, quaternion value, JsonSerializer serializer)
         {
             writer.WritePropertyName(nameof(value.value.x));
-            writer.WriteValue(value.value.x.rawValue);
+            writer.WriteValue((long)value.value.x.rawValue);
             writer.WritePropertyName(nameof(value.value.y));
-            writer.WriteValue(value.value.y.rawValue);
+            writer.WriteValue((long)value.value.y.rawValue);
             writer.WritePropertyName(nameof(value.value.z));
-            writer.WriteValue(value.value.z.rawValue);
+            writer.WriteValue((long)value.value.z.rawValue);
             writer.WritePropertyName(nameof(value.value.w));
-            writer.WriteValue(value.value.w.rawValue);
+            writer.WriteValue((long)value.value.w.rawValue);
 
-#if ENABLE_JSON_COMMENT
+#if ENABLE_NEWTONSOFT_JSON_COMMENT
             writer.WriteComment("(fp)" + value);
 #endif
         }

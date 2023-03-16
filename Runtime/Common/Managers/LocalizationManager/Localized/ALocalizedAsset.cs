@@ -6,7 +6,7 @@ namespace Saro.Localization
 {
     public abstract class ALocalizedAsset<T>
     {
-        public virtual int LocalizedKey { get; protected set; }
+        public virtual string LocalizedKey { get; protected set; }
 
         /// <summary>
         /// 获取本地化键值对的Value
@@ -25,7 +25,7 @@ namespace Saro.Localization
 
         // TODO 看看要不要实现 GetLocalizedAssest 同步版本
 
-        public ALocalizedAsset(int localizedKey)
+        public ALocalizedAsset(string localizedKey)
         {
             LocalizedKey = localizedKey;
         }

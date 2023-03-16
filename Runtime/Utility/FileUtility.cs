@@ -43,14 +43,14 @@ namespace Saro.Utility
 
             var indexPath = Application.streamingAssetsPath + "/" + k_IndexesName;
 
-            var request = UnityWebRequest.Get(indexPath);
+            using var request = UnityWebRequest.Get(indexPath);
             await request.SendWebRequest();
             if (request.result == UnityWebRequest.Result.Success)
             {
                 var content = request.downloadHandler.text;
                 var lines = content.Split('\n');
 
-                s_Indexes = new HashSet<string>();
+                s_Indexes = new(StringComparer.Ordinal);
                 foreach (var line in lines)
                     s_Indexes.Add(line);
             }
@@ -68,11 +68,11 @@ namespace Saro.Utility
                 File.Delete(indexPath);
 
 #if BUILD_INDEXES
-            var sb = new StringBuilder(2048);
+            var sb = new StringBuilder(4096);
             var files = Directory.GetFiles(Application.streamingAssetsPath, "*", SearchOption.AllDirectories);
             foreach (var file in files)
             {
-                if (file.EndsWith(".meta")) continue;
+                if (file.EndsWith(".meta", StringComparison.Ordinal)) continue;
                 var res = file.Replace(Application.streamingAssetsPath, "").Replace("\\", "/");
                 sb.Append(res).Append("\n");
 
@@ -88,7 +88,7 @@ namespace Saro.Utility
 #if USE_INDEXES
             if (ShouldUseUnityWebRequest(file))
             {
-                var request = UnityWebRequest.Get(file);
+                using var request = UnityWebRequest.Get(file);
                 request.SendWebRequest();
                 while (!request.isDone) { }
                 return request.downloadHandler.text;
@@ -102,7 +102,7 @@ namespace Saro.Utility
 #if USE_INDEXES
             if (ShouldUseUnityWebRequest(file))
             {
-                var request = UnityWebRequest.Get(file);
+                using var request = UnityWebRequest.Get(file);
                 request.SendWebRequest();
                 while (!request.isDone) { }
                 return request.downloadHandler.data;
@@ -116,7 +116,7 @@ namespace Saro.Utility
 #if USE_INDEXES
             if (ShouldUseUnityWebRequest(file))
             {
-                var request = UnityWebRequest.Get(file);
+                using var request = UnityWebRequest.Get(file);
                 await request.SendWebRequest();
                 if (request.result == UnityWebRequest.Result.Success)
                 {
@@ -137,7 +137,7 @@ namespace Saro.Utility
 #if USE_INDEXES
             if (ShouldUseUnityWebRequest(file))
             {
-                var request = UnityWebRequest.Get(file);
+                using var request = UnityWebRequest.Get(file);
                 await request.SendWebRequest();
                 if (request.result == UnityWebRequest.Result.Success)
                 {
@@ -196,7 +196,7 @@ namespace Saro.Utility
         public static bool IsHttpFile(string file)
         {
 #if USE_INDEXES && UNITY_WEBGL
-            if (file.StartsWith(k_HttpPrefixString, StringComparison.Ordinal))
+            if (file.StartsWith(k_HttpPrefixString, StringComparison.OrdinalIgnoreCase))
                 return true;
 #endif
             return false;
@@ -205,7 +205,7 @@ namespace Saro.Utility
         public static bool IsAndroidStreamingAssetFile(string file)
         {
 #if USE_INDEXES && UNITY_ANDROID
-            if (file.StartsWith(k_AndroidFileSystemPrefixString, StringComparison.Ordinal))
+            if (file.StartsWith(k_AndroidFileSystemPrefixString, StringComparison.OrdinalIgnoreCase))
                 return true;
 #endif
             return false;

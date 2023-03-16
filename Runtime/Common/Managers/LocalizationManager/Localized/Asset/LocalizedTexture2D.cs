@@ -7,7 +7,7 @@ namespace Saro.Localization
 {
     public class LocalizedTexture2D : ALocalizedAsset<Texture2D>
     {
-        public LocalizedTexture2D(int localizedKey) : base(localizedKey)
+        public LocalizedTexture2D(string localizedKey) : base(localizedKey)
         {
         }
 

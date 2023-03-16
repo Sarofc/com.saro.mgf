@@ -7,7 +7,7 @@ namespace Saro.Localization
     public abstract class ALocalizedEvent<T> : MonoBehaviour where T : Component
     {
         [FormerlySerializedAs("m_Key")]
-        [SerializeField] protected int m_LocalizedKey;
+        [SerializeField] protected string m_LocalizedKey;
         protected T m_Target;
 
         protected LocalizationManager m_Localization;

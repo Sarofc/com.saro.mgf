@@ -113,7 +113,7 @@ namespace Newtonsoft.Json.UnityConverters
                 writer.WritePropertyName("$guid");
                 writer.WriteValue(guid);
 
-#if ENABLE_JSON_COMMENT && false // ctrl + k serarh guid
+#if ENABLE_NEWTONSOFT_JSON_COMMENT && false // ctrl + k serarh guid
                 writer.WriteComment(path);
 #endif
             }

@@ -11,7 +11,7 @@ namespace Newtonsoft.Json.UnityConverters
     /// Custom Newtonsoft.Json converter <see cref="JsonConverter"/> for the Unity float3 type <see cref="float3"/>.
     /// </summary>
     [UnityEngine.Scripting.Preserve]
-    public class sfloat2Convertercs : AutoPartialConverter<float2>
+    public class sfloat2Converter : AutoPartialConverter<float2>
     {
         public override object ReadJson(JsonReader reader, Type objectType, [AllowNull] object existingValue, JsonSerializer serializer)
         {
@@ -36,26 +36,16 @@ namespace Newtonsoft.Json.UnityConverters
                     value.y = sfloat.FromRaw((uint)(long)reader.Value);
                     break;
             }
-
-            //switch (name)
-            //{
-            //    case nameof(value.x):
-            //        value.x = sfloat.FromRaw((uint?)reader.ReadAsDecimal() ?? 0u);
-            //        break;
-            //    case nameof(value.y):
-            //        value.y = sfloat.FromRaw((uint?)reader.ReadAsDecimal() ?? 0u);
-            //        break;
-            //}
         }
 
         protected override void WriteJsonProperties(JsonWriter writer, float2 value, JsonSerializer serializer)
         {
             writer.WritePropertyName(nameof(value.x));
-            writer.WriteValue(value.x.rawValue);
+            writer.WriteValue((long)value.x.rawValue);
             writer.WritePropertyName(nameof(value.y));
-            writer.WriteValue(value.y.rawValue);
+            writer.WriteValue((long)value.y.rawValue);
 
-#if ENABLE_JSON_COMMENT
+#if ENABLE_NEWTONSOFT_JSON_COMMENT
             writer.WriteComment("(fp)" + value.ToString());
 #endif
         }
