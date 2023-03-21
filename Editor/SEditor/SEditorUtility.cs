@@ -5,8 +5,10 @@ namespace Saro.SEditor
 {
     public static partial class SEditorUtility
     {
-        public static GUIStyle SmallTickbox => m_SmallTickbox ??= new GUIStyle("ShurikenToggle");
-        private static GUIStyle m_SmallTickbox;
+        public static GUIStyle TitleCentered => s_TitleCentered ??= new GUIStyle(EditorStyles.label) { alignment = TextAnchor.MiddleCenter };
+        private static GUIStyle s_TitleCentered;
+        public static GUIStyle SmallTickbox => s_SmallTickbox ??= new GUIStyle("ShurikenToggle");
+        private static GUIStyle s_SmallTickbox;
         private static readonly Color _splitterdark = new Color(0.12f, 0.12f, 0.12f, 1.333f);
         private static readonly Color _splitterlight = new Color(0.6f, 0.6f, 0.6f, 1.333f);
         public static Color Splitter { get { return EditorGUIUtility.isProSkin ? _splitterdark : _splitterlight; } }
@@ -62,162 +64,6 @@ namespace Saro.SEditor
             EditorGUI.DrawRect(rect, Splitter);
         }
 
-        /// <summary>
-        /// Draw a header similar to the one used for the post-process stack
-        /// </summary>
-        public static Rect DrawSimpleHeader(ref bool expanded, ref bool activeField, string title)
-        {
-            var e = Event.current;
-
-            // Initialize Rects
-
-            var backgroundRect = GUILayoutUtility.GetRect(1f, 17f);
-
-            var reorderRect = backgroundRect;
-            reorderRect.xMin -= 8f;
-            reorderRect.y += 5f;
-            reorderRect.width = 9f;
-            reorderRect.height = 9f;
-
-            var labelRect = backgroundRect;
-            labelRect.xMin += 32f;
-            labelRect.xMax -= 20f;
-
-            var foldoutRect = backgroundRect;
-            foldoutRect.y += 1f;
-            foldoutRect.width = 13f;
-            foldoutRect.height = 13f;
-
-            var toggleRect = backgroundRect;
-            toggleRect.x += 16f;
-            toggleRect.y += 2f;
-            toggleRect.width = 13f;
-            toggleRect.height = 13f;
-
-            var menuIcon = PaneOptionsIcon;
-            var menuRect = new Rect(labelRect.xMax + 4f, labelRect.y + 4f, menuIcon.width, menuIcon.height);
-
-            // Background rect should be full-width
-            backgroundRect.xMin = 0f;
-            backgroundRect.width += 4f;
-
-            // Background
-            EditorGUI.DrawRect(backgroundRect, HeaderBackground);
-
-            // Foldout
-            expanded = GUI.Toggle(foldoutRect, expanded, GUIContent.none, EditorStyles.foldout);
-
-            // Title
-            /*using (new EditorGUI.DisabledScope(!activeField))
-            {
-            }*/
-            EditorGUI.LabelField(labelRect, title, EditorStyles.boldLabel);
-
-            // Active checkbox
-            activeField = GUI.Toggle(toggleRect, activeField, GUIContent.none, SmallTickbox);
-
-            // Handle events
-
-            if (e.type == EventType.MouseDown && labelRect.Contains(e.mousePosition) && e.button == 0)
-            {
-                expanded = !expanded;
-                e.Use();
-            }
-
-            return backgroundRect;
-        }
-
-        /// <summary>
-        /// Draw a header similar to the one used for the post-process stack
-        /// </summary>
-        public static Rect DrawHeader(ref bool expanded, ref bool activeField, string title, System.Action<GenericMenu> fillGenericMenu)
-        {
-            var e = Event.current;
-
-            // Initialize Rects
-
-            var backgroundRect = GUILayoutUtility.GetRect(1f, 17f);
-
-            var offset = 4f;
-
-            var reorderRect = backgroundRect;
-            reorderRect.xMin -= 8f;
-            reorderRect.y += 5f;
-            reorderRect.width = 9f;
-            reorderRect.height = 9f;
-
-            var labelRect = backgroundRect;
-            labelRect.xMin += 32f + offset;
-            labelRect.xMax -= 20f;
-
-            var foldoutRect = backgroundRect;
-            foldoutRect.y += 1f;
-            foldoutRect.xMin += offset;
-            foldoutRect.width = 13f;
-            foldoutRect.height = 13f;
-
-            var toggleRect = backgroundRect;
-            toggleRect.x += 16f;
-            toggleRect.xMin += offset;
-            toggleRect.y += 2f;
-            toggleRect.width = 13f;
-            toggleRect.height = 13f;
-
-            var menuIcon = PaneOptionsIcon;
-            var menuRect = new Rect(labelRect.xMax + 4f, labelRect.y + 4f, menuIcon.width, menuIcon.height);
-
-            // Background rect should be full-width
-            backgroundRect.xMin = 0f;
-            backgroundRect.width += 4f;
-
-            // Background
-            EditorGUI.DrawRect(backgroundRect, HeaderBackground);
-
-            // Foldout
-            expanded = GUI.Toggle(foldoutRect, expanded, GUIContent.none, EditorStyles.foldout);
-
-            // Title
-            using (new EditorGUI.DisabledScope(!activeField))
-            {
-                EditorGUI.LabelField(labelRect, title, EditorStyles.boldLabel);
-            }
-
-            // Active checkbox
-            activeField = GUI.Toggle(toggleRect, activeField, GUIContent.none, SmallTickbox);
-
-            // Dropdown menu icon
-            GUI.DrawTexture(menuRect, menuIcon);
-
-            for (int i = 0; i < 3; i++)
-            {
-                Rect r = reorderRect;
-                r.height = 1;
-                r.y = reorderRect.y + reorderRect.height * (i / 3.0f);
-                EditorGUI.DrawRect(r, Reorder);
-            }
-
-            // Handle events
-
-            if (e.type == EventType.MouseDown)
-            {
-                if (menuRect.Contains(e.mousePosition))
-                {
-                    var menu = new GenericMenu();
-                    fillGenericMenu(menu);
-                    menu.DropDown(new Rect(new Vector2(menuRect.x, menuRect.yMax), Vector2.zero));
-                    e.Use();
-                }
-            }
-
-            if (e.type == EventType.MouseDown && labelRect.Contains(e.mousePosition) && e.button == 0)
-            {
-                expanded = !expanded;
-                e.Use();
-            }
-
-            return backgroundRect;
-        }
-
         public static bool DropdownButton(int id, Rect position, GUIContent content, GUIStyle style)
         {
             Event current = Event.current;
@@ -242,6 +88,19 @@ namespace Saro.SEditor
                     break;
             }
             return false;
+        }
+
+        public static string SearchField(string search)
+        {
+            GUILayout.BeginHorizontal();
+            search = EditorGUILayout.TextField(search, EditorStyles.toolbarSearchField);
+            if (!string.IsNullOrEmpty(search) && GUILayout.Button(string.Empty, EditorStyles.miniButton))
+            {
+                search = string.Empty;
+                GUIUtility.keyboardControl = 0;
+            }
+            GUILayout.EndHorizontal();
+            return search;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Saro.Pool
         /// 实例ID，从1开始自增，0代表无效
         /// <code>回收后需要置为0，才能保证if(handle)正确</code>
         /// </summary>
-        int ObjectID { get; }
+        int ObjectId { get; }
     }
 
     /// <summary>
@@ -27,10 +27,10 @@ namespace Saro.Pool
         public ObjectHandle(T obj)
         {
             m_Object = obj;
-            m_CachedObjectID = obj == null ? 0 : obj.ObjectID;
+            m_CachedObjectID = obj == null ? 0 : obj.ObjectId;
         }
 
-        private bool IsValid() => m_CachedObjectID != 0 && m_Object != null && m_Object.ObjectID == m_CachedObjectID;
+        private bool IsValid() => m_CachedObjectID != 0 && m_Object != null && m_Object.ObjectId == m_CachedObjectID;
 
         public static implicit operator T(in ObjectHandle<T> handle) => handle.Object;
 

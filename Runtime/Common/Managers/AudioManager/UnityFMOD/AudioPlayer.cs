@@ -8,7 +8,7 @@ namespace Saro.Audio
     [ExecuteInEditMode]
     public sealed class AudioPlayer : MonoBehaviour, IHandledObject
     {
-        public int ObjectID { get; internal set; }
+        public int ObjectId { get; internal set; }
 
         /// <summary>
         /// 资源handle，用于管理引用

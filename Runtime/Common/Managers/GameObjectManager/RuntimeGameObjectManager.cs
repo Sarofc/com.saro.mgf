@@ -9,7 +9,7 @@ namespace Saro.Core
 {
     public abstract class PoolableGameObject : MonoBehaviour, IHandledObject
     {
-        public int ObjectID { get; internal set; }
+        public int ObjectId { get; internal set; }
         /// <summary>
         /// 资源路径
         /// </summary>
@@ -226,13 +226,13 @@ namespace Saro.Core
         void onGet(T instance)
         {
             instance.transform.SetParent(null);
-            instance.ObjectID = ++s_GlobalObjectID;
+            instance.ObjectId = ++s_GlobalObjectID;
             instance.OnPoolableGet();
         }
         void onRelease(T instance)
         {
             instance.gameObject.transform.SetParent(m_GameObjectPoolRoot.transform);
-            instance.ObjectID = 0;
+            instance.ObjectId = 0;
             instance.OnPoolableRelease();
         }
         void onDestroy(T instance)
