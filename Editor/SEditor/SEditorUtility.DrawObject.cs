@@ -93,6 +93,8 @@ namespace Saro.SEditor
         //For generic automatic editors. Passing a MemberInfo will also check for attributes
         public static (bool draw, object obj) GenericField(string name, object value, Type t, MemberInfo member = null, object context = null)
         {
+            name = ObjectNames.NicifyVariableName(name);
+
             if (t == null)
             {
                 GUILayout.Label("NO TYPE PROVIDED!");
