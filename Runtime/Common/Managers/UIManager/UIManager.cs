@@ -121,7 +121,7 @@ namespace Saro.UI
             }
             catch (Exception e)
             {
-                Log.ERROR(e);
+                Log.ERROR("UIManager Init Error:\n" + e);
             }
         }
 

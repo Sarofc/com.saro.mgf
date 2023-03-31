@@ -1,5 +1,5 @@
 ﻿#if UNITY_2021_3_OR_NEWER
-using SkipLocalsInitAttribute = Unity.Burst.CompilerServices.SkipLocalsInitAttribute;
+using SkipLocalsInitAttribute = Unity.Burst.CompilerServices.SkipLocalsInitAttribute; // TODO 没装 burst 会报错，修正一下
 #else
 using SkipLocalsInitAttribute = System.Runtime.CompilerServices.SkipLocalsInitAttribute;
 #endif
