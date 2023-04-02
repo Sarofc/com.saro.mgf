@@ -58,6 +58,8 @@ namespace Saro.Utility
             {
                 Log.ERROR($"[USE_INDEXES]. LoadIndexes Error: {request.error}");
             }
+#else
+            await UniTask.CompletedTask;
 #endif
         }
 

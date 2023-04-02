@@ -30,18 +30,19 @@ namespace Saro
         // 考量是，丢场景里的mono脚本的Awake执行完毕后，再启动会合适一些
         private async void Start()
         {
-            var startupTypes = TypeUtility.GetSubClassTypesAllAssemblies(typeof(IStartup));
+            var startupTypes = TypeUtility.GetSubClassTypesAllAssemblies(typeof(IAppStartup));
 
             if (startupTypes != null && startupTypes.Count != 1)
             {
-                throw new NullReferenceException($"MUST have only a class impl from {nameof(IStartup)}. class: {string.Join(", ", startupTypes)}");
+                throw new NullReferenceException($"MUST have only a class impl from {nameof(IAppStartup)}. class: {string.Join(", ", startupTypes)}");
             }
 
             try
             {
                 // load streammingaset index db
                 await FileUtility.LoadIndexesAsync();
-                var startup = Activator.CreateInstance(startupTypes[0]) as IStartup;
+
+                var startup = Activator.CreateInstance(startupTypes[0]) as IAppStartup;
                 await startup.StartAsync();
             }
             catch (Exception e)

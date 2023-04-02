@@ -50,34 +50,6 @@ namespace Saro.Core
             PrefixPath = prefixPath;
         }
 
-        public async UniTask<T> LoadPrefabAsync(string assetPath)
-        {
-            var path = PrefixPath + assetPath;
-            var prefab = await m_AssetLoader.LoadAssetRefAsync<T>(path);
-
-            if (prefab == null)
-            {
-                Log.ERROR($"[{nameof(RuntimeGameObjectManager<T>)}] {nameof(LoadPrefabAsync)} failed. path: {path}");
-                return default;
-            }
-
-            return prefab;
-        }
-
-        public T LoadPrefab(string assetPath)
-        {
-            var path = PrefixPath + assetPath;
-            var prefab = m_AssetLoader.LoadAssetRef<T>(path);
-
-            if (prefab == null)
-            {
-                Log.ERROR($"[{nameof(RuntimeGameObjectManager<T>)}] {nameof(LoadPrefab)} failed. path: {path}");
-                return default;
-            }
-
-            return prefab;
-        }
-
         public async UniTask<ObjectHandle<T>> SpawnGameObjectAsync(string assetPath, CancellationToken cancellationToken = default)
         {
             if (!m_ObjectMap.TryGetValue(assetPath, out var pool))
@@ -163,6 +135,34 @@ namespace Saro.Core
             {
                 GameObject.Destroy(m_GameObjectPoolRoot);
             }
+        }
+
+        private async UniTask<T> LoadPrefabAsync(string assetPath)
+        {
+            var path = PrefixPath + assetPath;
+            var prefab = await m_AssetLoader.LoadAssetRefAsync<T>(path);
+
+            if (prefab == null)
+            {
+                Log.ERROR($"[{nameof(RuntimeGameObjectManager<T>)}] {nameof(LoadPrefabAsync)} failed. path: {path}");
+                return default;
+            }
+
+            return prefab;
+        }
+
+        private T LoadPrefab(string assetPath)
+        {
+            var path = PrefixPath + assetPath;
+            var prefab = m_AssetLoader.LoadAssetRef<T>(path);
+
+            if (prefab == null)
+            {
+                Log.ERROR($"[{nameof(RuntimeGameObjectManager<T>)}] {nameof(LoadPrefab)} failed. path: {path}");
+                return default;
+            }
+
+            return prefab;
         }
     }
 
