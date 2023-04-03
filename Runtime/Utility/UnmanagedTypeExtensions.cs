@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace Saro.Utility
 {
@@ -11,6 +12,8 @@ namespace Saro.Utility
 
         public static bool IsUnmanagedEx(this Type t)
         {
+            //UnsafeUtility.IsUnmanaged(t);
+
             if (s_CachedTypes.ContainsKey(t))
                 return s_CachedTypes[t];
 

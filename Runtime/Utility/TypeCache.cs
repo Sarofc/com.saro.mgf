@@ -10,7 +10,7 @@ namespace Saro.Utility
 
     public static class TypeType
     {
-        public static bool isUnmanaged<T>()
+        public static bool IsUnmanaged<T>()
         {
 #if !UNITY_BURST
             return TypeCache<T>.type.IsUnmanagedEx();
@@ -19,7 +19,7 @@ namespace Saro.Utility
 #endif
         }
 
-        public static bool isUnmanaged<T>(this T obj)
+        public static bool IsUnmanaged<T>(this T obj)
         {
 #if !UNITY_BURST
             return TypeCache<T>.type.IsUnmanagedEx();
