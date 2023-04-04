@@ -11,9 +11,9 @@ namespace Saro.Core
     {
         public int ObjectId { get; internal set; }
         /// <summary>
-        /// 资源路径
+        /// 资源预制体
         /// </summary>
-        public string AssetPath { get; internal set; }
+        public PoolableGameObject Prefab { get; internal set; }
         /// <summary>
         /// 从池中获取后调用
         /// </summary>
@@ -28,48 +28,72 @@ namespace Saro.Core
         public virtual void OnPoolableDestroy() { }
     }
 
-    public partial class RuntimeGameObjectManager<T> where T : PoolableGameObject
+    public partial class RuntimeGameObjectManager
     {
-        public Config config = new()
-        {
-            autoUnload = true,
-            unloadTime = 60f,
-        };
-
         private GameObject m_GameObjectPoolRoot;
         private static int s_GlobalObjectID;
 
-        public string PrefixPath { get; private set; }
+        private readonly Dictionary<PoolableGameObject, string> m_Prefab2PathMap = new();
+        private readonly Dictionary<string, PoolableGameObject> m_Path2PrefabMap = new();
+        private readonly Dictionary<string, IAssetHandle> m_HandleMap = new(StringComparer.Ordinal);
+        private readonly Dictionary<PoolableGameObject, GameObjectPool> m_ObjectMap = new();
 
-        private readonly Dictionary<string, GameObjectPool> m_ObjectMap = new(StringComparer.Ordinal);
+        private IAssetLoader m_AssetLoader = IAssetLoader.Create<DefaultAssetLoader>(1024, false);
 
-        private readonly IAssetLoader m_AssetLoader = AssetLoaderFactory.Create<DefaultAssetLoader>(128);
-
-        public void SetPrefixPath(string prefixPath)
+        public PoolableGameObject LoadPrefab(string assetPath)
         {
-            PrefixPath = prefixPath;
-        }
-
-        public async UniTask<ObjectHandle<T>> SpawnGameObjectAsync(string assetPath, CancellationToken cancellationToken = default)
-        {
-            if (!m_ObjectMap.TryGetValue(assetPath, out var pool))
+            if (!m_Path2PrefabMap.TryGetValue(assetPath, out var prefab))
             {
-                pool = CreateGameObjectPool(assetPath, true);
-                m_ObjectMap.Add(assetPath, pool);
+                prefab = m_AssetLoader.LoadAssetRef<PoolableGameObject>(assetPath);
+                m_Prefab2PathMap.Add(prefab, assetPath);
+                m_Path2PrefabMap.Add(assetPath, prefab);
             }
-
-            pool.Use();
-            var instance = await pool.RentAsync(cancellationToken);
-
-            return new(instance);
+            return prefab;
         }
 
-        public ObjectHandle<T> SpawnGameObject(string assetPath)
+        public async UniTask<PoolableGameObject> LoadPrefabAsync(string assetPath)
         {
-            if (!m_ObjectMap.TryGetValue(assetPath, out var pool))
+            if (!m_Path2PrefabMap.TryGetValue(assetPath, out var prefab))
             {
-                pool = CreateGameObjectPool(assetPath, true);
-                m_ObjectMap.Add(assetPath, pool);
+                prefab = await m_AssetLoader.LoadAssetRefAsync<PoolableGameObject>(assetPath);
+
+                if (!m_Path2PrefabMap.ContainsKey(assetPath))
+                {
+                    m_Prefab2PathMap.Add(prefab, assetPath);
+                    m_Path2PrefabMap.Add(assetPath, prefab);
+                }
+            }
+            return prefab;
+        }
+
+        public IAssetHandle LoadPrefabHandleAsync(string assetPath)
+        {
+            if (!m_HandleMap.TryGetValue(assetPath, out var handle))
+            {
+                handle = m_AssetLoader.LoadAssetHandleRefAsync<PoolableGameObject>(assetPath);
+                handle.Completed += HandleCompleted;
+                m_HandleMap.Add(assetPath, handle);
+            }
+            return handle;
+        }
+
+        private void HandleCompleted(IAssetHandle handle)
+        {
+            handle.Completed -= HandleCompleted;
+
+            var prefab = handle.Asset as PoolableGameObject;
+            m_Prefab2PathMap.Add(prefab, handle.AssetUrl);
+            m_Path2PrefabMap.Add(handle.AssetUrl, prefab);
+        }
+
+        public ObjectHandle<PoolableGameObject> SpawnGameObject(PoolableGameObject prefab)
+        {
+            if (!m_ObjectMap.TryGetValue(prefab, out var pool))
+            {
+                pool = CreateGameObjectPool(prefab);
+                pool.m_Manager = this;
+                pool.m_AssetName = m_Prefab2PathMap[prefab];
+                m_ObjectMap.Add(prefab, pool);
             }
 
             pool.Use();
@@ -77,12 +101,12 @@ namespace Saro.Core
             return new(instance);
         }
 
-        public void RecycleGameObject(in ObjectHandle<T> handle)
+        public void RecycleGameObject(in ObjectHandle<PoolableGameObject> handle)
         {
-            RecycleGameObject(handle.Object);
+            RecycleGameObject(handle.Value);
         }
 
-        public void RecycleGameObject(T instance)
+        public void RecycleGameObject(PoolableGameObject instance)
         {
             if (instance == null)
             {
@@ -90,13 +114,13 @@ namespace Saro.Core
                 return;
             }
 
-            if (m_ObjectMap.TryGetValue(instance.AssetPath, out var pool))
+            if (m_ObjectMap.TryGetValue(instance.Prefab, out var pool))
             {
                 pool.Return(instance);
             }
             else
             {
-                Log.ERROR($"[{this.GetType().Name}] {nameof(RecycleGameObject)} failed. {nameof(instance.AssetPath)}: {instance.AssetPath} not found");
+                Log.ERROR($"[{this.GetType().Name}] {nameof(RecycleGameObject)} failed. {nameof(instance.Prefab)}: {instance.Prefab} not found");
             }
         }
 
@@ -136,61 +160,36 @@ namespace Saro.Core
                 GameObject.Destroy(m_GameObjectPoolRoot);
             }
         }
-
-        private async UniTask<T> LoadPrefabAsync(string assetPath)
-        {
-            var path = PrefixPath + assetPath;
-            var prefab = await m_AssetLoader.LoadAssetRefAsync<T>(path);
-
-            if (prefab == null)
-            {
-                Log.ERROR($"[{nameof(RuntimeGameObjectManager<T>)}] {nameof(LoadPrefabAsync)} failed. path: {path}");
-                return default;
-            }
-
-            return prefab;
-        }
-
-        private T LoadPrefab(string assetPath)
-        {
-            var path = PrefixPath + assetPath;
-            var prefab = m_AssetLoader.LoadAssetRef<T>(path);
-
-            if (prefab == null)
-            {
-                Log.ERROR($"[{nameof(RuntimeGameObjectManager<T>)}] {nameof(LoadPrefab)} failed. path: {path}");
-                return default;
-            }
-
-            return prefab;
-        }
     }
 
-    partial class RuntimeGameObjectManager<T>
+    partial class RuntimeGameObjectManager
     {
+        public Config config = new Config
+        {
+            autoUnload = true,
+            unloadTime = 60f * 2,
+        };
+
         public struct Config
         {
             public bool autoUnload;
             public float unloadTime;
         }
 
-        private class GameObjectPool : ObjectPool<T>
+        internal class GameObjectPool : ObjectPool<PoolableGameObject>
         {
-            private string m_AssetName;
+            internal string m_AssetName;
+            internal RuntimeGameObjectManager m_Manager;
+
             private float m_UsedTime;
-            private RuntimeGameObjectManager<T> m_Manager;
             private bool m_Unloaded;
 
-            public GameObjectPool(RuntimeGameObjectManager<T> manager, string assetName, Func<T> onCreate, Action<T> onGet = null, Action<T> onRelease = null, Action<T> onDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000) : base(onCreate, onGet, onRelease, onDestroy, collectionCheck, defaultCapacity, maxSize)
+            public GameObjectPool(Func<PoolableGameObject> onCreate, Action<PoolableGameObject> onGet = null, Action<PoolableGameObject> onRelease = null, Action<PoolableGameObject> onDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000) : base(onCreate, onGet, onRelease, onDestroy, collectionCheck, defaultCapacity, maxSize)
             {
-                m_Manager = manager;
-                m_AssetName = assetName;
             }
 
-            public GameObjectPool(RuntimeGameObjectManager<T> manager, string assetName, Func<CancellationToken, UniTask<T>> onCreateAsync, Action<T> onGet = null, Action<T> onRelease = null, Action<T> onDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000) : base(onCreateAsync, onGet, onRelease, onDestroy, collectionCheck, defaultCapacity, maxSize)
+            public GameObjectPool(Func<CancellationToken, UniTask<PoolableGameObject>> onCreateAsync, Action<PoolableGameObject> onGet = null, Action<PoolableGameObject> onRelease = null, Action<PoolableGameObject> onDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000) : base(onCreateAsync, onGet, onRelease, onDestroy, collectionCheck, defaultCapacity, maxSize)
             {
-                m_Manager = manager;
-                m_AssetName = assetName;
             }
 
             internal void Use()
@@ -223,64 +222,57 @@ namespace Saro.Core
             }
         }
 
-        void onGet(T instance)
+        void onGet(PoolableGameObject instance)
         {
             instance.transform.SetParent(null);
             instance.ObjectId = ++s_GlobalObjectID;
             instance.OnPoolableGet();
         }
-        void onRelease(T instance)
+        void onRelease(PoolableGameObject instance)
         {
             instance.gameObject.transform.SetParent(m_GameObjectPoolRoot.transform);
             instance.ObjectId = 0;
             instance.OnPoolableRelease();
         }
-        void onDestroy(T instance)
+        void onDestroy(PoolableGameObject instance)
         {
             instance.OnPoolableDestroy();
             GameObject.Destroy(instance.gameObject);
         }
 
-        private GameObjectPool CreateGameObjectPool(string assetPath, bool async)
+        private GameObjectPool CreateGameObjectPool(PoolableGameObject prefab)
         {
-            if (async)
-            {
-                return new GameObjectPool(this, assetPath,
-                        onCreateAsync: async (cancellationToken) =>
-                        {
-                            var prefab = await LoadPrefabAsync(assetPath);
+            return new GameObjectPool(
+                    onCreate: () =>
+                    {
+                        var instance = GameObject.Instantiate(prefab);
+                        instance.Prefab = prefab;
+                        return instance;
+                    },
+                    onGet: onGet,
+                    onRelease: onRelease,
+                    onDestroy: onDestroy
+            );
+        }
+    }
 
-                            // 处理cancel操作，这里不抛异常
-                            if (cancellationToken.IsCancellationRequested)
-                            {
-                                return default;
-                            }
+    partial class RuntimeGameObjectManager : IService
+    {
+        public static RuntimeGameObjectManager Current => Main.Resolve<RuntimeGameObjectManager>();
 
-                            var instance = GameObject.Instantiate(prefab);
-                            instance.AssetPath = assetPath;
-                            return instance;
-                        },
-                        onGet: onGet,
-                        onRelease: onRelease,
-                        onDestroy: onDestroy
-                );
-            }
-            else
-            {
-                return new GameObjectPool(this, assetPath,
-                        onCreate: () =>
-                        {
-                            var prefab = LoadPrefab(assetPath);
+        void IService.Awake()
+        {
+            OnAwake();
+        }
 
-                            var instance = GameObject.Instantiate(prefab);
-                            instance.AssetPath = assetPath;
-                            return instance;
-                        },
-                        onGet: onGet,
-                        onRelease: onRelease,
-                        onDestroy: onDestroy
-                );
-            }
+        void IService.Dispose()
+        {
+            OnDispose();
+        }
+
+        void IService.Update()
+        {
+            OnUpdate();
         }
     }
 }

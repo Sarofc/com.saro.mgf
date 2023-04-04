@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Saro.IO
 {
     /// <summary>
-    /// 安卓文件系统流。Only for Android StreammingAssets
+    /// 安卓文件系统流。Only for Android StreamingAssets
     /// </summary>
     public sealed class AndroidVFileStream : VFileStream
     {

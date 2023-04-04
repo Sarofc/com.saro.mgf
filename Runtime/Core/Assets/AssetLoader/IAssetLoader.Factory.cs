@@ -1,6 +1,25 @@
 ﻿namespace Saro.Core
 {
+    [System.Obsolete("use 'IAssetLoader' instead")]
     public static class AssetLoaderFactory
+    {
+        public static T Create<T>(int capacity) where T : class, IAssetLoader, new()
+        {
+            return IAssetLoader.Create<T>(capacity);
+        }
+
+        public static T Create<T>(int capacity, bool poolable) where T : class, IAssetLoader, IReference, new()
+        {
+            return IAssetLoader.Create<T>(capacity, poolable);
+        }
+
+        public static void Release(IAssetLoader assetLoader)
+        {
+            IAssetLoader.Release(assetLoader);
+        }
+    }
+
+    partial interface IAssetLoader
     {
         public static T Create<T>(int capacity) where T : class, IAssetLoader, new()
         {

@@ -21,7 +21,7 @@ namespace Saro.Core
     /// 用于处理各个子对象的资源加载，各个Manager可以根据需求实现不同的类
     /// <code>提供一个默认实现 <see cref="DefaultAssetLoader"/></code>
     /// </summary>
-    public interface IAssetLoader
+    public partial interface IAssetLoader
     {
         /// <summary>
         /// 池化标记
@@ -86,7 +86,7 @@ namespace Saro.Core
         /// <summary>
         /// 异步加载资源，且缓存handle
         /// </summary>
-        IAssetHandle LoadAssetRefAsync_Handle<T>(string assetPath) => throw new NotImplementedException("泛型接口未实现");
+        IAssetHandle LoadAssetHandleRefAsync<T>(string assetPath) => throw new NotImplementedException("泛型接口未实现");
 
         #endregion
     }

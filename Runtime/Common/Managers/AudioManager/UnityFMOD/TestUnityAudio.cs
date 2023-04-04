@@ -19,7 +19,7 @@ namespace Saro.Audio.Tests
             if (GUILayout.Button("Stop Audio by handle"))
             {
                 if (m_Handle)
-                    m_Handle.Object.StopAndRelease();
+                    m_Handle.Value.StopAndRelease();
             }
         }
     }

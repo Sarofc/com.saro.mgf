@@ -35,7 +35,7 @@ namespace Saro.Core
             return await LoadAssetRefAsync(assetPath, typeof(T)) as T;
         }
 
-        public IAssetHandle LoadAssetRefAsync_Handle<T>(string assetPath)
+        public IAssetHandle LoadAssetHandleRefAsync<T>(string assetPath)
         {
             if (string.IsNullOrEmpty(assetPath))
             {

@@ -17,7 +17,7 @@ namespace Saro.Pool
     /// <typeparam name="T"></typeparam>
     public readonly struct ObjectHandle<T> : IEquatable<ObjectHandle<T>> where T : class, IHandledObject
     {
-        public readonly T Object => IsValid() ? m_Object : null;
+        public readonly T Value => IsValid() ? m_Object : null;
 
         public readonly int Handle => IsValid() ? m_CachedObjectID : 0;
 
@@ -32,7 +32,7 @@ namespace Saro.Pool
 
         private bool IsValid() => m_CachedObjectID != 0 && m_Object != null && m_Object.ObjectId == m_CachedObjectID;
 
-        public static implicit operator T(in ObjectHandle<T> handle) => handle.Object;
+        public static implicit operator T(in ObjectHandle<T> handle) => handle.Value;
 
         public static implicit operator bool(in ObjectHandle<T> handle) => handle.IsValid();
 

@@ -23,7 +23,7 @@ namespace Saro.Utility
     // webgl  可能也需要
 
     /// <summary>
-    /// 跨平台文件处理，针对StreammingAssests目录
+    /// 跨平台文件处理，针对StreamingAssests目录
     /// <code>webgl只能使用async方法</code>
     /// </summary>
     public static class FileUtility

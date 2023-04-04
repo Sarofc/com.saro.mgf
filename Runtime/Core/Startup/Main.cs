@@ -39,7 +39,7 @@ namespace Saro
 
             try
             {
-                // load streammingaset index db
+                // load streamingaset index db
                 await FileUtility.LoadIndexesAsync();
 
                 var startup = Activator.CreateInstance(startupTypes[0]) as IAppStartup;
