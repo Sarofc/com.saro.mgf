@@ -12,7 +12,7 @@ namespace Saro.Pool
             this.pool = pool;
         }
 
-        public string PoolType => pool.GetType().FullName;
+        public string PoolType => pool.Label;
         public int CountAll => pool.CountAll;
         public int CountActive => pool.CountActive;
         public int CountInactive => pool.CountInactive;

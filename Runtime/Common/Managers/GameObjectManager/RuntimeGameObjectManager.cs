@@ -71,7 +71,10 @@ namespace Saro.Core
             if (!m_HandleMap.TryGetValue(assetPath, out var handle))
             {
                 handle = m_AssetLoader.LoadAssetHandleRefAsync<PoolableGameObject>(assetPath);
-                handle.Completed += HandleCompleted;
+                if (handle.IsDone && !handle.IsError)
+                    HandleCompleted(handle);
+                else
+                    handle.Completed += HandleCompleted;
                 m_HandleMap.Add(assetPath, handle);
             }
             return handle;
@@ -178,6 +181,8 @@ namespace Saro.Core
 
         internal class GameObjectPool : ObjectPool<PoolableGameObject>
         {
+            public override string Label => m_AssetName;
+
             internal string m_AssetName;
             internal RuntimeGameObjectManager m_Manager;
 

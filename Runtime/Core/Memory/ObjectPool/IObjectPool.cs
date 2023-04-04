@@ -9,6 +9,10 @@ namespace Saro.Pool
     public interface IObjectPool
     {
         /// <summary>
+        /// 对象池标签
+        /// </summary>
+        string Label { get; }
+        /// <summary>
         /// 所有数量
         /// </summary>
         int CountAll { get; }

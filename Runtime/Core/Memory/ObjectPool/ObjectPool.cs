@@ -10,6 +10,8 @@ namespace Saro.Pool
     /// </summary>
     public class ObjectPool<T> : IDisposable, IObjectPool<T> where T : class
     {
+        public virtual string Label { get; protected set; } = typeof(T).FullName;
+
         public int CountAll { get; private set; }
 
         public int CountActive => CountAll - CountInactive;
