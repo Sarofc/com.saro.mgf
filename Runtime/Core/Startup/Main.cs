@@ -1,4 +1,8 @@
-﻿using Saro.Collections;
+﻿#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
+using Saro.Collections;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,10 +11,6 @@ using Saro.Core;
 using Saro.Utility;
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace Saro
 {
     /*
@@ -18,6 +18,9 @@ namespace Saro
      */
     public sealed partial class Main : MonoSingleton<Main>
     {
+        [Tooltip("开启Main::OnGUI")]
+        public bool enableOnGUI = true;
+
         protected override void Awake()
         {
             base.Awake();
@@ -84,9 +87,9 @@ namespace Saro
 
         private void OnApplicationQuit()
         {
-            m_Locator.Dispose();
-
             onApplicationQuit?.Invoke();
+
+            //Log.ERROR("Main::OnApplicationQuit");
         }
 
         private void OnApplicationPause(bool pauseStatus)
@@ -112,11 +115,16 @@ namespace Saro
 #if DEBUG
             onDrawGizmos = null;
 #endif
+
+            m_Locator.Dispose();
+
+            //Log.ERROR("Main::OnDestroy");
         }
 
         private void OnGUI()
         {
-            onGUI?.Invoke();
+            if (enableOnGUI)
+                onGUI?.Invoke();
         }
 
 #if DEBUG
@@ -181,7 +189,7 @@ namespace Saro
         /// </summary>
         public static IAssetLoader MainAssetLoader => Instance.m_MainAssetLoader;
 
-        private IAssetLoader m_MainAssetLoader = AssetLoaderFactory.Create<DefaultAssetLoader>(2048, false);
+        private IAssetLoader m_MainAssetLoader = IAssetLoader.Create<DefaultAssetLoader>(2048, false);
 
         /// <summary>
         /// 设置全局资源管理器
@@ -454,15 +462,23 @@ namespace Saro
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-            if (GUILayout.Button($"{nameof(Main.DumpMonoCallbacks)}"))
-            {
-                Main.Instance.DumpMonoCallbacks();
-            }
 
-            if (GUILayout.Button($"{nameof(TestMonoCallbacks)}"))
+            EditorGUILayout.Space();
+
+            var lastEnable = GUI.enabled;
+            GUI.enabled = Application.isPlaying;
             {
-                TestMonoCallbacks();
+                if (GUILayout.Button($"{nameof(Main.DumpMonoCallbacks)}"))
+                {
+                    Main.Instance.DumpMonoCallbacks();
+                }
+
+                if (GUILayout.Button($"{nameof(TestMonoCallbacks)}"))
+                {
+                    TestMonoCallbacks();
+                }
             }
+            GUI.enabled = lastEnable;
         }
 
         private void TestMonoCallbacks()

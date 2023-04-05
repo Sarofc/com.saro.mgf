@@ -16,7 +16,7 @@ namespace Saro.UI
             {
                 if (m_AssetLoader == null)
                 {
-                    m_AssetLoader = AssetLoaderFactory.Create<DefaultAssetLoader>(4, true);
+                    m_AssetLoader = IAssetLoader.Create<DefaultAssetLoader>(4, true);
                 }
 
                 return m_AssetLoader;
@@ -71,7 +71,7 @@ namespace Saro.UI
             // 销毁时，释放掉ui对象加载的所有资源
             if (m_AssetLoader != null)
             {
-                AssetLoaderFactory.Release(m_AssetLoader);
+                IAssetLoader.Release(m_AssetLoader);
                 m_AssetLoader = null;
             }
         }

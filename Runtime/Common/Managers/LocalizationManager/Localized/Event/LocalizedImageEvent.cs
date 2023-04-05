@@ -22,12 +22,12 @@ namespace Saro.Localization
         {
             base.Awake();
 
-            m_Loader = AssetLoaderFactory.Create<DefaultAssetLoader>(8, true);
+            m_Loader = IAssetLoader.Create<DefaultAssetLoader>(8, true);
         }
 
         private void OnDestroy()
         {
-            AssetLoaderFactory.Release(m_Loader);
+            IAssetLoader.Release(m_Loader);
         }
     }
 }
