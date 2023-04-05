@@ -15,13 +15,14 @@ namespace Saro.UI
      * 继续总结ui框架，这个实现的不怎么样
      * 
      * 1. 抽象窗体，覆盖大多数业务逻辑
+     *    - 多窗体间，可复用ui对象，例如复用头像UI
      * 2. api设计，简单易用
-     * 3. 层级管理
-     * 4. 特效管理
-     * 5. ui窗体缓存
-     * 6. ui脚本绑定
-     * 7. ui事件
-     * 8. 接入huatuo
+     * 3. 窗体、特效 等层级管理
+     * 4. ui窗体缓存
+     * x. ui脚本绑定 =》使用uibinder
+     * x. ui事件 =》使用Listen接口订阅
+     * 7. ui弹窗队列
+     * x. 热更新 =》hybridclr原生支持
      * 
      */
 
@@ -35,7 +36,7 @@ namespace Saro.UI
     /// <summary>
     /// UI管理类
     /// </summary>
-    public partial class UIManager : IService
+    public partial class UIManager
     {
         public static UIManager Current => Main.Resolve<UIManager>();
 
@@ -53,14 +54,12 @@ namespace Saro.UI
         public Transform Bottom { get; private set; }
         public Transform Center { get; private set; }
         public Transform Top { get; private set; }
+        /// <summary>
+        /// 蒙版，主要用于某些情况下，屏蔽操作
+        /// </summary>
         internal GameObject Mask { get; private set; }
 
-        void IService.Awake()
-        {
-            Init();
-        }
-
-        void IService.Update()
+        private void OnUpdate()
         {
             float dt = Time.deltaTime;
 
@@ -92,11 +91,7 @@ namespace Saro.UI
             }
         }
 
-        void IService.Dispose()
-        {
-        }
-
-        private void Init()
+        private void OnAwake()
         {
             CacheUIAttributes();
 
@@ -121,7 +116,7 @@ namespace Saro.UI
             }
             catch (Exception e)
             {
-                Log.ERROR("UIManager Init Error:\n" + e);
+                Log.ERROR("UIManager Init [UIRoot] failed:\n" + e);
             }
         }
 
@@ -156,7 +151,7 @@ namespace Saro.UI
         {
             if (!this.m_UIDefCache.TryGetValue(uiIdx, out var uiAttr))
             {
-                Debug.LogError("未注册窗口，无法加载:" + uiIdx);
+                Log.ERROR("未注册窗口，无法加载:" + uiIdx);
                 return null;
             }
 
@@ -171,7 +166,7 @@ namespace Saro.UI
         /// <summary>
         /// 加载窗口
         /// </summary>
-        /// <param name="uiIndexs">窗口枚举</param>
+        /// <param name="uiIndex">窗口枚举</param>
         public void LoadWindow(Enum uiIndex)
         {
             var index = uiIndex.GetHashCode();
@@ -181,7 +176,7 @@ namespace Saro.UI
                 var com = m_WindowMap[index] as IComponent;
                 if (com.IsLoad)
                 {
-                    Debug.Log("已经加载过并未卸载" + index);
+                    Log.INFO("已经加载过并未卸载" + index);
                 }
             }
             else
@@ -190,7 +185,7 @@ namespace Saro.UI
                 var com = CreateWindow(index) as IComponent;
                 if (com == null)
                 {
-                    Debug.Log("不存在UI:" + index);
+                    Log.INFO("不存在UI:" + index);
                 }
                 else
                 {
@@ -205,7 +200,7 @@ namespace Saro.UI
         /// <summary>
         /// 加载窗口
         /// </summary>
-        /// <param name="uiIndexs">窗口枚举</param>
+        /// <param name="uiIndex">窗口枚举</param>
         public async UniTask LoadWindowAsync(Enum uiIndex)
         {
             var index = uiIndex.GetHashCode();
@@ -216,18 +211,22 @@ namespace Saro.UI
                 window = CreateWindow(index);
                 if (window == null)
                 {
-                    Debug.Log("不存在UI:" + index);
+                    Log.INFO("不存在UI:" + index);
                 }
                 else
                 {
-                    m_WindowMap[index] = window as IWindow;
+                    m_WindowMap[index] = window;
                 }
             }
 
             if (!window.IsLoad)
             {
                 //开始窗口加载
+
+                Mask.SetActive(true);
                 var result = await window.LoadAsync();
+                Mask.SetActive(false);
+
                 if (result)
                 {
                     if (window.Root)
@@ -258,7 +257,7 @@ namespace Saro.UI
         /// <summary>
         /// 卸载窗口
         /// </summary>
-        /// <param name="indexs">窗口枚举</param>
+        /// <param name="uiIdx">窗口枚举</param>
         public void UnLoadWindow(Enum uiIdx)
         {
             var idx = uiIdx.GetHashCode();
@@ -275,7 +274,7 @@ namespace Saro.UI
             }
             else
             {
-                Debug.LogErrorFormat("不存在UI：{0}", idx);
+                Log.ERROR($"不存在UI：{idx}");
             }
         }
 
@@ -301,9 +300,7 @@ namespace Saro.UI
 
         public async UniTask<IWindow> LoadAndShowWindowAsync(Enum uiEnumIdx, object userData = null, EUILayer layer = EUILayer.Center, bool isAddToHistory = true)
         {
-            Mask.SetActive(true);
             await LoadWindowAsync(uiEnumIdx);
-            Mask.SetActive(false);
 
             return ShowWindow(uiEnumIdx, userData, layer, isAddToHistory);
         }
@@ -359,7 +356,7 @@ namespace Saro.UI
                 }
                 else
                 {
-                    Debug.LogFormat("UI处于[unload,lock,open]状态之一：{0}", uiIdx);
+                    Log.ERROR($"UI处于[unload,lock,open]状态之一：{uiIdx}");
                 }
 
                 if (isAddToHistory)
@@ -369,7 +366,7 @@ namespace Saro.UI
             }
             else
             {
-                Debug.LogErrorFormat("未加载UI：{0}", uiIdx);
+                Log.ERROR($"未加载UI：{uiIdx}");
             }
 
             return win;
@@ -405,14 +402,14 @@ namespace Saro.UI
                 }
                 else
                 {
-                    Debug.LogErrorFormat("UI未加载或已经处于close状态：{0}", uiIdx);
+                    Log.ERROR($"UI未加载或已经处于close状态：{uiIdx}");
                 }
 
                 RemoveFromUIList(uiIdx, win.Layer);
             }
             else
             {
-                Debug.LogErrorFormat("不存在UI：{0}", uiIdx);
+                Log.ERROR($"不存在UI：{uiIdx}");
             }
         }
 
@@ -451,7 +448,7 @@ namespace Saro.UI
             }
             else
             {
-                Debug.LogError("已经是顶部");
+                Log.ERROR("已经是顶部");
             }
         }
 
@@ -476,7 +473,7 @@ namespace Saro.UI
             }
             else
             {
-                Debug.LogError("已经是底部");
+                Log.ERROR("已经是底部");
             }
         }
 
@@ -822,5 +819,22 @@ namespace Saro.UI
         }
 
         #endregion
+    }
+
+    partial class UIManager : IService
+    {
+        void IService.Awake()
+        {
+            OnAwake();
+        }
+
+        void IService.Update()
+        {
+            OnUpdate();
+        }
+
+        void IService.Dispose()
+        {
+        }
     }
 }
