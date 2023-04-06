@@ -45,8 +45,12 @@ namespace Saro.Core
             if (!m_Path2PrefabMap.TryGetValue(assetPath, out var prefab))
             {
                 prefab = m_AssetLoader.LoadAssetRef<PoolableGameObject>(assetPath);
-                m_Prefab2PathMap.Add(prefab, assetPath);
-                m_Path2PrefabMap.Add(assetPath, prefab);
+
+                if (prefab)
+                {
+                    m_Prefab2PathMap.Add(prefab, assetPath);
+                    m_Path2PrefabMap.Add(assetPath, prefab);
+                }
             }
             return prefab;
         }
@@ -56,11 +60,13 @@ namespace Saro.Core
             if (!m_Path2PrefabMap.TryGetValue(assetPath, out var prefab))
             {
                 prefab = await m_AssetLoader.LoadAssetRefAsync<PoolableGameObject>(assetPath);
-
-                if (!m_Path2PrefabMap.ContainsKey(assetPath))
+                if (prefab)
                 {
-                    m_Prefab2PathMap.Add(prefab, assetPath);
-                    m_Path2PrefabMap.Add(assetPath, prefab);
+                    if (!m_Path2PrefabMap.ContainsKey(assetPath))
+                    {
+                        m_Prefab2PathMap.Add(prefab, assetPath);
+                        m_Path2PrefabMap.Add(assetPath, prefab);
+                    }
                 }
             }
             return prefab;
@@ -85,8 +91,11 @@ namespace Saro.Core
             handle.Completed -= HandleCompleted;
 
             var prefab = handle.Asset as PoolableGameObject;
-            m_Prefab2PathMap.Add(prefab, handle.AssetUrl);
-            m_Path2PrefabMap.Add(handle.AssetUrl, prefab);
+            if (prefab)
+            {
+                m_Prefab2PathMap.Add(prefab, handle.AssetUrl);
+                m_Path2PrefabMap.Add(handle.AssetUrl, prefab);
+            }
         }
 
         public ObjectHandle<PoolableGameObject> SpawnGameObject(PoolableGameObject prefab)

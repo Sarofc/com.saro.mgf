@@ -26,7 +26,7 @@ namespace Saro.Core
         /// <summary>
         /// 池化标记
         /// </summary>
-        bool Poolable { get; internal set; }
+        bool Poolable { get; set; }
 
         /// <summary>
         /// 初始化接口
