@@ -500,10 +500,12 @@ namespace Saro.Diagnostics
                     break;
             }
 
-            for (var i = 0; i < 91; i++)
+            int num = 10;
+            float num1 = 360f / num;
+            for (var i = 0; i < num + 1; i++)
             {
-                nextPoint.x = Mathf.Cos((i * 4) * Mathf.Deg2Rad);
-                nextPoint.z = Mathf.Sin((i * 4) * Mathf.Deg2Rad);
+                nextPoint.x = Mathf.Cos((i * num1) * Mathf.Deg2Rad);
+                nextPoint.z = Mathf.Sin((i * num1) * Mathf.Deg2Rad);
                 nextPoint.y = 0;
 
                 nextPoint = position + matrix.MultiplyPoint3x4(nextPoint);
