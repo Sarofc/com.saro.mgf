@@ -1,6 +1,19 @@
-﻿//#define UNITY_COLLECTIONS
+﻿#if DEBUG || DEVELOPMENT_BUILD
+#define DEBUG_MEMORY
+#endif
+
+#if UNITY_5_3_OR_NEWER
+#if !UNITY_2019_3_OR_NEWER
+#error supports Unity 2019_3 and above only
+#else
+// Unity.Collections.LowLevel.Unsafe.UnsafeUtility is not part of Unity Collection but it comes with Unity
+#define UNITY_COLLECTIONS
+#endif
+#endif
 
 using System;
+using System.Collections.Concurrent;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -9,6 +22,37 @@ namespace Saro.Utility
 {
     public static partial class NativeUtility
     {
+        static readonly ConcurrentDictionary<Type, bool> s_CachedTypes = new();
+
+        public static bool IsUnmanaged<T>()
+        {
+#if !UNITY_BURST
+            return !RuntimeHelpers.IsReferenceOrContainsReferences<T>();
+#else
+            return Unity.Collections.LowLevel.Unsafe.UnsafeUtility.IsUnmanaged<T>();
+#endif
+        }
+
+        public static bool IsUnmanaged(this Type t)
+        {
+            //UnsafeUtility.IsUnmanaged(t);
+
+            if (s_CachedTypes.ContainsKey(t))
+                return s_CachedTypes[t];
+
+            var result = false;
+
+            if (t.IsPrimitive || t.IsPointer || t.IsEnum)
+                result = true;
+            else if (t.IsValueType)
+                result = t.GetFields(BindingFlags.Public |
+                                     BindingFlags.NonPublic | BindingFlags.Instance)
+                          .All(x => IsUnmanaged(x.FieldType));
+
+            s_CachedTypes.TryAdd(t, result);
+            return result;
+        }
+
         public unsafe static ref T NullRef<T>() // where T : unmanaged
         {
             //RuntimeHelpers.IsReferenceOrContainsReferences
@@ -64,11 +108,10 @@ namespace Saro.Utility
     }
 #endif
 
-    /*
-     * from Svelto.ECS
-     */
-    public static partial class NativeUtility
+    public static partial class NativeUtility // from Svelto.ECS
     {
+        // TODO 非unity平台使用 NativeMemory 代替 Marshal.Alloc 等API
+
         public static IntPtr Alloc(uint newCapacityInBytes, EAllocator allocator, bool clear = true)
         {
             var signedCapacity = (int)SignedCapacity(newCapacityInBytes);
@@ -127,7 +170,7 @@ namespace Saro.Utility
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IntPtr Alloc<T>(uint newCapacity, EAllocator allocator, bool clear = true) where T : struct
         {
-            var newCapacityInBytes = (uint)(SizeOf<T>() * newCapacity);
+            var newCapacityInBytes = (uint)(Unsafe.SizeOf<T>() * newCapacity);
 
             return Alloc(newCapacityInBytes, allocator, clear);
         }
@@ -136,7 +179,7 @@ namespace Saro.Utility
         (IntPtr realBuffer, uint newCapacity, EAllocator allocator, uint numberOfElementsToCopy, bool copy = true
        , bool memClear = true) where T : struct
         {
-            var sizeOf = SizeOf<T>();
+            var sizeOf = Unsafe.SizeOf<T>();
             var newCapacityInBytes = (uint)(sizeOf * newCapacity);
             var numberOfElementsToCopyInBytes = (uint)(sizeOf * numberOfElementsToCopy);
 
@@ -159,7 +202,7 @@ namespace Saro.Utility
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe static void MemClear<T>(IntPtr destination, uint size) where T : struct
         {
-            var sizeOfInBytes = (uint)(SizeOf<T>() * size);
+            var sizeOfInBytes = (uint)(Unsafe.SizeOf<T>() * size);
 #if UNITY_COLLECTIONS
             Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemClear((void*)destination, sizeOfInBytes);
 #else
@@ -189,7 +232,7 @@ namespace Saro.Utility
         public unsafe static void MemMove<T>(IntPtr source, uint sourceStartIndex, uint destinationStartIndex, uint count)
             where T : struct
         {
-            var sizeOf = SizeOf<T>();
+            var sizeOf = Unsafe.SizeOf<T>();
             var sizeOfInBytes = (uint)(sizeOf * count);
             //this uses System.Runtime.RuntimeImports::Memmove which is safe if memory overlaps
             /*
@@ -209,7 +252,7 @@ namespace Saro.Utility
         public unsafe static void MemCpy<T>(IntPtr source, uint sourceStartIndex, IntPtr destination, uint destinationStartIndex, uint count)
             where T : struct
         {
-            var sizeOf = SizeOf<T>();
+            var sizeOf = Unsafe.SizeOf<T>();
             var sizeOfInBytes = (uint)(sizeOf * count);
             //issues cpblk that assumes that both the source and destination addressed are aligned to the natural size of the machine.
             /*
@@ -245,20 +288,6 @@ namespace Saro.Utility
             static OptimalAlignment() { alignment = (uint)(Environment.Is64BitProcess ? 16 : 8); }
         }
 #endif
-        static class CachedSize<T> where T : struct
-        {
-            public static readonly uint cachedSize = (uint)Unsafe.SizeOf<T>();
-            public static readonly uint cachedSizeAligned = Align4(cachedSize);
-        }
-
-        //THIS MUST STAY INT. THE REASON WHY EVERYTHING IS INT AND NOT UINT IS BECAUSE YOU CAN END UP
-        //DOING SUBTRACT OPERATION EXPECTING TO BE < 0 AND THEY WON'T BE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SizeOf<T>() where T : struct { return (int)CachedSize<T>.cachedSize; }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SizeOfAligned<T>() where T : struct { return (int)CachedSize<T>.cachedSizeAligned; }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe static void CopyStructureToPtr<T>(ref T buffer, IntPtr bufferPtr) where T : struct
         {
@@ -308,18 +337,18 @@ namespace Saro.Utility
             var value = 0xDEADBEEF;
             for (var i = 0; i < 60; i += 4)
             {
-                Unsafe.Write((void*) pointerToSign, value); //4 bytes signature
+                Unsafe.Write((void*)pointerToSign, value); //4 bytes signature
                 pointerToSign += 4;
             }
 
-            Unsafe.Write((void*) pointerToSign, capacityWithoutSignature); //4 bytes size allocated
+            Unsafe.Write((void*)pointerToSign, capacityWithoutSignature); //4 bytes size allocated
             pointerToSign += 4;
 
             for (var i = 0; i < 64; i += 4)
-                Unsafe.Write((void*) (pointerToSign + (int) capacityWithoutSignature + i)
+                Unsafe.Write((void*)(pointerToSign + (int)capacityWithoutSignature + i)
                             , value); //4 bytes size allocated
 
-            return (IntPtr) (byte*) pointerToSign;
+            return (IntPtr)(byte*)pointerToSign;
 #else
             return (IntPtr)pointerToSign;
 #endif
@@ -350,19 +379,19 @@ namespace Saro.Utility
 
             for (var i = 0; i < 60; i += 4)
             {
-                var u = Unsafe.Read<uint>((void*) debugPtr);
+                var u = Unsafe.Read<uint>((void*)debugPtr);
                 if (u != 0xDEADBEEF)
                     throw new Exception("Memory Boundaries check failed!!!");
 
                 debugPtr += 4;
             }
 
-            var size = Unsafe.Read<uint>((void*) debugPtr);
-            debugPtr = debugPtr + (int) (4 + size);
+            var size = Unsafe.Read<uint>((void*)debugPtr);
+            debugPtr = debugPtr + (int)(4 + size);
 
             for (var i = 0; i < 64; i += 4)
             {
-                var u = Unsafe.Read<uint>((void*) (debugPtr + i));
+                var u = Unsafe.Read<uint>((void*)(debugPtr + i));
                 if (u != 0xDEADBEEF)
                     throw new Exception("Memory Boundaries check failed!!!");
             }
