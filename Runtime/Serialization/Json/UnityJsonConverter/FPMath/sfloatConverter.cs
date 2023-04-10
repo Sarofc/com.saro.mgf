@@ -1,10 +1,7 @@
 ﻿#if FIXED_POINT_MATH
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using Saro;
 using Saro.FPMath;
-using UnityEngine.Rendering.Universal;
 
 namespace Newtonsoft.Json.UnityConverters
 {
