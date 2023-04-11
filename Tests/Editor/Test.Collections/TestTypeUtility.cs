@@ -5,6 +5,7 @@ using System;
 using UnityEngine;
 using Unity.Collections.LowLevel.Unsafe;
 using Saro.Utility;
+using UnityEditor.UIElements;
 
 namespace Saro.MgfTests
 {
@@ -17,6 +18,8 @@ namespace Saro.MgfTests
             typeof(Bar),
             typeof(Bar1),
             typeof(Value<Foo, Bar>),
+            typeof(KeyValuePair<Foo, Bar>),
+            typeof(KeyValuePair<Bar1, Bar>),
         };
 
         internal class Foo
@@ -96,6 +99,24 @@ namespace Saro.MgfTests
         {
             var expected = UnsafeUtility.IsUnmanaged<Value<Bar, Foo>>();
             var actual = NativeUtility.IsUnmanaged<Value<Bar, Foo>>();
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void Utility_IsUnmanaged_KV_Bar_Foo()
+        {
+            var expected = UnsafeUtility.IsUnmanaged<KeyValuePair<Bar, Foo>>();
+            var actual = NativeUtility.IsUnmanaged<KeyValuePair<Bar, Foo>>();
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void Utility_IsUnmanaged_KV_Bar1_Bar()
+        {
+            var expected = UnsafeUtility.IsUnmanaged<KeyValuePair<Bar1, Bar>>();
+            var actual = NativeUtility.IsUnmanaged<KeyValuePair<Bar1, Bar>>();
 
             Assert.AreEqual(expected, actual);
         }
