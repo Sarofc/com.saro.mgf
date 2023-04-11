@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using NUnit.Framework;
 using Saro.Collections;
 using Saro.Utility;
-using UnityEngine;
 using Assert = NUnit.Framework.Assert;
 
 namespace Saro.MgfTests
