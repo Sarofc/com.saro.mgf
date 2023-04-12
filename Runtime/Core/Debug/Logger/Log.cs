@@ -8,7 +8,7 @@ namespace Saro
      * 1. 线程不安全，看怎么重构下
      * 2. log file
      */
-    public static class Log
+    public static partial class Log
     {
         public const string k_ScriptDefineSymbol = "ENABLE_LOG";
 
@@ -70,13 +70,6 @@ namespace Saro
             EnsureDefaultLogger(k_DefaultKey);
             s_LoggerMap[k_DefaultKey].ERROR(e);
         }
-        
-        [System.Diagnostics.Conditional(k_ScriptDefineSymbol)]
-        public static void Assert(bool condition, string message)
-        {
-            EnsureDefaultLogger(k_DefaultKey);
-            s_LoggerMap[k_DefaultKey].Assert(condition, message);
-        }
 
         public static void ERROR(string key, System.Exception e)
         {
@@ -111,6 +104,29 @@ namespace Saro
             if (s_LoggerMap.ContainsKey(key)) return;
 
             AddLogger(key, new DefaultUnityLogger());
+        }
+    }
+
+    partial class Log
+    {
+        [System.Diagnostics.Conditional(k_ScriptDefineSymbol)]
+        public static void Assert(bool condition)
+        {
+#if UNITY_2017_1_OR_NEWER
+            UnityEngine.Debug.Assert(condition);
+#else
+            System.Diagnostics.Debug.Assert(condition);
+#endif
+        }
+
+        [System.Diagnostics.Conditional(k_ScriptDefineSymbol)]
+        public static void Assert(bool condition, string message)
+        {
+#if UNITY_2017_1_OR_NEWER
+            UnityEngine.Debug.Assert(condition, message);
+#else
+            System.Diagnostics.Debug.Assert(condition, message);
+#endif
         }
     }
 }
