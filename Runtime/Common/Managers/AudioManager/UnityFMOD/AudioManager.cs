@@ -4,6 +4,7 @@ using Saro.Pool;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -525,14 +526,12 @@ namespace Saro.Audio
                 return;
             }
 
-            var audioPlayers = m_ActivateAudioPlayers;
-
-            if (audioPlayers == null)
+            if (m_ActivateAudioPlayers == null)
                 return;
 
-            for (int i = 0; i < audioPlayers.Count; ++i)
+            for (int i = m_ActivateAudioPlayers.Count - 1; i >= 0; --i)
             {
-                var player = audioPlayers[i];
+                var player = m_ActivateAudioPlayers[i];
                 Release(player);
             }
         }
@@ -574,13 +573,17 @@ namespace Saro.Audio
 
             if (mute != IsMuteSE)
             {
-                var audioPlayers = m_ActivateAudioPlayers;
-                if (audioPlayers == null)
+                if (m_ActivateAudioPlayers == null)
                     return;
 
-                for (int i = 0; i < audioPlayers.Count; ++i)
+                // TODO 
+                //foreach (var player in CollectionsMarshal.AsSpan(m_ActivateAudioPlayers))
+                //{
+                //    player.Mute = mute;
+                //}
+                for (int i = 0; i < m_ActivateAudioPlayers.Count; ++i)
                 {
-                    var player = audioPlayers[i];
+                    var player = m_ActivateAudioPlayers[i];
                     player.Mute = mute;
                 }
                 IsMuteSE = mute;
