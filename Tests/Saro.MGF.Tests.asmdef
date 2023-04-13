@@ -16,7 +16,9 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "Newtonsoft.Json.dll"
+        "Newtonsoft.Json.dll",
+        "System.Runtime.CompilerServices.Unsafe.dll",
+        "acilAddOns.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [],
