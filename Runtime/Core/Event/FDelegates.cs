@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace Saro
 {
@@ -43,9 +44,9 @@ namespace Saro
             if (m_RuntimeCalls != null && m_RuntimeCalls.Count > 0)
             {
                 m_Version++;
-                for (int i = 0; i < m_RuntimeCalls.Count; i++)
+
+                foreach (var call in CollectionsMarshal.AsSpan(m_RuntimeCalls))
                 {
-                    Action call = m_RuntimeCalls[i];
                     if (call != null)
                     {
                         try

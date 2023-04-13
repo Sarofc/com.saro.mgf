@@ -11,7 +11,8 @@ using Random = Unity.Mathematics.Random;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System;
-
+using System.Runtime.InteropServices;
+using UnityEngine.UIElements;
 
 namespace Saro
 {
@@ -64,13 +65,19 @@ namespace Saro
 
     partial class GRandom
     {
-        public static void Shuffle<T>(IList<T> array, int start, int count)
+        public static void Shuffle<T>(List<T> list, int start, int count)
         {
-            if (start < 0 || array.Count <= start || array.Count < start + count)
+            if (start < 0 || list.Count <= start || list.Count < start + count)
                 throw new System.ArgumentOutOfRangeException();
 
-            for (int i = start; i < start + count; i++)
-                Swap(array, i, s_Random.NextInt(i, array.Count));
+            var span = CollectionsMarshal.AsSpan(list);
+            Shuffle(span.Slice(start, count));
+        }
+
+        public static void Shuffle<T>(List<T> list)
+        {
+            var span = CollectionsMarshal.AsSpan(list);
+            Shuffle(span);
         }
 
         public static void Shuffle<T>(T[] array, int start, int count)
@@ -78,24 +85,21 @@ namespace Saro
             if (start < 0 || array.Length <= start || array.Length < start + count)
                 throw new System.ArgumentOutOfRangeException();
 
-            for (int i = start; i < start + count; i++)
-                Swap(ref array[i], ref array[s_Random.NextInt(i, array.Length)]);
+            Shuffle(array.AsSpan().Slice(start, count));
         }
 
         public static void Shuffle<T>(T[] array)
         {
-            for (int i = 0; i < array.Length - 1; i++)
-                Swap(ref array[i], ref array[s_Random.NextInt(i, array.Length)]);
+            Shuffle(array.AsSpan());
         }
 
-        public static void Shuffle<T>(IList<T> list)
+        public static void Shuffle<T>(Span<T> span)
         {
-            for (int i = 0; i < list.Count - 1; i++)
-                Swap(list, i, s_Random.NextInt(i, list.Count));
+            for (int i = 0; i < span.Length - 1; i++)
+                Swap(ref span[i], ref span[s_Random.NextInt(i, span.Length)]);
         }
 
-        public static void Swap<T>(IList<T> list, int idx, int idx1) => (list[idx], list[idx1]) = (list[idx1], list[idx]);
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Swap<T>(ref T a, ref T b) => (a, b) = (b, a);
     }
 }

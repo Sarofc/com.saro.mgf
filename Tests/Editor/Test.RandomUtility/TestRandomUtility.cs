@@ -83,6 +83,41 @@ namespace Saro.MgfTests
             // Assert.IsTrue(result);
         }
 
+        [TestCase(41)]
+        [TestCase(66)]
+        public void ShuffleList_Segment(int count)
+        {
+            sum = 0;
+            list = new List<int>(count);
+
+            for (int i = 0; i < count; i++)
+            {
+                list.Add(i);
+            }
+
+            var _start = 2;
+            var _count = 11;
+            for (int i = _start; i < _start + _count; i++)
+            {
+                sum += i;
+            }
+
+            GRandom.Shuffle(list, _start, _count);
+
+            var counter = 0;
+            //bool result = false;
+            for (int i = _start; i < _start + _count; i++)
+            {
+                counter += list[i];
+                //if (list[i] != i + 1) result = true;
+            }
+
+            //Debug.Log($"list {count} : {string.Join(",", list)}");
+
+            Assert.IsTrue(counter == sum, $"counter: {counter}, sum: {sum}");
+            // Assert.IsTrue(result);
+        }
+
         [TestCase(2)]
         [TestCase(10)]
         [TestCase(66)]
