@@ -6,11 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 //using Unity.PerformanceTesting;
-using UnityEngine.Profiling;
 
 namespace Saro.MgfTests
 {
-    public class TestStringSplit
+    public class StringSplitTests
     {
         [SetUp]
         public void Setup()

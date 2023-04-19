@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Saro.Utility;
 
 namespace Saro.MgfTests
 {
@@ -44,31 +45,6 @@ namespace Saro.MgfTests
                 else
                     Assert.That(actualSpan[i], Is.EqualTo(0));
             }
-        }
-    }
-
-    internal static class CollectionsMarshalEx
-    {
-        /// <summary>
-        /// similar as AsSpan but modify size to create fixed-size span.
-        /// </summary>
-        public static Span<T> CreateSpan<T>(List<T> list, int length)
-        {
-            if (list.Capacity < length)
-                list.Capacity = length;
-
-            ref var view = ref Unsafe.As<List<T>, ListView<T>>(ref list);
-            view._size = length;
-            return view._items.AsSpan(0, length);
-        }
-
-        // NOTE: These structure depndent on .NET 7, if changed, require to keep same structure.
-
-        internal sealed class ListView<T>
-        {
-            public T[] _items;
-            public int _size;
-            public int _version;
         }
     }
 }

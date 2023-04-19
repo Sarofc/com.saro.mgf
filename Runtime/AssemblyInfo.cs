@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Saro.MGF.Tests")]
+[assembly: InternalsVisibleTo("Saro.Gameplay")]
 
 #if !ODIN_INSPECTOR
 namespace Sirenix.OdinInspector

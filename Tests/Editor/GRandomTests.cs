@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Saro.MgfTests
 {
-    public class TestRandomUtility
+    public class GRandomTests
     {
         // public const int count = 54;
         [System.NonSerialized] public List<int> list;

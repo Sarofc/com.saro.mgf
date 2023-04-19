@@ -13,7 +13,7 @@ namespace Saro.Collections
     /*
      * from Svelto.ECS
      */
-    public unsafe struct FNativeList<T> : IDisposable where T : unmanaged
+    public unsafe struct TNativeList<T> : IDisposable where T : unmanaged
     {
         internal const int k_DefaultCapacity = 4;
 
@@ -23,7 +23,7 @@ namespace Saro.Collections
 #endif
         [Unity.Collections.LowLevel.Unsafe.NativeDisableUnsafePtrRestriction]
 #endif
-        FNativeArray<T>* m_Array;
+        TNativeArray<T>* m_Array;
 #if DEBUG && !PROFILE_SVELTO
         int m_HashType;
 #endif
@@ -41,12 +41,12 @@ namespace Saro.Collections
             get => m_Array != null;
         }
 
-        public FNativeList(int capacity, EAllocator allocator = EAllocator.Persistent)
+        public TNativeList(int capacity, EAllocator allocator = EAllocator.Persistent)
         {
 #if ENABLE_DEBUG_CHECKS
             m_HashType = TypeCache<T>.hash;
 #endif
-            FNativeArray<T>* array = (FNativeArray<T>*)NativeUtility.Alloc<FNativeArray<T>>(1, allocator);
+            TNativeArray<T>* array = (TNativeArray<T>*)NativeUtility.Alloc<TNativeArray<T>>(1, allocator);
 
             //clear to nullify the pointers
             //MemoryUtility.MemClear((IntPtr) listData, structSize);

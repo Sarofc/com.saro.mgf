@@ -14,7 +14,7 @@ namespace Saro.MgfTests
         [TestCase(10)]
         public void Test_AllocationSize(int capacity)
         {
-            using FNativeList<int> list = new FNativeList<int>(capacity, EAllocator.Persistent);
+            using TNativeList<int> list = new TNativeList<int>(capacity, EAllocator.Persistent);
 
             Assert.AreEqual(capacity, list.Capacity);
             Assert.AreEqual(0, list.Count);
@@ -24,7 +24,7 @@ namespace Saro.MgfTests
         [TestCase(10)]
         public void Test_Resize(int capacity)
         {
-            using FNativeList<int> list = new FNativeList<int>(0, EAllocator.Persistent);
+            using TNativeList<int> list = new TNativeList<int>(0, EAllocator.Persistent);
             list.Resize(capacity);
 
             Assert.AreEqual(capacity, list.Capacity);
@@ -35,7 +35,7 @@ namespace Saro.MgfTests
         [TestCase(10)]
         public void Test_Add(int capacity)
         {
-            using FNativeList<int> list = new FNativeList<int>(capacity, EAllocator.Persistent);
+            using TNativeList<int> list = new TNativeList<int>(capacity, EAllocator.Persistent);
 
             for (int i = 0; i < capacity; i++)
                 list.Add(i);
@@ -52,7 +52,7 @@ namespace Saro.MgfTests
         {
             int capacity = 10;
 
-            using FNativeList<int> list = new FNativeList<int>(capacity, EAllocator.Persistent);
+            using TNativeList<int> list = new TNativeList<int>(capacity, EAllocator.Persistent);
 
             for (int i = 0; i < 10; i++)
                 list.Add(i);
@@ -74,7 +74,7 @@ namespace Saro.MgfTests
         {
             int capacity = 10;
 
-            using FNativeList<int> list = new FNativeList<int>(capacity, EAllocator.Persistent);
+            using TNativeList<int> list = new TNativeList<int>(capacity, EAllocator.Persistent);
 
             for (int i = 0; i < 10; i++)
                 list.Add(i);
@@ -98,7 +98,7 @@ namespace Saro.MgfTests
         {
             int capacity = 20;
 
-            using FNativeList<int> list = new(capacity, EAllocator.Persistent);
+            using TNativeList<int> list = new(capacity, EAllocator.Persistent);
             List<int> listExpected = new(capacity);
 
             for (int i = 0; i < count; i++)
@@ -120,7 +120,7 @@ namespace Saro.MgfTests
         {
             int capacity = 20;
 
-            using FNativeList<int> list = new(capacity, EAllocator.Persistent);
+            using TNativeList<int> list = new(capacity, EAllocator.Persistent);
             List<int> listExpected = new(capacity);
 
             for (int i = 0; i < count; i++)
@@ -140,7 +140,7 @@ namespace Saro.MgfTests
         [TestCase(33)]
         public void Test_AutoGrow(int size) // 自动扩容
         {
-            using FNativeList<int> list = new(0, EAllocator.Persistent);
+            using TNativeList<int> list = new(0, EAllocator.Persistent);
 
             for (int i = 0; i < size; i++)
             {
@@ -148,7 +148,7 @@ namespace Saro.MgfTests
                 Assert.AreEqual(i, list[i]);
             }
 
-            var defaultCapacity = FNativeList<int>.k_DefaultCapacity;
+            var defaultCapacity = TNativeList<int>.k_DefaultCapacity;
             var expected = defaultCapacity;
             while (size > expected)
             {
@@ -164,7 +164,7 @@ namespace Saro.MgfTests
         [TestCase(33)]
         public void Test_AsSpan(int capacity)
         {
-            using FNativeList<int> list = new FNativeList<int>(capacity, EAllocator.Persistent);
+            using TNativeList<int> list = new TNativeList<int>(capacity, EAllocator.Persistent);
 
             for (int i = 0; i < capacity; i++)
                 list.Add(i);
@@ -185,7 +185,7 @@ namespace Saro.MgfTests
         [TestCase(31)]
         public void Test_AsReadOnlySpan(int capacity)
         {
-            using FNativeList<int> list = new FNativeList<int>(capacity, EAllocator.Persistent);
+            using TNativeList<int> list = new TNativeList<int>(capacity, EAllocator.Persistent);
 
             for (int i = 0; i < capacity; i++)
                 list.Add(i);

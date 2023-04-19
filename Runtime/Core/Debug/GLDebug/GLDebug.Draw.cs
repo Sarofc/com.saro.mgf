@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor.IMGUI.Controls;
+using UnityEngine;
 
 namespace Saro.Diagnostics
 {
@@ -16,16 +17,41 @@ namespace Saro.Diagnostics
     // 4. 大量物体时，性能很差
     partial class GLDebug
     {
-        public static void DrawLine(Vector3 start, Vector3 end, Color? color = null, float duration = 0f)
+        public static void DrawLine(Vector3 start, Vector3 end, Color? color = null, float duration = 0f, EGLDebug preview = EGLDebug.Editor)
         {
-            DrawLine_Internal(start, end, color ?? Color.white, duration);
+            bool drawEditor = false;
+            bool drawGame = false;
+
+            switch (preview)
+            {
+                case EGLDebug.Editor:
+                    drawEditor = true;
+                    break;
+
+                case EGLDebug.Game:
+                    drawGame = true;
+                    break;
+
+                case EGLDebug.Both:
+                    drawEditor = true;
+                    drawGame = true;
+                    break;
+            }
+
+            var _color = color ?? Color.white;
+
+            if (drawEditor)
+                Debug.DrawLine(start, end, _color, duration);
+
+            if (drawGame)
+                DrawLine_Internal(start, end, _color, duration);
         }
 
         public static void DrawRay(Vector3 start, Vector3 dir, Color? color = null, float duration = 0f)
         {
             if (!(dir == Vector3.zero))
             {
-                DrawLine(start, start + dir, color, duration);
+                DrawLine_Internal(start, start + dir, color == null ? Color.white : color.Value, duration);
             }
         }
 
@@ -78,10 +104,10 @@ namespace Saro.Diagnostics
 
             if (drawGame)
             {
-                GLDebug.DrawLine(topMinY1, botMinY1, color, drawDuration);
-                GLDebug.DrawLine(topMaxY1, botMaxY1, color, drawDuration);
-                GLDebug.DrawLine(topMinY1, topMaxY1, color, drawDuration);
-                GLDebug.DrawLine(botMinY1, botMaxY1, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMinY1, botMinY1, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMaxY1, botMaxY1, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMinY1, topMaxY1, color, drawDuration);
+                GLDebug.DrawLine_Internal(botMinY1, botMaxY1, color, drawDuration);
             }
         }
 
@@ -204,52 +230,52 @@ namespace Saro.Diagnostics
                 #region Origin box
                 if (drawBase)
                 {
-                    GLDebug.DrawLine(topMinX1, botMinX1, color, drawDuration);
-                    GLDebug.DrawLine(topMaxX1, botMaxX1, color, drawDuration);
-                    GLDebug.DrawLine(topMinY1, botMinY1, color, drawDuration);
-                    GLDebug.DrawLine(topMaxY1, botMaxY1, color, drawDuration);
+                    GLDebug.DrawLine_Internal(topMinX1, botMinX1, color, drawDuration);
+                    GLDebug.DrawLine_Internal(topMaxX1, botMaxX1, color, drawDuration);
+                    GLDebug.DrawLine_Internal(topMinY1, botMinY1, color, drawDuration);
+                    GLDebug.DrawLine_Internal(topMaxY1, botMaxY1, color, drawDuration);
 
-                    GLDebug.DrawLine(topMinX1, topMaxX1, color, drawDuration);
-                    GLDebug.DrawLine(topMinX1, topMinY1, color, drawDuration);
-                    GLDebug.DrawLine(topMinY1, topMaxY1, color, drawDuration);
-                    GLDebug.DrawLine(topMaxY1, topMaxX1, color, drawDuration);
+                    GLDebug.DrawLine_Internal(topMinX1, topMaxX1, color, drawDuration);
+                    GLDebug.DrawLine_Internal(topMinX1, topMinY1, color, drawDuration);
+                    GLDebug.DrawLine_Internal(topMinY1, topMaxY1, color, drawDuration);
+                    GLDebug.DrawLine_Internal(topMaxY1, topMaxX1, color, drawDuration);
 
-                    GLDebug.DrawLine(botMinX1, botMaxX1, color, drawDuration);
-                    GLDebug.DrawLine(botMinX1, botMinY1, color, drawDuration);
-                    GLDebug.DrawLine(botMinY1, botMaxY1, color, drawDuration);
-                    GLDebug.DrawLine(botMaxY1, botMaxX1, color, drawDuration);
+                    GLDebug.DrawLine_Internal(botMinX1, botMaxX1, color, drawDuration);
+                    GLDebug.DrawLine_Internal(botMinX1, botMinY1, color, drawDuration);
+                    GLDebug.DrawLine_Internal(botMinY1, botMaxY1, color, drawDuration);
+                    GLDebug.DrawLine_Internal(botMaxY1, botMaxX1, color, drawDuration);
                 }
                 #endregion
 
                 #region Connection between boxes
-                GLDebug.DrawLine(topMinX0, topMinX1, color, drawDuration);
-                GLDebug.DrawLine(topMaxX0, topMaxX1, color, drawDuration);
-                GLDebug.DrawLine(topMinY0, topMinY1, color, drawDuration);
-                GLDebug.DrawLine(topMaxY0, topMaxY1, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMinX0, topMinX1, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMaxX0, topMaxX1, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMinY0, topMinY1, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMaxY0, topMaxY1, color, drawDuration);
 
-                GLDebug.DrawLine(botMinX0, botMinX1, color, drawDuration);
-                GLDebug.DrawLine(botMinX0, botMinX1, color, drawDuration);
-                GLDebug.DrawLine(botMinY0, botMinY1, color, drawDuration);
-                GLDebug.DrawLine(botMaxY0, botMaxY1, color, drawDuration);
+                GLDebug.DrawLine_Internal(botMinX0, botMinX1, color, drawDuration);
+                GLDebug.DrawLine_Internal(botMinX0, botMinX1, color, drawDuration);
+                GLDebug.DrawLine_Internal(botMinY0, botMinY1, color, drawDuration);
+                GLDebug.DrawLine_Internal(botMaxY0, botMaxY1, color, drawDuration);
                 #endregion
 
                 #region End box
                 color = endColor;
 
-                GLDebug.DrawLine(topMinX0, botMinX0, color, drawDuration);
-                GLDebug.DrawLine(topMaxX0, botMaxX0, color, drawDuration);
-                GLDebug.DrawLine(topMinY0, botMinY0, color, drawDuration);
-                GLDebug.DrawLine(topMaxY0, botMaxY0, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMinX0, botMinX0, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMaxX0, botMaxX0, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMinY0, botMinY0, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMaxY0, botMaxY0, color, drawDuration);
 
-                GLDebug.DrawLine(topMinX0, topMaxX0, color, drawDuration);
-                GLDebug.DrawLine(topMinX0, topMinY0, color, drawDuration);
-                GLDebug.DrawLine(topMinY0, topMaxY0, color, drawDuration);
-                GLDebug.DrawLine(topMaxY0, topMaxX0, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMinX0, topMaxX0, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMinX0, topMinY0, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMinY0, topMaxY0, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMaxY0, topMaxX0, color, drawDuration);
 
-                GLDebug.DrawLine(botMinX0, botMaxX0, color, drawDuration);
-                GLDebug.DrawLine(botMinX0, botMinY0, color, drawDuration);
-                GLDebug.DrawLine(botMinY0, botMaxY0, color, drawDuration);
-                GLDebug.DrawLine(botMaxY0, botMaxX0, color, drawDuration);
+                GLDebug.DrawLine_Internal(botMinX0, botMaxX0, color, drawDuration);
+                GLDebug.DrawLine_Internal(botMinX0, botMinY0, color, drawDuration);
+                GLDebug.DrawLine_Internal(botMinY0, botMaxY0, color, drawDuration);
+                GLDebug.DrawLine_Internal(botMaxY0, botMaxX0, color, drawDuration);
                 #endregion
             }
             #endregion
@@ -313,20 +339,20 @@ namespace Saro.Diagnostics
 
             if (drawGame)
             {
-                GLDebug.DrawLine(topMinX1, botMinX1, color, drawDuration);
-                GLDebug.DrawLine(topMaxX1, botMaxX1, color, drawDuration);
-                GLDebug.DrawLine(topMinY1, botMinY1, color, drawDuration);
-                GLDebug.DrawLine(topMaxY1, botMaxY1, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMinX1, botMinX1, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMaxX1, botMaxX1, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMinY1, botMinY1, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMaxY1, botMaxY1, color, drawDuration);
 
-                GLDebug.DrawLine(topMinX1, topMaxX1, color, drawDuration);
-                GLDebug.DrawLine(topMinX1, topMinY1, color, drawDuration);
-                GLDebug.DrawLine(topMinY1, topMaxY1, color, drawDuration);
-                GLDebug.DrawLine(topMaxY1, topMaxX1, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMinX1, topMaxX1, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMinX1, topMinY1, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMinY1, topMaxY1, color, drawDuration);
+                GLDebug.DrawLine_Internal(topMaxY1, topMaxX1, color, drawDuration);
 
-                GLDebug.DrawLine(botMinX1, botMaxX1, color, drawDuration);
-                GLDebug.DrawLine(botMinX1, botMinY1, color, drawDuration);
-                GLDebug.DrawLine(botMinY1, botMaxY1, color, drawDuration);
-                GLDebug.DrawLine(botMaxY1, botMaxX1, color, drawDuration);
+                GLDebug.DrawLine_Internal(botMinX1, botMaxX1, color, drawDuration);
+                GLDebug.DrawLine_Internal(botMinX1, botMinY1, color, drawDuration);
+                GLDebug.DrawLine_Internal(botMinY1, botMaxY1, color, drawDuration);
+                GLDebug.DrawLine_Internal(botMaxY1, botMaxX1, color, drawDuration);
             }
         }
 
@@ -381,19 +407,19 @@ namespace Saro.Diagnostics
             if (drawGame)
             {
                 //Side lines
-                GLDebug.DrawLine(baseSphere + right, endSphere + right, color, drawDuration);
-                GLDebug.DrawLine(baseSphere - right, endSphere - right, color, drawDuration);
+                GLDebug.DrawLine_Internal(baseSphere + right, endSphere + right, color, drawDuration);
+                GLDebug.DrawLine_Internal(baseSphere - right, endSphere - right, color, drawDuration);
 
                 //Draw end caps
                 for (int i = 1; i < 26; i++)
                 {
                     //Start endcap
-                    GLDebug.DrawLine(Vector3.Slerp(right, -up, i / 25.0f) + baseSphere, Vector3.Slerp(right, -up, (i - 1) / 25.0f) + baseSphere, colorizeBase ? color : Color.red, drawDuration);
-                    GLDebug.DrawLine(Vector3.Slerp(-right, -up, i / 25.0f) + baseSphere, Vector3.Slerp(-right, -up, (i - 1) / 25.0f) + baseSphere, colorizeBase ? color : Color.red, drawDuration);
+                    GLDebug.DrawLine_Internal(Vector3.Slerp(right, -up, i / 25.0f) + baseSphere, Vector3.Slerp(right, -up, (i - 1) / 25.0f) + baseSphere, colorizeBase ? color : Color.red, drawDuration);
+                    GLDebug.DrawLine_Internal(Vector3.Slerp(-right, -up, i / 25.0f) + baseSphere, Vector3.Slerp(-right, -up, (i - 1) / 25.0f) + baseSphere, colorizeBase ? color : Color.red, drawDuration);
 
                     //End endcap
-                    GLDebug.DrawLine(Vector3.Slerp(right, up, i / 25.0f) + endSphere, Vector3.Slerp(right, up, (i - 1) / 25.0f) + endSphere, color, drawDuration);
-                    GLDebug.DrawLine(Vector3.Slerp(-right, up, i / 25.0f) + endSphere, Vector3.Slerp(-right, up, (i - 1) / 25.0f) + endSphere, color, drawDuration);
+                    GLDebug.DrawLine_Internal(Vector3.Slerp(right, up, i / 25.0f) + endSphere, Vector3.Slerp(right, up, (i - 1) / 25.0f) + endSphere, color, drawDuration);
+                    GLDebug.DrawLine_Internal(Vector3.Slerp(-right, up, i / 25.0f) + endSphere, Vector3.Slerp(-right, up, (i - 1) / 25.0f) + endSphere, color, drawDuration);
                 }
             }
         }
@@ -460,26 +486,26 @@ namespace Saro.Diagnostics
             if (drawGame)
             {
                 //Side lines
-                GLDebug.DrawLine(baseSphere + right, endSphere + right, color, drawDuration);
-                GLDebug.DrawLine(baseSphere - right, endSphere - right, color, drawDuration);
+                GLDebug.DrawLine_Internal(baseSphere + right, endSphere + right, color, drawDuration);
+                GLDebug.DrawLine_Internal(baseSphere - right, endSphere - right, color, drawDuration);
 
-                GLDebug.DrawLine(baseSphere + forward, endSphere + forward, color, drawDuration);
-                GLDebug.DrawLine(baseSphere - forward, endSphere - forward, color, drawDuration);
+                GLDebug.DrawLine_Internal(baseSphere + forward, endSphere + forward, color, drawDuration);
+                GLDebug.DrawLine_Internal(baseSphere - forward, endSphere - forward, color, drawDuration);
 
                 //Draw end caps
                 for (int i = 1; i < 26; i++)
                 {
                     //End endcap
-                    GLDebug.DrawLine(Vector3.Slerp(right, up, i / 25.0f) + endSphere, Vector3.Slerp(right, up, (i - 1) / 25.0f) + endSphere, color, drawDuration);
-                    GLDebug.DrawLine(Vector3.Slerp(-right, up, i / 25.0f) + endSphere, Vector3.Slerp(-right, up, (i - 1) / 25.0f) + endSphere, color, drawDuration);
-                    GLDebug.DrawLine(Vector3.Slerp(forward, up, i / 25.0f) + endSphere, Vector3.Slerp(forward, up, (i - 1) / 25.0f) + endSphere, color, drawDuration);
-                    GLDebug.DrawLine(Vector3.Slerp(-forward, up, i / 25.0f) + endSphere, Vector3.Slerp(-forward, up, (i - 1) / 25.0f) + endSphere, color, drawDuration);
+                    GLDebug.DrawLine_Internal(Vector3.Slerp(right, up, i / 25.0f) + endSphere, Vector3.Slerp(right, up, (i - 1) / 25.0f) + endSphere, color, drawDuration);
+                    GLDebug.DrawLine_Internal(Vector3.Slerp(-right, up, i / 25.0f) + endSphere, Vector3.Slerp(-right, up, (i - 1) / 25.0f) + endSphere, color, drawDuration);
+                    GLDebug.DrawLine_Internal(Vector3.Slerp(forward, up, i / 25.0f) + endSphere, Vector3.Slerp(forward, up, (i - 1) / 25.0f) + endSphere, color, drawDuration);
+                    GLDebug.DrawLine_Internal(Vector3.Slerp(-forward, up, i / 25.0f) + endSphere, Vector3.Slerp(-forward, up, (i - 1) / 25.0f) + endSphere, color, drawDuration);
 
                     //Start endcap
-                    GLDebug.DrawLine(Vector3.Slerp(right, -up, i / 25.0f) + baseSphere, Vector3.Slerp(right, -up, (i - 1) / 25.0f) + baseSphere, colorizeBase ? color : Color.red, drawDuration);
-                    GLDebug.DrawLine(Vector3.Slerp(-right, -up, i / 25.0f) + baseSphere, Vector3.Slerp(-right, -up, (i - 1) / 25.0f) + baseSphere, colorizeBase ? color : Color.red, drawDuration);
-                    GLDebug.DrawLine(Vector3.Slerp(forward, -up, i / 25.0f) + baseSphere, Vector3.Slerp(forward, -up, (i - 1) / 25.0f) + baseSphere, colorizeBase ? color : Color.red, drawDuration);
-                    GLDebug.DrawLine(Vector3.Slerp(-forward, -up, i / 25.0f) + baseSphere, Vector3.Slerp(-forward, -up, (i - 1) / 25.0f) + baseSphere, colorizeBase ? color : Color.red, drawDuration);
+                    GLDebug.DrawLine_Internal(Vector3.Slerp(right, -up, i / 25.0f) + baseSphere, Vector3.Slerp(right, -up, (i - 1) / 25.0f) + baseSphere, colorizeBase ? color : Color.red, drawDuration);
+                    GLDebug.DrawLine_Internal(Vector3.Slerp(-right, -up, i / 25.0f) + baseSphere, Vector3.Slerp(-right, -up, (i - 1) / 25.0f) + baseSphere, colorizeBase ? color : Color.red, drawDuration);
+                    GLDebug.DrawLine_Internal(Vector3.Slerp(forward, -up, i / 25.0f) + baseSphere, Vector3.Slerp(forward, -up, (i - 1) / 25.0f) + baseSphere, colorizeBase ? color : Color.red, drawDuration);
+                    GLDebug.DrawLine_Internal(Vector3.Slerp(-forward, -up, i / 25.0f) + baseSphere, Vector3.Slerp(-forward, -up, (i - 1) / 25.0f) + baseSphere, colorizeBase ? color : Color.red, drawDuration);
                 }
             }
         }
@@ -545,7 +571,7 @@ namespace Saro.Diagnostics
 #endif
 
                 if (drawGame)
-                    GLDebug.DrawLine(lastPoint, nextPoint, color, drawDuration);
+                    GLDebug.DrawLine_Internal(lastPoint, nextPoint, color, drawDuration);
 
                 lastPoint = nextPoint;
             }
@@ -582,7 +608,7 @@ namespace Saro.Diagnostics
 
             if (drawGame)
             {
-                GLDebug.DrawLine(p1, p2, color, drawDuration);
+                GLDebug.DrawLine_Internal(p1, p2, color, drawDuration);
             }
         }
 
@@ -672,9 +698,9 @@ namespace Saro.Diagnostics
 
                 if (drawGame)
                 {
-                    GLDebug.DrawLine(x, new_x, color, drawDuration);
-                    GLDebug.DrawLine(y, new_y, color, drawDuration);
-                    GLDebug.DrawLine(z, new_z, color, drawDuration);
+                    GLDebug.DrawLine_Internal(x, new_x, color, drawDuration);
+                    GLDebug.DrawLine_Internal(y, new_y, color, drawDuration);
+                    GLDebug.DrawLine_Internal(z, new_z, color, drawDuration);
                 }
 
                 x = new_x;
@@ -784,22 +810,22 @@ namespace Saro.Diagnostics
                 GLDebug.DrawRay(position, forwardDir, color, drawDuration);
 
                 //Left Down
-                GLDebug.DrawLine(position, leftDown, color, drawDuration);
+                GLDebug.DrawLine_Internal(position, leftDown, color, drawDuration);
                 //Left Up
-                GLDebug.DrawLine(position, leftUp, color, drawDuration);
+                GLDebug.DrawLine_Internal(position, leftUp, color, drawDuration);
                 //Right Down
-                GLDebug.DrawLine(position, rightDown, color, drawDuration);
+                GLDebug.DrawLine_Internal(position, rightDown, color, drawDuration);
                 //Right Up
-                GLDebug.DrawLine(position, rightUp, color, drawDuration);
+                GLDebug.DrawLine_Internal(position, rightUp, color, drawDuration);
 
                 //Left
-                GLDebug.DrawLine(position, left, color, drawDuration);
+                GLDebug.DrawLine_Internal(position, left, color, drawDuration);
                 //Right
-                GLDebug.DrawLine(position, right, color, drawDuration);
+                GLDebug.DrawLine_Internal(position, right, color, drawDuration);
                 //Down
-                GLDebug.DrawLine(position, down, color, drawDuration);
+                GLDebug.DrawLine_Internal(position, down, color, drawDuration);
                 //Up
-                GLDebug.DrawLine(position, up, color, drawDuration);
+                GLDebug.DrawLine_Internal(position, up, color, drawDuration);
             }
             #endregion
 
@@ -887,15 +913,15 @@ namespace Saro.Diagnostics
 
                 if (drawGame)
                 {
-                    GLDebug.DrawLine(lastLdPosition, nextLdPosition, color, drawDuration);
-                    GLDebug.DrawLine(lastLuPosition, nextLuPosition, color, drawDuration);
-                    GLDebug.DrawLine(lastRdPosition, nextRdPosition, color, drawDuration);
-                    GLDebug.DrawLine(lastRuPosition, nextRuPosition, color, drawDuration);
+                    GLDebug.DrawLine_Internal(lastLdPosition, nextLdPosition, color, drawDuration);
+                    GLDebug.DrawLine_Internal(lastLuPosition, nextLuPosition, color, drawDuration);
+                    GLDebug.DrawLine_Internal(lastRdPosition, nextRdPosition, color, drawDuration);
+                    GLDebug.DrawLine_Internal(lastRuPosition, nextRuPosition, color, drawDuration);
 
-                    GLDebug.DrawLine(lastDPosition, nextDPosition, color, drawDuration);
-                    GLDebug.DrawLine(lastUPosition, nextUPosition, color, drawDuration);
-                    GLDebug.DrawLine(lastRPosition, nextRPosition, color, drawDuration);
-                    GLDebug.DrawLine(lastLPosition, nextLPosition, color, drawDuration);
+                    GLDebug.DrawLine_Internal(lastDPosition, nextDPosition, color, drawDuration);
+                    GLDebug.DrawLine_Internal(lastUPosition, nextUPosition, color, drawDuration);
+                    GLDebug.DrawLine_Internal(lastRPosition, nextRPosition, color, drawDuration);
+                    GLDebug.DrawLine_Internal(lastLPosition, nextLPosition, color, drawDuration);
                 }
 
                 lastLdPosition = nextLdPosition;

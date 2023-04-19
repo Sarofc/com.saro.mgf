@@ -13,9 +13,9 @@ namespace Saro.Collections
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
 
-    public static class FNativeListUnityExtension
+    public static class TNativeListUnityExtension
     {
-        public unsafe static NativeArray<T> ToNativeArray<T>(this FNativeList<T> list) where T : unmanaged
+        public unsafe static NativeArray<T> ToNativeArray<T>(this TNativeList<T> list) where T : unmanaged
         {
             var nativeArray = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(
                 (void*)list.ToIntPtr(), (int)list.Count, Allocator.None);

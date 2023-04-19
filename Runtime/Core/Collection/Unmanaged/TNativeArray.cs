@@ -17,7 +17,7 @@ using System.Runtime.CompilerServices;
 
 namespace Saro.Collections
 {
-    internal unsafe struct FNativeArray<T> where T : unmanaged
+    internal unsafe struct TNativeArray<T> where T : unmanaged
     {
         internal byte* Ptr => m_Ptr;
 
