@@ -44,8 +44,8 @@ namespace Saro.Core
         {
             if (!m_Path2PrefabMap.TryGetValue(assetPath, out var prefab))
             {
-                prefab = m_AssetLoader.LoadAssetRef<PoolableGameObject>(assetPath);
-
+                var go = m_AssetLoader.LoadAssetRef<GameObject>(assetPath);
+                prefab = go.GetComponent<PoolableGameObject>();
                 if (prefab)
                 {
                     m_Prefab2PathMap.Add(prefab, assetPath);
@@ -59,7 +59,8 @@ namespace Saro.Core
         {
             if (!m_Path2PrefabMap.TryGetValue(assetPath, out var prefab))
             {
-                prefab = await m_AssetLoader.LoadAssetRefAsync<PoolableGameObject>(assetPath);
+                var go = await m_AssetLoader.LoadAssetRefAsync<GameObject>(assetPath);
+                prefab = go.GetComponent<PoolableGameObject>();
                 if (prefab)
                 {
                     if (!m_Path2PrefabMap.ContainsKey(assetPath))
@@ -76,7 +77,7 @@ namespace Saro.Core
         {
             if (!m_HandleMap.TryGetValue(assetPath, out var handle))
             {
-                handle = m_AssetLoader.LoadAssetHandleRefAsync<PoolableGameObject>(assetPath);
+                handle = m_AssetLoader.LoadAssetHandleRefAsync<GameObject>(assetPath);
                 if (handle.IsDone && !handle.IsError)
                     HandleCompleted(handle);
                 else
@@ -90,7 +91,8 @@ namespace Saro.Core
         {
             handle.Completed -= HandleCompleted;
 
-            var prefab = handle.Asset as PoolableGameObject;
+            var go = handle.Asset as GameObject;
+            var prefab = go.GetComponent<PoolableGameObject>();
             if (prefab)
             {
                 m_Prefab2PathMap.Add(prefab, handle.AssetUrl);

@@ -1,6 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
-using Object = UnityEngine.Object;
+using UObject = UnityEngine.Object;
 
 namespace Saro.Core
 {
@@ -9,7 +9,7 @@ namespace Saro.Core
      * 
      * 1. 自动回收机制 
      *    - 开启autounload后，handle会经过一定时间后，自动unload
-     *    - 如何有效管理 引用？ DefaultAssetLoader/LruAssetLoader目前不能混合使用，看怎么方便处理
+     *    - 如何有效管理 引用？ DefaultAssetLoader/LruAssetLoader 目前不能混合使用，看怎么方便处理
      *    
      *    可参考：
      *    https://www.codeleading.com/article/84286014276/
@@ -37,12 +37,12 @@ namespace Saro.Core
         /// <summary>
         /// 加载资源，且缓存handle
         /// </summary>
-        Object LoadAssetRef(string assetPath, Type type);
+        UObject LoadAssetRef(string assetPath, Type type);
 
         /// <summary>
         /// 异步加载资源，且缓存handle
         /// </summary>
-        UniTask<Object> LoadAssetRefAsync(string assetPath, Type type);
+        UniTask<UObject> LoadAssetRefAsync(string assetPath, Type type);
 
         /// <summary>
         /// 卸载指定资源
@@ -61,6 +61,7 @@ namespace Saro.Core
         /// <param name="assetPath"></param>
         /// <param name="type"></param>
         /// <returns></returns>
+        [System.Obsolete("use LoadAssetAsync+WaitForCompletion instead", true)]
         IAssetHandle LoadAsset(string assetPath, Type type);
 
         /// <summary>
@@ -76,12 +77,12 @@ namespace Saro.Core
         /// <summary>
         /// 加载资源，且缓存handle
         /// </summary>
-        T LoadAssetRef<T>(string assetPath) where T : Object => throw new NotImplementedException("泛型接口未实现");
+        T LoadAssetRef<T>(string assetPath) where T : UObject => throw new NotImplementedException("泛型接口未实现");
 
         /// <summary>
         /// 异步加载资源，且缓存handle
         /// </summary>
-        UniTask<T> LoadAssetRefAsync<T>(string assetPath) where T : Object => throw new NotImplementedException("泛型接口未实现");
+        UniTask<T> LoadAssetRefAsync<T>(string assetPath) where T : UObject => throw new NotImplementedException("泛型接口未实现");
 
         /// <summary>
         /// 异步加载资源，且缓存handle

@@ -129,7 +129,8 @@ namespace Saro.UI
             }
 
             // TODO
-            var prefab = await IAssetManager.Current.LoadAssetAsync(s_AssetName, typeof(Toast)) as Toast;
+            var go = await IAssetManager.Current.LoadAssetAsync(s_AssetName, typeof(GameObject)) as GameObject;
+            var prefab = go.GetComponent<Toast>();
 
             if (cancellationToken.IsCancellationRequested) return default;
             if (prefab == null) return default;

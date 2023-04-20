@@ -1,7 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
-using Object = UnityEngine.Object;
+using System.Diagnostics;
+using System.IO;
+using UnityEngine;
+using UObject = UnityEngine.Object;
 
 namespace Saro.Core
 {
@@ -25,56 +28,44 @@ namespace Saro.Core
                 m_AssetCache = new Dictionary<string, IAssetHandle>(capacity, StringComparer.Ordinal);
         }
 
-        public T LoadAssetRef<T>(string assetPath) where T : Object
+        public T LoadAssetRef<T>(string assetPath) where T : UObject
         {
             return LoadAssetRef(assetPath, typeof(T)) as T;
         }
 
-        public async UniTask<T> LoadAssetRefAsync<T>(string assetPath) where T : Object
+        public async UniTask<T> LoadAssetRefAsync<T>(string assetPath) where T : UObject
         {
             return await LoadAssetRefAsync(assetPath, typeof(T)) as T;
         }
 
         public IAssetHandle LoadAssetHandleRefAsync<T>(string assetPath)
         {
-            if (string.IsNullOrEmpty(assetPath))
-            {
-                Log.ERROR($"assetPath is null or empty");
-                return null;
-            }
+            Check(assetPath, typeof(T));
 
-            var type = typeof(T);
             if (!m_AssetCache.TryGetValue(assetPath, out var handle))
             {
-                handle = m_AssetManager.LoadAssetAsync(assetPath, type);
+                handle = m_AssetManager.LoadAssetAsync(assetPath, typeof(T));
                 m_AssetCache.Add(assetPath, handle);
             }
             return handle;
         }
 
-        public Object LoadAssetRef(string assetPath, Type type)
+        public UObject LoadAssetRef(string assetPath, Type type)
         {
-            if (string.IsNullOrEmpty(assetPath))
-            {
-                Log.ERROR($"assetPath is null or empty");
-                return null;
-            }
+            Check(assetPath, type);
 
             if (!m_AssetCache.TryGetValue(assetPath, out var handle))
             {
-                handle = m_AssetManager.LoadAsset(assetPath, type);
+                handle = m_AssetManager.LoadAssetAsync(assetPath, type);
                 m_AssetCache.Add(assetPath, handle);
             }
+            handle.WaitForCompletion();
             return handle.Asset;
         }
 
-        public async UniTask<Object> LoadAssetRefAsync(string assetPath, Type type)
+        public async UniTask<UObject> LoadAssetRefAsync(string assetPath, Type type)
         {
-            if (string.IsNullOrEmpty(assetPath))
-            {
-                Log.ERROR($"assetPath is null or empty");
-                return null;
-            }
+            Check(assetPath, type);
 
             if (!m_AssetCache.TryGetValue(assetPath, out var handle))
             {
@@ -84,9 +75,16 @@ namespace Saro.Core
 
             if (!handle.IsDone)
                 await handle;
+
+#if DEBUG
+            if (handle.IsDone == false)
+                Log.ERROR($"AssetManager fatal error. url: {assetPath} type: {type}");
+#endif
+
             return handle.Asset;
         }
 
+        [System.Obsolete("use LoadAssetAsync+WaitForCompletion instead", true)]
         public IAssetHandle LoadAsset(string assetPath, Type type)
         {
             return m_AssetManager.LoadAsset(assetPath, type);
@@ -104,10 +102,6 @@ namespace Saro.Core
                 handle.DecreaseRefCount();
                 m_AssetCache.Remove(assetPath);
             }
-            else
-            {
-                //Log.INFO($"UnloadAssetRef: {assetPath}");
-            }
         }
 
         public void UnloadAllAssetRef()
@@ -122,6 +116,22 @@ namespace Saro.Core
         public void IReferenceClear()
         {
             UnloadAllAssetRef();
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        private void Check(string assetPath, Type type)
+        {
+#if UNITY_EDITOR
+            if (string.IsNullOrEmpty(assetPath))
+            {
+                Log.ERROR($"assetPath is null or empty");
+            }
+
+            if (typeof(Component).IsAssignableFrom(type))
+            {
+                Log.ERROR($"not support typeof(Component) {type}, use GameObject instead. url: {Path.GetFileName(assetPath)}");
+            }
+#endif
         }
     }
 }

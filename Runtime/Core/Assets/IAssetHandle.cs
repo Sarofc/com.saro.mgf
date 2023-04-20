@@ -26,13 +26,6 @@ namespace Saro.Core
         UnityEngine.Object Asset { get; }
 
         /// <summary>
-        /// 加载的对象
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        T GetAsset<T>() where T : UnityEngine.Object;
-
-        /// <summary>
         /// 是否完成
         /// </summary>
         bool IsDone { get; }
@@ -61,5 +54,10 @@ namespace Saro.Core
         /// 加载的字符串
         /// </summary>
         string Text { get; }
+
+        /// <summary>
+        /// 等待异步加载完成，阻塞主线程
+        /// </summary>
+        void WaitForCompletion();
     }
 }

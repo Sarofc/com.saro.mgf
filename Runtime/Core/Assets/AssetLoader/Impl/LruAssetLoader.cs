@@ -1,7 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using Saro.Collections;
 using System;
-using Object = UnityEngine.Object;
+using UObject = UnityEngine.Object;
 
 namespace Saro.Core
 {
@@ -24,44 +24,38 @@ namespace Saro.Core
             m_AssetCache = new TLRUCache<string, IAssetHandle>(capacity, OnLruCacheValueRemoved);
         }
 
-        public T LoadAssetRef<T>(string assetPath) where T : Object
+        public T LoadAssetRef<T>(string assetPath) where T : UObject
         {
             return LoadAssetRef(assetPath, typeof(T)) as T;
         }
 
-        public async UniTask<T> LoadAssetRefAsync<T>(string assetPath) where T : Object
+        public async UniTask<T> LoadAssetRefAsync<T>(string assetPath) where T : UObject
         {
             return await LoadAssetRefAsync(assetPath, typeof(T)) as T;
         }
 
         public IAssetHandle LoadAssetHandleRefAsync<T>(string assetPath)
         {
-            if (string.IsNullOrEmpty(assetPath))
-            {
-                Log.ERROR($"assetPath is null or empty");
-                return null;
-            }
-
-            var type = typeof(T);
             if (!m_AssetCache.TryGet(assetPath, out var handle))
             {
-                handle = m_AssetManager.LoadAsset(assetPath, type);
+                handle = m_AssetManager.LoadAssetAsync(assetPath, typeof(T));
                 m_AssetCache.Put(assetPath, handle);
             }
             return handle;
         }
 
-        public Object LoadAssetRef(string assetPath, Type type)
+        public UObject LoadAssetRef(string assetPath, Type type)
         {
             if (!m_AssetCache.TryGet(assetPath, out var handle))
             {
-                handle = m_AssetManager.LoadAsset(assetPath, type);
+                handle = m_AssetManager.LoadAssetAsync(assetPath, type);
                 m_AssetCache.Put(assetPath, handle);
             }
+            handle.WaitForCompletion();
             return handle.Asset;
         }
 
-        public async UniTask<Object> LoadAssetRefAsync(string assetPath, Type type)
+        public async UniTask<UObject> LoadAssetRefAsync(string assetPath, Type type)
         {
             if (!m_AssetCache.TryGet(assetPath, out var handle))
             {
@@ -75,13 +69,10 @@ namespace Saro.Core
 
         public void UnloadAssetRef(string assetPath)
         {
-            if (!m_AssetCache.TryGet(assetPath, out var handle))
+            if (m_AssetCache.TryGet(assetPath, out var handle))
             {
+                handle.DecreaseRefCount();
                 m_AssetCache.Remove(assetPath);
-            }
-            else
-            {
-                //Log.INFO($"UnloadAssetRef: {assetPath}");
             }
         }
 
@@ -90,9 +81,10 @@ namespace Saro.Core
             m_AssetCache.Clear(true);
         }
 
+        [System.Obsolete("use LoadAssetAsync+WaitForCompletion instead", true)]
         public IAssetHandle LoadAsset(string assetPath, Type type)
         {
-            return m_AssetManager.LoadAssetAsync(assetPath, type);
+            return m_AssetManager.LoadAsset(assetPath, type);
         }
 
         public IAssetHandle LoadAssetAsync(string assetPath, Type type)

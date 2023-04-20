@@ -264,7 +264,7 @@ namespace Saro.Audio
         {
             var assetHandle = LoadAssetAsync(assetName, typeof(AudioClip));
             await assetHandle;
-            AudioClip clip = assetHandle.GetAsset<AudioClip>();
+            AudioClip clip = assetHandle.Asset as AudioClip;
 
             PlayBGMInternal(clip, time, finishCallback, oneShot, forceReplay, assetHandle);
         }
@@ -272,7 +272,7 @@ namespace Saro.Audio
         public void PlayBGM(string assetName, float time = 1f, Action finishCallback = null, bool oneShot = false, bool forceReplay = false)
         {
             var assetHandle = LoadAsset(assetName, typeof(AudioClip));
-            AudioClip clip = assetHandle.GetAsset<AudioClip>();
+            AudioClip clip = assetHandle.Asset as AudioClip;
 
             PlayBGMInternal(clip, time, finishCallback, oneShot, forceReplay, assetHandle);
         }
@@ -423,7 +423,7 @@ namespace Saro.Audio
             }
             var assetHandle = LoadAssetAsync(assetName, typeof(AudioClip));
             await assetHandle;
-            var clip = assetHandle.GetAsset<AudioClip>();
+            var clip = assetHandle.Asset as AudioClip;
 
             if (clip == null)
             {
@@ -451,7 +451,7 @@ namespace Saro.Audio
             }
 
             var assetHandle = LoadAsset(assetName, typeof(AudioClip));
-            var clip = assetHandle.GetAsset<AudioClip>();
+            var clip = assetHandle.Asset as AudioClip;
             if (clip == null)
             {
                 return default;
@@ -606,7 +606,9 @@ namespace Saro.Audio
 
         public IAssetHandle LoadAsset(string assetPath, Type type)
         {
-            return IAssetManager.Current.LoadAsset(AudioAssetPath + assetPath, type);
+            var handle = LoadAssetAsync(AudioAssetPath + assetPath, type);
+            handle.WaitForCompletion();
+            return handle;
         }
 
         public IAssetHandle LoadAssetAsync(string assetPath, Type type)

@@ -37,6 +37,7 @@ namespace Saro.Core
         /// <param name="assetPath">加载路径，unity Assets 起始的路径</param>
         /// <param name="type"></param>
         /// <returns></returns>
+        [System.Obsolete("use LoadAssetAsync+WaitForCompletion instead", true)]
         IAssetHandle LoadAsset(string assetPath, Type type);
 
         /// <summary>

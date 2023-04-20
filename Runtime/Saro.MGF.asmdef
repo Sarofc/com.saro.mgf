@@ -4,6 +4,7 @@
     "references": [
         "UniTask",
         "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.TextMeshPro",
         "Unity.Mathematics",
         "Unity.Burst",
         "Saro.FPMath"

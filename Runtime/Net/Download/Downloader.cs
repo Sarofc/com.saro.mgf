@@ -168,7 +168,7 @@ namespace Saro.Net
             Main.Register<DownloaderDriver>();
         }
 
-        internal static void OnUpdate()
+        public static void OnUpdate()
         {
             if (s_Prepared.Count > 0)
             {

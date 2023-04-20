@@ -237,7 +237,7 @@ namespace Saro.UI
                 }
                 else
                 {
-                    Log.ERROR($"window.LoadAsync() failed.");
+                    Log.ERROR($"window.LoadAsync() failed. winType: {window.GetType()}");
                 }
             }
         }
@@ -356,7 +356,7 @@ namespace Saro.UI
                 }
                 else
                 {
-                    Log.ERROR($"UI处于[unload,lock,open]状态之一：{uiIdx}");
+                    Log.INFO($"UI处于[unload,lock,open]状态之一：{uiIdx}");
                 }
 
                 if (isAddToHistory)

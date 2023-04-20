@@ -2,13 +2,12 @@
 
 using System;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Saro.Localization
 {
-    internal partial class LocalizationComponent
+    partial class LocalizationComponent
     {
         [MenuItem("CONTEXT/Text/Localize")]
         static void LocalizeUIText(MenuCommand command)
@@ -29,11 +28,6 @@ namespace Saro.Localization
         {
             var target = command.context as UIBehaviour;
             SetupForLocalization<LocalizedImageEvent>(target);
-        }
-
-        private static void SetupForLocalization<T>(UIBehaviour target) where T : MonoBehaviour
-        {
-            Undo.AddComponent<T>(target.gameObject);
         }
     }
 }
