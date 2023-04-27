@@ -1,4 +1,4 @@
-﻿#if BSON // 简单测试了下，没啥子优势，无论是序列化/反序列化速度，还是文件大小，再是unity搞的newtonsoft新版本3.1.0没法和nuget bson正常工作
+﻿#if PACKAGE_NEWTONSOFT_BSON
 using Newtonsoft.Json.Bson;
 #endif
 
@@ -37,7 +37,7 @@ namespace Saro.Utility
             return JsonConvert.DeserializeObject(json, type, settings ?? s_DefaultSettings);
         }
 
-#if BSON
+#if PACKAGE_NEWTONSOFT_BSON
         public static void ToBson(Stream stream, object obj, DateTimeKind dateTimeKindHandling = DateTimeKind.Local, JsonSerializerSettings settings = null)
         {
             using var reader = new BsonDataWriter(stream);
