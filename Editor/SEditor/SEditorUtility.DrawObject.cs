@@ -814,11 +814,6 @@ namespace Saro.SEditor
 #endif
         }
 
-        public static Texture2D GetIcon(string icon)
-        {
-            return Resources.Load<Texture2D>("icons/" + icon);
-        }
-
         public static void OpenScriptByType(Type type)
         {
             var guids = AssetDatabase.FindAssets($"t:{nameof(MonoScript)} {type.Name}");
