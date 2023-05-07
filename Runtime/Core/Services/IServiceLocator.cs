@@ -9,11 +9,19 @@ namespace Saro
      * 1. 加上依赖关系，类似之前的jobqueue，简化各个service之间的维护成本
      * 
      */
-    public interface IService
+
+    public interface IServiceAwake
     {
         void Awake();
+    }
+
+    public interface IServiceUpdate
+    {
         void Update();
-        void Dispose();
+    }
+
+    public interface IService
+    {
     }
 
     public interface IServiceLocator

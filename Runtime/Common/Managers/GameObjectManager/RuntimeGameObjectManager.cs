@@ -272,21 +272,21 @@ namespace Saro.Core
         }
     }
 
-    partial class RuntimeGameObjectManager : IService
+    partial class RuntimeGameObjectManager : IService, IServiceAwake, IServiceUpdate, IDisposable
     {
         public static RuntimeGameObjectManager Current => Main.Resolve<RuntimeGameObjectManager>();
 
-        void IService.Awake()
+        void IServiceAwake.Awake()
         {
             OnAwake();
         }
 
-        void IService.Dispose()
+        void IDisposable.Dispose()
         {
             OnDispose();
         }
 
-        void IService.Update()
+        void IServiceUpdate.Update()
         {
             OnUpdate();
         }

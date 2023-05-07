@@ -1,6 +1,8 @@
-﻿namespace Saro.Net
+﻿using System;
+
+namespace Saro.Net
 {
-    internal sealed class DownloaderDriver : IService
+    internal sealed class DownloaderDriver : IService, IServiceAwake, IServiceUpdate, IDisposable
     {
         private void Main_onApplicationPause(bool value)
         {
@@ -11,17 +13,17 @@
                 Downloader.ResumeAllDownloads();
         }
 
-        void IService.Awake()
+        void IServiceAwake.Awake()
         {
             Main.onApplicationPause += Main_onApplicationPause;
         }
 
-        void IService.Update()
+        void IServiceUpdate.Update()
         {
             Downloader.OnUpdate();
         }
 
-        void IService.Dispose()
+        void IDisposable.Dispose()
         {
             Downloader.OnDispose();
 

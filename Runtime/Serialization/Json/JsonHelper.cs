@@ -11,7 +11,7 @@ namespace Saro.Utility
 {
     public class JsonHelper
     {
-        static JsonSerializerSettings s_DefaultSettings = new()
+        public readonly static JsonSerializerSettings s_DefaultSettings = new()
         {
             TypeNameHandling = TypeNameHandling.Auto,
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,

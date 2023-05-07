@@ -5,7 +5,7 @@ namespace Saro.Events
     /// <summary>
     /// 全局事件管理器
     /// </summary>
-    public sealed class EventManager : IService
+    public sealed partial class EventManager
     {
         public static EventManager Global => Main.Resolve<EventManager>();
 
@@ -58,15 +58,18 @@ namespace Saro.Events
         {
             m_EventPool.Broadcast(sender, e);
         }
+    }
 
-        void IService.Awake() { }
+    partial class EventManager : IService, IServiceAwake, IServiceUpdate, IDisposable
+    {
+        void IServiceAwake.Awake() { }
 
-        void IService.Update()
+        void IServiceUpdate.Update()
         {
             m_EventPool.Update();
         }
 
-        void IService.Dispose()
+        void IDisposable.Dispose()
         {
             m_EventPool.Dispose();
         }

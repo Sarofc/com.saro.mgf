@@ -78,9 +78,5 @@ namespace Saro.Localization
             else
                 Log.ERROR($"[Localization] {m_Provider.GetType().FullName} LoadAsync error");
         }
-
-        void IService.Awake() { }
-        void IService.Update() { }
-        void IService.Dispose() { }
     }
 }

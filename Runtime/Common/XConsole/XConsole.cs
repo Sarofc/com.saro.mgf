@@ -10,6 +10,8 @@ using UnityEngine.UI;
 
 namespace Saro.XConsole
 {
+    // TODO 界面不好看，后面改成其他样式的
+
     public partial class XConsole : MonoSingleton<XConsole>, ISuperScrollRectDataProvider
     {
         [InlineEditor]

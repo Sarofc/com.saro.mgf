@@ -21,7 +21,7 @@ namespace Saro.Audio
     /// <summary>
     /// 声音组件
     /// </summary>
-    public sealed partial class AudioManager : IService
+    public sealed partial class AudioManager : IService, IServiceUpdate
     {
         public static AudioManager Current => Main.Resolve<AudioManager>();
 
@@ -161,9 +161,7 @@ namespace Saro.Audio
             //Log.ERROR($"VolumeBGM: {VolumeBGM}   VolumeSE: {VolumeSE}");
         }
 
-        void IService.Awake() { }
-
-        void IService.Update()
+        void IServiceUpdate.Update()
         {
             if (m_AudioManagerGO == null) return;
 
@@ -187,7 +185,6 @@ namespace Saro.Audio
             }
         }
 
-        void IService.Dispose() { }
 
         #region 对象池
 

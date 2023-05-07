@@ -67,7 +67,7 @@ namespace Saro
 
         private void Update()
         {
-            m_Locator.Update();
+            s_Locator.Update();
 
             onUpdate?.Invoke();
         }
@@ -116,7 +116,7 @@ namespace Saro
             onDrawGizmos = null;
 #endif
 
-            m_Locator.Dispose();
+            s_Locator.Dispose();
 
             //Log.ERROR("Main::OnDestroy");
         }
@@ -137,44 +137,49 @@ namespace Saro
 
     /*
      * IServiceLocator
+     * 
+     * 改为静态，可以不挂载到GameObject上，就能使用
+     * 
      */
     public partial class Main
     {
-        private IServiceLocator m_Locator = new DefaultServiceLocator();
+        private static IServiceLocator s_Locator = new DefaultServiceLocator();
+
+        public static IServiceLocator GetServiceLocator() => s_Locator;
 
         public static void SetServiceLocator(IServiceLocator locator)
         {
-            Instance.m_Locator = locator;
+            s_Locator = locator;
         }
 
         public static T Register<T>() where T : class, IService, new()
         {
-            return Instance.m_Locator.Register<T>();
+            return s_Locator.Register<T>();
         }
 
         public static T Register<T>(T service) where T : class, IService
         {
-            return Instance.m_Locator.Register<T>(service);
+            return s_Locator.Register<T>(service);
         }
 
         public static T Resolve<T>() where T : class, IService
         {
-            return Instance.m_Locator.Resolve<T>();
+            return s_Locator.Resolve<T>();
         }
 
         public static IService Register(Type type)
         {
-            return Instance.m_Locator.Register(type);
+            return s_Locator.Register(type);
         }
 
         public static IService Register(Type type, IService service)
         {
-            return Instance.m_Locator.Register(type, service);
+            return s_Locator.Register(type, service);
         }
 
         public static IService Resolve(Type type)
         {
-            return Instance.m_Locator.Resolve(type);
+            return s_Locator.Resolve(type);
         }
     }
 

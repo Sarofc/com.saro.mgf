@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Saro.Net.Http
 {
-    public class HttpService : IDisposable, IService
+    public class HttpService : System.IDisposable, IService
     {
         private const int k_DefaultTimeout = 50000000; // 5s
 
@@ -82,14 +82,6 @@ namespace Saro.Net.Http
             }
 
             return null;
-        }
-
-        void IService.Awake()
-        {
-        }
-
-        void IService.Update()
-        {
         }
 
         public void Dispose()

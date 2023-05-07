@@ -43,7 +43,8 @@ namespace Saro
         {
             if (!m_ServiceMap.ContainsKey(type))
             {
-                service.Awake();
+                if (service is IServiceAwake awake)
+                    awake.Awake();
                 m_ServiceMap.Add(type, service);
                 m_Updates.Enqueue(type);
                 return service;
@@ -59,7 +60,8 @@ namespace Saro
             if (!m_ServiceMap.ContainsKey(type))
             {
                 var service = Activator.CreateInstance(type) as IService;
-                service.Awake();
+                if (service is IServiceAwake awake)
+                    awake.Awake();
                 m_ServiceMap.Add(type, service);
                 m_Updates.Enqueue(type);
                 return service;
@@ -84,7 +86,8 @@ namespace Saro
         {
             if (m_ServiceMap.TryGetValue(type, out var service))
             {
-                service.Dispose();
+                if (service is IDisposable dispose)
+                    dispose.Dispose();
             }
 
             m_ServiceMap.Remove(type);
@@ -94,7 +97,8 @@ namespace Saro
         {
             foreach (var item in m_ServiceMap)
             {
-                item.Value.Dispose();
+                if (item.Value is IDisposable dispose)
+                    dispose.Dispose();
             }
 
             m_ServiceMap.Clear();
@@ -112,7 +116,8 @@ namespace Saro
 
                 m_Updates2.Enqueue(type);
 
-                service.Update();
+                if (service is IServiceUpdate update)
+                    update.Update();
             }
 
             GRandom.Swap(ref m_Updates, ref m_Updates2);

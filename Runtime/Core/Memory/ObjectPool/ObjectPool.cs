@@ -8,7 +8,7 @@ namespace Saro.Pool
     /// <summary>
     ///   <para>A stack based Pool.IObjectPool_1.</para>
     /// </summary>
-    public class ObjectPool<T> : IDisposable, IObjectPool<T> where T : class
+    public class ObjectPool<T> : System.IDisposable, IObjectPool<T> where T : class
     {
         public virtual string Label { get; protected set; } = typeof(T).FullName;
 
