@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using UObject = UnityEngine.Object;
 
 namespace Saro
 {
@@ -67,11 +68,11 @@ namespace Saro
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("m_Datas"));
-
+            var dragArea = EditorGUILayout.GetControlRect(false, 36f);
+            EditorGUI.HelpBox(dragArea, "拖拽对象到此区域", MessageType.Info);
             var eventType = Event.current.type;
             //在Inspector 窗口上创建区域，向区域拖拽资源对象，获取到拖拽到区域的对象
-            if (eventType == EventType.DragUpdated || eventType == EventType.DragPerform)
+            if ((eventType == EventType.DragUpdated || eventType == EventType.DragPerform) && dragArea.Contains(Event.current.mousePosition))
             {
                 // Show a copy icon on the drag
                 DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
@@ -83,10 +84,13 @@ namespace Saro
                     {
                         m_ReferenceBinder.Add(o.name, o);
                     }
+                    EditorUtility.SetDirty(target);
                 }
 
                 Event.current.Use();
             }
+
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("m_Datas"));
 
             serializedObject.ApplyModifiedProperties();
             serializedObject.UpdateIfRequiredOrScript();
@@ -181,16 +185,70 @@ namespace Saro
             var keyProp = property.FindPropertyRelative("key");
             var objProp = property.FindPropertyRelative("obj");
 
-            var keyRect = position;
-            keyRect.width = position.width * 0.5f;
+            const float keyWidth = 0.4f;
+            const float filterWidth = 0.2f;
 
-            var objRect = position;
-            var width = keyRect.width + 5f;
-            objRect.x += width;
-            objRect.width -= width;
+            var keyRect = position;
+            keyRect.width = position.width * keyWidth;
+
+            var objRect = keyRect;
+            objRect.x += keyRect.width + 5f;
+
+            var filterRect = objRect;
+            filterRect.x += objRect.width + 5f;
+            filterRect.width = position.width * filterWidth - 5f;
 
             EditorGUI.PropertyField(keyRect, keyProp, GUIContent.none);
             EditorGUI.PropertyField(objRect, objProp, GUIContent.none);
+
+            if (objProp.objectReferenceValue != null)
+            {
+                var type = objProp.objectReferenceValue.GetType();
+
+                if (EditorGUI.DropdownButton(filterRect, new GUIContent(type?.Name), FocusType.Passive))
+                {
+                    var menu = new GenericMenu();
+
+                    if (objProp.objectReferenceValue is GameObject _gameobject)
+                    {
+                        menu.AddItem(new GUIContent(nameof(GameObject)), false, () =>
+                        {
+                            objProp.objectReferenceValue = _gameobject;
+                            objProp.serializedObject.ApplyModifiedProperties();
+                        });
+
+                        var components = _gameobject.GetComponents<Component>();
+                        foreach (var comp in components)
+                        {
+                            menu.AddItem(new GUIContent(comp.GetType().Name), false, () =>
+                            {
+                                objProp.objectReferenceValue = comp;
+                                objProp.serializedObject.ApplyModifiedProperties();
+                            });
+                        }
+                    }
+                    else if (objProp.objectReferenceValue is Component _component)
+                    {
+                        menu.AddItem(new GUIContent(nameof(GameObject)), false, () =>
+                        {
+                            objProp.objectReferenceValue = _component.gameObject;
+                            objProp.serializedObject.ApplyModifiedProperties();
+                        });
+
+                        var components = _component.gameObject.GetComponents<Component>();
+                        foreach (var comp in components)
+                        {
+                            menu.AddItem(new GUIContent(comp.GetType().Name), false, () =>
+                            {
+                                objProp.objectReferenceValue = comp;
+                                objProp.serializedObject.ApplyModifiedProperties();
+                            });
+                        }
+                    }
+
+                    menu.ShowAsContext();
+                }
+            }
         }
     }
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-using Object = UnityEngine.Object;
+using UObject = UnityEngine.Object;
 
 namespace Saro
 {
@@ -12,7 +12,7 @@ namespace Saro
         public class ReferenceBinderData
         {
             public string key;
-            public Object obj;
+            public UObject obj;
         }
 
         public class ReferenceCollectorDataComparer : IComparer<ReferenceBinderData>
@@ -28,7 +28,7 @@ namespace Saro
         [SerializeField]
         private List<ReferenceBinderData> m_Datas = new();
 
-        protected Dictionary<string, Object> DataMap
+        protected Dictionary<string, UObject> DataMap
         {
             get
             {
@@ -47,22 +47,22 @@ namespace Saro
                 return m_DataMap;
             }
         }
-        private Dictionary<string, Object> m_DataMap;
+        private Dictionary<string, UObject> m_DataMap;
 
-        public T GetRef<T>(string key) where T : Object
+        public T GetRef<T>(string key) where T : UObject
         {
             return GetRef(key) as T;
         }
 
-        public Object GetRef(string key)
+        public UObject GetRef(string key)
         {
-            if (!DataMap.TryGetValue(key, out Object go))
+            if (!DataMap.TryGetValue(key, out UObject go))
                 return null;
 
             return go;
         }
 
-        public void Add(string key, Object obj)
+        public void Add(string key, UObject obj)
         {
             m_Datas.Add(new ReferenceBinderData
             {

@@ -121,106 +121,43 @@ namespace Saro.UI
             sb.AppendLine();
 
             var code = sb.ToString();
+            sb.Clear();
 
-            var newpath = AssetDatabase.GetAssetPath(m_UIScript.objectReferenceValue);
+            var monoScript = m_UIScript.objectReferenceValue as MonoScript;
+            var classType = monoScript.GetClass();
 
-            if (!string.IsNullOrEmpty(newpath))
+            if (!string.IsNullOrEmpty(classType.Namespace))
             {
-                var oldCode = File.ReadAllText(newpath, Encoding.UTF8);
-
-                var startIndex = oldCode.LastIndexOf(">>begin");
-                var endIndex = oldCode.LastIndexOf("<<end");
-
-                if (startIndex != -1 && endIndex != -1)
-                {
-                    startIndex += 7;
-                    endIndex -= 2;
-
-                    var len = endIndex - startIndex;
-                    if (len > 0)
-                    {
-                        var newCode = oldCode.Remove(startIndex, len);
-                        newCode = newCode.Insert(startIndex, "\t");
-                        newCode = newCode.Insert(startIndex, code);
-
-                        File.WriteAllText(newpath, newCode, Encoding.UTF8);
-                        AssetDatabase.Refresh();
-                    }
-                    else
-                    {
-                        Debug.LogError("没有 写入成功，请检查 >>begin <<end 标识 是否是成对，且顺序正确，参考 Template_UIScript.txt ！");
-                    }
-                }
-                else
-                {
-                    Debug.LogError("没有 写入成功，请检查 有没有 >>begin <<end 标识，参考 Template_UIScript.txt ！");
-                }
+                sb.AppendLine($@"
+namespace {classType.Namespace}
+{{
+    partial class {classType.Name}
+    {{
+        {code}
+    }}
+}}"
+                );
             }
-        }
-
-        private void __CodeGen()
-        {
-            if (m_UIScript == null || m_UIScript.objectReferenceValue == null)
+            else
             {
-                Debug.LogError("MonoScript is null, please assign UIScript!");
-                return;
+                sb.AppendLine($@"
+    partial class {classType.Name}
+    {{
+        {code}
+    }}"
+                );
             }
 
-            var Datas = m_ReferenceBinder.Datas;
-            var sb = new StringBuilder(1024);
+            var scriptPath = AssetDatabase.GetAssetPath(m_UIScript.objectReferenceValue);
+            var newpath = $"{Path.GetDirectoryName(scriptPath)}/{classType.Name}.binding.g.cs";
 
-            sb.Append("\n");
-
-            foreach (var data in Datas)
+            if (EditorUtility.DisplayDialog("生成绑定代码", $"生成\n{newpath}", "生成", "取消"))
             {
-                sb.AppendFormat("\t\tpublic {0} {1};\n", data.obj.GetType(), data.key);
-            }
+                var content = sb.ToString();
 
-            sb.AppendLine();
+                File.WriteAllText(newpath, content);
 
-            sb.AppendLine("\t\tvoid GetComps()");
-            sb.AppendLine("\t\t{");
-            foreach (var data in Datas)
-            {
-                sb.AppendFormat("\t\t\t{0} = Binder.Get<{1}>(\"{0}\");\n", data.key, data.obj.GetType());
-            }
-            sb.AppendLine("\t\t}");
-
-            var code = sb.ToString();
-
-            var newpath = AssetDatabase.GetAssetPath(m_UIScript.objectReferenceValue);
-
-            if (!string.IsNullOrEmpty(newpath))
-            {
-                var oldCode = File.ReadAllText(newpath);
-
-                var startIndex = oldCode.LastIndexOf(">>begin");
-                var endIndex = oldCode.LastIndexOf("<<end");
-
-                if (startIndex != -1 && endIndex != -1)
-                {
-                    startIndex += 7;
-                    endIndex -= 2;
-
-                    var len = endIndex - startIndex;
-                    if (len > 0)
-                    {
-                        var newCode = oldCode.Remove(startIndex, len);
-                        newCode = newCode.Insert(startIndex, "\t");
-                        newCode = newCode.Insert(startIndex, code);
-
-                        File.WriteAllText(newpath, newCode);
-                        AssetDatabase.Refresh();
-                    }
-                    else
-                    {
-                        Debug.LogError("没有 写入成功，请检查 >>begin <<end 标识 是否是成对，且顺序正确，参考 Template_UIScript.txt ！");
-                    }
-                }
-                else
-                {
-                    Debug.LogError("没有 写入成功，请检查 有没有 >>begin <<end 标识，参考 Template_UIScript.txt ！");
-                }
+                Log.ERROR($"uibinder generate cs: {newpath}");
             }
         }
     }
